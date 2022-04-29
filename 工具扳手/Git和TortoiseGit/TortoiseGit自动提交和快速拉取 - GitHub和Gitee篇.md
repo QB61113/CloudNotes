@@ -1,6 +1,6 @@
-# TortoiseGit提交代码和快速拉取
+# TortoiseGit自动提交和快速拉取 - GitHub和Gitee篇
 
-## 一、TortoiseGit提交代码
+## 一、TortoiseGit提交
 
 1. 下载Git两个软件，按下图顺序下载
 
@@ -54,7 +54,7 @@
 
 
 
-## 二、提交代码
+## 二、提交
 
 1. 右击---->Git提交（Git Create ……）
 

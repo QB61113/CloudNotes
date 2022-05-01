@@ -1,8 +1,6 @@
-Mybatis
+# Mybatis
 
----
-
-<br>
+<hr>
 
 # 1、Mybatis简介
 
@@ -13,8 +11,6 @@ Mybatis
 **Mybatis**可以使用简单的xml或注解来配置和映射原生类型、接口和Java的POJO（Plain Old Objects，普通老式Java对象）为数据库中的记录。
 
 **Mybatis**本是Apache的一个开源项目，2013年迁移到GitHub。
-
-<br>
 
 ## 1.2 获取Mybatis
 
@@ -30,6 +26,8 @@ Mybatis
 
 ```
 
+​	
+
 ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133612.png)
 
 
@@ -40,7 +38,7 @@ Mybatis
 
 ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220429232914.png)
 
-
+​	
 
 **GitHub仓库：**[https://github.com/](https://github.com/)
 ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133659.png)
@@ -53,28 +51,22 @@ Mybatis
 
 **中文帮助文档：**[https://github.com/tuguangquan/mybatis](https://github.com/tuguangquan/mybatis)
 
-<br>
-
-## 1.3 持久化
+## 1.3 持久化与持久层
 
 数据持久化
 **持久化**就是将程序的数据在持久状态和瞬时状态转化的过程。
 内存的特性：**断电即失。**
 
-
+​	
 
 **为什么需要持久化？**
 有一些对象，不能让他丢掉。内存太贵。
 
-<br>
-
-## 1.4 持久层
+​	
 
 **持久层**：完成持久化工作的代码块。**层**是界限十分明显的。
 
-<br>
-
-## 1.5 为什么需要Mybatis？
+## 1.4 为什么需要Mybatis？
 
 帮助程序员将数据存入数据库中。
 特性：方便。传统的JDBC代码太复杂。简化，有现成的框架。自动化操作。
@@ -83,6 +75,8 @@ Mybatis
 ---
 
 <br>
+
+​	
 
 # 2、第一个Mybatis程序
 
@@ -486,11 +480,13 @@ value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;
 
 ---
 
-<br>
+​	
+
+​	
 
 # 3、Mybatis增删改查实现
 
-==重点：==**增删改**需要**提交事务=*
+==重点：==**增删改**需要***提交事务***
 
 ## 3.1 namespace
 
@@ -653,6 +649,8 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 
 <br>
 
+​	
+
 # 4、Map的使用
 
 > 假设，实体类或数据库中的表，字段或者参数过多，应当考虑使用**Map**！
@@ -702,6 +700,8 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 ----
 
 <br>
+
+​	
 
 # 5、模糊查询拓展
 
@@ -754,6 +754,10 @@ public interface UserMapper {
 ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134352.png)
 
 ---
+
+​	
+
+​	
 
 # 6、XML配置解析
 
@@ -1098,6 +1102,8 @@ package方式，使用扫描包记性注入绑定：
 
 <br>
 
+​	
+
 # 7、生命周期和作用域（Scope）
 
 ---
@@ -1131,6 +1137,8 @@ package方式，使用扫描包记性注入绑定：
 ---
 
 <br>
+
+​	
 
 # 8、解决属性名和字段名不一致的问题
 
@@ -1181,6 +1189,8 @@ select id,name,pwd from mybatis.user where id = #{id};
 
 <br>
 
+​	
+
 # 9、resultMap结果集映射
 
 > resultMap  结果集映射
@@ -1221,6 +1231,8 @@ id  name  password
 
 <br>
 
+​	
+
 # 10、日志
 
 ## 10.1 日志工厂
@@ -1244,6 +1256,8 @@ id  name  password
 
 核心配置文件顺序：
 ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134613.png)
+
+​	
 
 **STDOUT_LOGGING标准日志输出**
 在Mybatis核心配置中，配置日志！
@@ -1367,6 +1381,8 @@ static Logger logger = Logger.getLogger(UserMapperTest.class);
 ----
 
 <br>
+
+​	
 
 # 11、分页
 
@@ -1494,6 +1510,8 @@ List<User> getUserByLimit(Map<String, Integer> map);
 
 <br>
 
+​	
+
 # 12、使用注解开发
 
 ## 12.1 面向接口编程
@@ -1585,6 +1603,8 @@ public interface UserMapper {
 
 <br>
 
+​	
+
 # 13、Mybatis执行流程
 
 ![mmexport1650709175727](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423182127.jpg)
@@ -1592,6 +1612,8 @@ public interface UserMapper {
 ---
 
 <br>
+
+​	
 
 # 14、使用注解实现增删改查
 
@@ -1749,6 +1771,8 @@ public class UserMapperTest {
 
 <br>
 
+​	
+
 # 15、Lombok的使用
 
 > Lombok是一个可以通过简单的注解形式来帮助我们简化消除一些必须有但显得很臃肿的Java代码的工具，通过使用对应的注解，可以在编译源码的时候生成对应的方法。
@@ -1757,7 +1781,7 @@ public class UserMapperTest {
 >
 > 缺点：缺少直观的代码，新手可能看不懂结构。等于看不到直观的get、set方法的代码。插件依赖jar包，没有jar包无法使用。
 >
-> 官网帮助文档传送门：https://projectlombok.org/
+> 官网帮助文档传送门：[下载Lombok](https://projectlombok.org/ "Lombok下载网址")
 
 <img src="https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423202247.png" alt="image-20220423202243377" style="zoom:33%;" />
 
@@ -1824,7 +1848,9 @@ public class User {
 
 <br>
 
-# 16、多对一的处理
+​	
+
+# 16、多对一处理
 
 多对一：
 
@@ -1834,7 +1860,7 @@ public class User {
 - 对于学生而言，**关联**：多个学生，关联一个老师【多对一】；
 - 对于老师而言，**集合**：一个老师，有很多学生【一对多】。
 
-
+​	
 
 SQL：
 
@@ -1864,11 +1890,11 @@ INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('4', '小李', '1');
 INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('5', '小王', '1');
 ```
 
-<br>
+​		
 
-### 16.2 复杂测试环境搭建
+## 16.1 测试环境搭建
 
-#### 16.2.1 基本环境准备
+#### 16.1.1 基本环境准备
 
 1. 在pom文件中导入依赖
 
@@ -1896,7 +1922,7 @@ INSERT INTO `student` (`id`, `name`, `tid`) VALUES ('5', '小王', '1');
     </dependencies>
 ```
 
-<br>
+​		
 
 2. Mybatis工具类
 
@@ -1927,9 +1953,9 @@ public class MybatisUtils {
 
 ```
 
-<br>
+​	
 
-3. 核心配置文件
+3. 核心配置文件Mybatis-config.xml
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -1971,9 +1997,9 @@ public class MybatisUtils {
 </configuration>
 ```
 
-<br>
+​	
 
-4. properties文件
+4. properties属性文件
 
 ```properties
 driver=com.mysql.jdbc.Driver
@@ -1982,11 +2008,11 @@ username=root
 password=123456
 ```
 
-<br>
+​	
 
-#### 16.2.2环境搭建
+#### 16.1.2环境搭建
 
-1. 导入Lombok
+1. 在pomxml文件中导入Lombok依赖
    - 安装lombok插件
    - 导入jar包
 
@@ -2000,7 +2026,7 @@ password=123456
 </dependency>
 ```
 
-<br>
+​	
 
 2. 新建实体类Teacher，Student
 
@@ -2025,7 +2051,7 @@ public class Teacher {
 }
 ```
 
-<br>
+​	
 
 3. 建立Mapper接口
 
@@ -2041,7 +2067,7 @@ public interface TeacherMapper {
 }
 ```
 
-
+​	
 
 4. 建立Mapper.xml文件
 
@@ -2065,7 +2091,7 @@ public interface TeacherMapper {
 </mapper>
 ```
 
-<br>
+​	
 
 5. 在核心配置文件中绑定注册Mapper接口或文件
 
@@ -2131,5 +2157,683 @@ public class MyTest {
 }
 ```
 
+​		
+
+#### 16.1.3 目录结构
+
+![image-20220430220418026](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430220419.png)
+
+​	
+
+## 16.2 按照查询嵌套处理
+
+强化16.1测试环境，查询所有学生对应的老师。
+
+修改StudentMapper.xml文件。
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xleixz.mapper.StudentMapper">
+
+    <!--思路：
+    1.查询所有的学生信息
+    2.根据查询的信息的tid，寻找对应的老师-->
+
+    <select id="getStudent" resultMap="StudentTeacher">
+        select *
+        from student;
+    </select>
+    <resultMap id="StudentTeacher" type="Student">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+
+        <!--复杂的属性需要单独处理,对象：association,集合：collection-->
+        <association property="teacher" column="tid" javaType="teacher" select="getTeacher"/>
+    </resultMap>
+
+    <select id="getTeacher" resultType="Teacher">
+        select *
+        from teacher
+        where id = #{id};
+    </select>
+
+</mapper>
+
+```
+
+```java
+public class MyTest {
+
+    @Test
+    public void testStudent(){
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+        List<Student> studentList = mapper.getStudent();
+        for (Student student : studentList) {
+            System.out.println(student);
+        }
+        sqlSession.close();
+    }
+}
+```
 
 
+
+![image-20220430211836307](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430211838.png)
+
+​	
+
+## 16.3 按照结果嵌套处理
+
+==个人推荐使用，因为可以在SQL中调试==
+
+修改StudentMapper.xml文件。
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xleixz.mapper.StudentMapper"> 
+<!--按照结果嵌套处理-->
+    <select id="getStudent2" resultMap="StudentTeacher2">
+        select s.id sid, s.name sname, t.name tname
+        from student s,
+             teacher t
+        where s.tid = t.id;
+    </select>
+    <resultMap id="StudentTeacher2" type="Student">
+        <result property="id" column="sid"/>
+        <result property="name" column="sname"/>
+        <association property="teacher" javaType="teacher">
+                <result property="name" column="tname"/>
+        </association>
+    </resultMap>
+</mapper>
+
+```
+
+​	
+
+测试类。
+
+```java
+public class MyTest {  
+@Test
+    public void testStudent2(){
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+        List<Student> studentList = mapper.getStudent2();
+        for (Student student : studentList) {
+            System.out.println(student);
+        }
+        sqlSession.close();
+    }
+}
+```
+
+
+
+![image-20220430213517684](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430213520.png)
+
+​	
+
+## 16.4 回顾MySQL多对一查询方式
+
+- 子查询（按照查询嵌套处理）
+- 联表查询（按照结果嵌套处理）
+
+---
+
+​	
+
+​	
+
+# 17、一对多处理
+
+比如：一个老师拥有多个学生，对于老师而言就是一对多的关系。一个老师对应多个学生。
+
+1. 仍然是[环境搭建](#16.1 测试环境搭建 "16.1 测试环境搭建")，清除不需要的东西。
+
+实体类Teacher的修改：
+
+```java
+@Data
+public class Teacher {
+
+    private int id;
+    private String name;
+
+    //一个老师拥有多个学生
+    private List<Student> students;
+}
+```
+
+​	
+
+实体类Student的修改：
+
+```java
+@Data
+@NoArgsConstructor
+public class Student {
+
+    private int id;
+    private String name;
+    private int tid;
+}
+```
+
+​	
+
+2. 目录结构
+
+![image-20220430230526225](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430230527.png)
+
+​	
+
+## 17.1 按照结果嵌套处理
+
+TeacherMapper.xml文件：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xleixz.mapper.TeacherMapper">
+
+    <!--按结果嵌套处理（联表查询）-->
+    <select id="getTeacher" resultMap="TeacherStudent">
+        select s.id sid, s.name sname, t.name tname, t.id tid
+        from student s,
+             teacher t
+        where s.tid = t.id
+          and t.id = #{tid}
+    </select>
+
+    <resultMap id="TeacherStudent" type="Teacher">
+
+        <result property="id" column="tid"/>
+        <result property="name" column="tname"/>
+
+        <!--JavaType - 指定属性的类型
+        集合中的泛型信息，使用OfType获取-->
+        <collection property="students" ofType="Student">
+            <result property="id" column="sid"/>
+            <result property="name" column="sname"/>
+            <result property="tid" column="tid"/>
+        </collection>
+
+    </resultMap>
+    </mapper>
+```
+
+​	
+
+测试类：
+
+```java
+ @Test
+    public void test1() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        TeacherMapper mapper = sqlSession.getMapper(TeacherMapper.class);
+        Teacher teacher = mapper.getTeacher(1);
+        System.out.println(teacher);
+        sqlSession.close();
+    }
+```
+
+​	
+
+## 17.2 按照查询嵌套处理
+
+TeacherMapper.xml文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xleixz.mapper.TeacherMapper">
+
+    <!--按子查询嵌套处理（子查询）-->
+    <select id="getTeacher2" resultMap="TeacherStudent2">
+        select *
+        from teacher
+        where id = #{tid}
+    </select>
+    <resultMap id="TeacherStudent2" type="Teacher">
+        <collection property="students" column="id" javaType="ArrayList" ofType="Student"
+                    select="getTeacherByTeacherId"/>
+    </resultMap>
+
+    <select id="getTeacherByTeacherId" resultType="Student">
+        select *
+        from student
+        where tid = #{tid}
+    </select>
+
+
+</mapper>
+```
+
+​	
+
+测试类：
+
+```java
+@Test
+    public void test2() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        TeacherMapper mapper = sqlSession.getMapper(TeacherMapper.class);
+        Teacher teacher = mapper.getTeacher(1);
+        System.out.println(teacher);
+        sqlSession.close();
+    }
+```
+
+![image-20220430225645743](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430225647.png)
+
+---
+
+​	
+
+​	
+
+# 18、总结多对一和一对多
+
+1. 关联 - association（多对一）
+
+2. 集合 - collection（一对多）
+3. JavaType：用来指定实体类中属性我的类型。
+4. OfType：用来指定映射到List或集合中的pojo类型，泛型中的约束类型。
+
+​	
+
+注意点：
+
+- 保证SQL的可读性，尽量保证通俗易懂。
+- 注意一对多和多对一中，属性名和字段的问题。
+- 如果问题不好排查错误，可以使用日志，建议使用Log4j
+
+---
+
+​		
+
+​	
+
+# 19、动态SQL
+
+什么是动态SQL？
+
+> 动态SQL是指根据不同的条件生成不同的SQL语句。
+
+动态 SQL 是 MyBatis 的强大特性之一。如果你使用过 JDBC 或其它类似的框架，你应该能理解根据不同条件拼接 SQL  语句有多痛苦，例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL，可以彻底摆脱这种痛苦。
+
+使用动态 SQL 并非一件易事，但借助可用于任何 SQL 映射语句中的强大的动态 SQL 语言，MyBatis 显著地提升了这一特性的易用性。
+
+> - if
+> - choose (when, otherwise)
+> - trim (where, set)
+> - foreach
+
+​		
+
+## 19.1 动态SQL - 环境搭建
+
+**创建一个SQL表，**`字段：id，title，author，create_time，views`。
+
+```mysql
+CREATE TABLE `blog` (
+`id` varchar(50) NOT NULL COMMENT '博客id',
+`title` varchar(100) NOT NULL COMMENT '博客标题',
+`author` varchar(30) NOT NULL COMMENT '博客作者',
+`create_time` datetime NOT NULL COMMENT '创建时间',
+`views` int(30) NOT NULL COMMENT '浏览量'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+```
+
+​	
+
+**创建一个基础工程**
+
+目录结构：
+
+<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220501220443.png" alt="image-20220501220442096" style="zoom:50%;" />
+
+​		
+
+1. 在`pom.xml`文件导包
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>Mybatis-Study</artifactId>
+        <groupId>org.example</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>Mybatis-SQL</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+​		
+
+2. MybatisUtils工具类
+
+```java
+//工具类
+//sqlSessionFactory  工厂模式
+
+public class MybatisUtils {
+
+    private static SqlSessionFactory sqlSessionFactory;
+
+    static {
+
+
+        try {
+            //使用Mybatis第一步，必须要做！！！
+            //获取SqlSessionFactory对象
+            String resource = "mybatis-config.xml";
+            InputStream inputStream = Resources.getResourceAsStream(resource);
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    public static SqlSession getSqlSession() {
+        //openSession方法的自动提交设置为true就会自动提交了
+        return sqlSessionFactory.openSession(true);
+    }
+}
+```
+
+​		
+
+3. properties属性
+
+```properties
+driver=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8
+username=root
+password=123456
+```
+
+​	
+
+4. 核心配置文件`Mybatis-config.xml`
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!--configuration核心配置文件-->
+<configuration>
+
+    <!--引入外部配置文件-->
+    <properties resource="db.properties">
+    </properties>
+
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+
+        <!--是否开启驼峰命名自动映射，即从经典数据库列名 A_COLUMN 映射到经典 Java 属性名 aColumn。 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <!--可以给实体类起别名-->
+    <typeAliases>
+        <typeAlias type="com.xleixz.pojo.Blog" alias="Blog"/><!--alias起别名-->
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <!--transactionManager事务管理-->
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <!--防止出现问号-->
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <mapper class="com.xleixz.mapper.BlogMapper"/>
+    </mappers>
+
+</configuration>
+
+```
+
+​		
+
+5. 编写实体类
+
+```java
+@Data
+public class Blog {
+
+    private String id;
+    private String title;
+    private String author;
+    private Date createTime;
+    private int views;
+}
+```
+
+​		
+
+6. 实体类对应的`Mapper接口`和`Mapper.xml`文件。
+
+接口：
+
+```java
+public interface BlogMapper {
+
+    //插入数据
+    //新增一个博客
+    int addBlog(Blog blog);
+}
+```
+
+​	
+
+sql配置文件：
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xleixz.mapper.BlogMapper">
+
+    <insert id="addBlog" parameterType="blog">
+        insert into blog(id,title, author, create_time ,views)
+        values (#{id},#{title}, #{author}, #{createTime}, #{views});
+    </insert>
+
+</mapper>
+
+```
+
+​	
+
+7. 拓展（IDUtils工具类）
+
+```java
+//抑制警告，让黄色警告不提示
+@SuppressWarnings("all")
+public class IDUtils {
+
+    public static String getId() {
+
+        //获取UUID,生成随机数
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+}
+```
+
+​	
+
+8. 测试类（初始化数据）
+
+```java
+public class MyTest {
+
+    @Test
+    public void addBlogTest() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        BlogMapper mapper = sqlSession.getMapper(BlogMapper.class);
+        Blog blog = new Blog();
+        blog.setId(IDUtils.getId());
+        blog.setTitle("Mybatis");
+        blog.setAuthor("狂神说");
+        blog.setCreateTime(new Date());
+        blog.setViews(9999);
+
+        mapper.addBlog(blog);
+
+        blog.setId(IDUtils.getId());
+        blog.setTitle("Java");
+        mapper.addBlog(blog);
+
+        blog.setId(IDUtils.getId());
+        blog.setTitle("Spring");
+        mapper.addBlog(blog);
+
+        blog.setId(IDUtils.getId());
+        blog.setTitle("微服务");
+        mapper.addBlog(blog);
+
+        sqlSession.close();
+    }
+}
+```
+
+初始化数据完毕！
+
+​	
+
+## 19.2 动态SQL - IF语句
+
+> 作用：相当于SQL中的IF语句检索查询
+>
+> 官网定义的固定格式：`if中的test为固定`
+>
+> ```xml
+> <select id="xxxxxxxx"
+>      resultType="Blog">
+>   SELECT * FROM BLOG
+>   WHERE xxxxx = ‘xxxxxx’
+>   <if test="title != null">
+>     AND title like #{title}
+>   </if>
+> </select>
+> ```
+
+1. 接口
+
+```java
+//需求1
+//查询博客
+    List<Blog> queryBlogIF(Map map);
+```
+
+​	
+
+2. Mapper.xml文件编写SQL
+
+```xml
+<!--需求1：
+根据作者名字和博客名字来查询博客！
+如果作者名字为空，那么只根据博客名字查询，反之，则根据作者名来查询
+select * from blog where title = #{title} and author = #{author}
+-->
+<select id="queryBlogIF" parameterType="map" resultType="blog">
+        select *
+        from blog
+        where 1 = 1
+        <if test="title != null">
+            and title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </select>
+```
+
+​	
+
+3. 测试类
+
+```java
+ @Test
+    public void queryBlogIF() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        BlogMapper mapper = sqlSession.getMapper(BlogMapper.class);
+
+        HashMap map = new HashMap();
+
+        map.put("title", "Java");
+
+        List<Blog> blogs = mapper.queryBlogIF(map);
+        for (Blog blog : blogs) {
+
+            System.out.println(blog);
+        }
+
+        sqlSession.close();
+    }
+```
+
+根据`map.put`的内容，检索查询。
+
+​	
+
+![image-20220501223240195](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220501223242.png)
+
+​	
+
+## 19.3 动态SQL - 

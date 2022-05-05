@@ -3123,3 +3123,280 @@ public void testQueryBlogForeach(){
 
 ## 20.1 Mybatis缓存
 
+Mybatis包含一个非常强大的缓存特性，它可以非常方便地定制和配置缓存。缓存可以极大的提升查询效率。
+
+Mybatis系统中默认定义了两级缓存：**一级缓存**和**二级缓存**
+
+- 默认情况下，只有一级缓存开启。（SqlSession级别的缓存，也称为本地缓存）
+- 二级缓存需要手动开启和配置，它是基于namespace级别的缓存。
+- 为了提高扩展性，Mybatis定义了缓存接口Cache。我们可以通过实现Cache接口来自定义二级缓存。
+
+​		
+
+## 20.2 一级缓存
+
+一级缓存也叫本地缓存：SqlSession
+
+- 与数据库同一次会话期间查询到的数据会放在本地缓存中。
+- 以后如果需要获取相同的数据，直接从缓存中获取，没必要再去查询数据库。
+
+​	
+
+**测试步骤**
+
+1. 开启日志【mybatis-config.xml】！
+
+```xml
+  <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+```
+
+2. 编写接口【UserMapper.java】。
+
+```java
+//根据id查询用户
+User queryUserById(@Param("id") int id);
+```
+
+3. 接口对应的Mapper文件【UserMapper.xml】。
+
+```xml
+<select id="queryUserById" resultType="user">
+  select * from user where id = #{id}
+</select>
+```
+
+4. 测试在一个Session中查询两次相同的记录【MyTest.java】。
+
+```java
+@Test
+    public void test1() {
+
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+
+        User user = mapper.queryUserById(1);
+        System.out.println(user);
+
+        System.out.println("===========");
+
+        User user2 = mapper.queryUserById(1);
+        System.out.println(user2);
+
+        System.out.println(user == user2);
+        
+        sqlSession.close();
+    }
+```
+
+5. 查看日志输出。
+
+![image-20220505191758746](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505191802.png)
+
+​	
+
+**缓存失效的情况：**
+
+1. 查询不同的东西。
+
+2. 增删改操作，可能会改变原来的数据，所以必定会刷新缓存！
+
+<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505211836.png" alt="image-20220505211832395" style="zoom:50%;" />
+
+3. 查询不同的Mapper.xml。
+
+4. 手动清理缓存！
+
+```java
+//手动清理缓存
+sqlSession.clearCache();
+```
+
+<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505212055.png" alt="image-20220505212053444" style="zoom: 50%;" />
+
+​	
+
+> 小结：**一级缓存是默认开启的，只在一次SqlSession中有效，也就是拿到连接到关闭连接这个区间段！**
+>
+> 一级缓存就是一个Map，用的时候取，用完就崩掉不用了。
+
+​	
+
+## 20.3 二级缓存
+
+二级缓存也叫全局缓存，一级缓存作用域太低了，所以诞生了二级缓存。
+
+基于namespace级别的缓存，一个名称空间，对应一个二级缓存；
+
+工作机制：
+
+- 一个会话查询一条数据，这个数据就会被放在当前会话的一级缓存中；
+- 如果当前会话关闭了，这个会话对应的一级缓存就没了；但是我们想要的是，会话关闭了，一级缓存中的数据被保存到二级缓存中；
+- 新的会话查询信息，就可以从二级缓存中获取内容；
+- 不同的mapper查出的数据会放在自己对应的缓存（map）中；
+
+​	
+
+**测试步骤**
+
+1. 开启全局缓存【mybatis-config.xml】。
+
+```xml
+<setting name="cacheEnabled" value="true"/>
+```
+
+2. 在要使用二级缓存的Mapper中开启【xxxxMapper.xml】（一般`<cache/>`就够了）。
+
+```xml
+<!--使用二级缓存-->
+<cache/>
+```
+
+也可以自定义参数，**官方示例**[查看官方文档](https://mybatis.org/mybatis-3/zh/sqlmap-xml.html#cache)
+
+```xml
+<!--使用二级缓存-->
+<cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"/>
+<!--这个更高级的配置创建了一个 FIFO 缓存，每隔 60 秒刷新，最多可以存储结果对象或列表的 512 个引用，而且返回的对象被认为是只读的，因此对它们进行修改可能会在不同线程中的调用者产生冲突。-->
+```
+
+3. 测试
+
+<font color="red">报错问题：</font>需要将实体类序列化！！！否则就会报错。
+
+<font color="green">解决：</font>在`<cache/>`标签中加入`redonly=true`即可。
+
+```java
+@Test
+    public void test1() {
+
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        SqlSession sqlSession2 = MybatisUtils.getSqlSession();
+
+        UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+        User user = mapper.queryUserById(1);
+        System.out.println(user);
+        sqlSession.close();
+
+
+        /*二级缓存*/
+        UserMapper mapper2 = sqlSession2.getMapper(UserMapper.class);
+        User user2 = mapper2.queryUserById(1);
+        System.out.println(user2);
+
+        System.out.println(user == user2);
+
+        sqlSession2.close();
+    }
+```
+
+当第一次缓存关闭后，会存入二级缓存，无需再查询数据库。
+
+![image-20220505220932286](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505220933.png)
+
+​		
+
+> 小结：
+>
+> 只要开启了二级缓存，在同一个Mapper下就有效。
+>
+> 所有的数据都会先放在一级缓存中；
+>
+> 只有会话提交或者关闭以后，一级缓存中的数据才会转到二级缓存中。
+
+​	
+
+## 20.4 缓存原理
+
+![image-20220505221701665](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505221703.png)
+
+​	
+
+## 20.5 自定义缓存EhCache
+
+Ehcache是一种广泛使用的java分布式缓存，用于通用缓存；
+
+现在使用较少，目前已经广泛使用[Redis缓存](https://baike.baidu.com/item/Redis%E7%BC%93%E5%AD%98/18778961#:~:text=Redis%E7%BC%93%E5%AD%98%E6%98%AF,%E7%A7%8D%E8%AF%AD%E8%A8%80%E7%9A%84API%E3%80%82)。
+
+<font color="red">需要：</font>要在应用程序中使用Ehcache，需要引入依赖的jar包【pom.xml】。
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.mybatis.caches/mybatis-ehcache -->
+<dependency>
+   <groupId>org.mybatis.caches</groupId>
+   <artifactId>mybatis-ehcache</artifactId>
+   <version>1.1.0</version>
+</dependency>
+```
+
+​	
+
+1. 在Mapper.xml中加入缓存配置。
+
+```xml'
+   <cache type = “org.mybatis.caches.ehcache.EhcacheCache” />
+```
+
+2. 编写`ehcache.xml`文件，<font color="red">如果在加载时未找到`/ehcache.xml`资源或出现问题</font>，则将使用默认配置。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+        updateCheck="false">
+   <!--
+      diskStore：为缓存路径，ehcache分为内存和磁盘两级，此属性定义磁盘的缓存位置。参数解释如下：
+      user.home – 用户主目录
+      user.dir – 用户当前工作目录
+      java.io.tmpdir – 默认临时文件路径
+    -->
+   <diskStore path="./tmpdir/Tmp_EhCache"/>
+   
+   <defaultCache
+           eternal="false"
+           maxElementsInMemory="10000"
+           overflowToDisk="false"
+           diskPersistent="false"
+           timeToIdleSeconds="1800"
+           timeToLiveSeconds="259200"
+           memoryStoreEvictionPolicy="LRU"/>
+
+   <cache
+           name="cloud_user"
+           eternal="false"
+           maxElementsInMemory="5000"
+           overflowToDisk="false"
+           diskPersistent="false"
+           timeToIdleSeconds="1800"
+           timeToLiveSeconds="1800"
+           memoryStoreEvictionPolicy="LRU"/>
+   <!--
+      defaultCache：默认缓存策略，当ehcache找不到定义的缓存时，则使用这个缓存策略。只能定义一个。
+    -->
+   <!--
+     name:缓存名称。
+     maxElementsInMemory:缓存最大数目
+     maxElementsOnDisk：硬盘最大缓存个数。
+     eternal:对象是否永久有效，一但设置了，timeout将不起作用。
+     overflowToDisk:是否保存到磁盘，当系统当机时
+     timeToIdleSeconds:设置对象在失效前的允许闲置时间（单位：秒）。仅当eternal=false对象不是永久有效时使用，可选属性，默认值是0，也就是可闲置时间无穷大。
+     timeToLiveSeconds:设置对象在失效前允许存活时间（单位：秒）。最大时间介于创建时间和失效时间之间。仅当eternal=false对象不是永久有效时使用，默认是0.，也就是对象存活时间无穷大。
+     diskPersistent：是否缓存虚拟机重启期数据 Whether the disk store persists between restarts of the Virtual Machine. The default value is false.
+     diskSpoolBufferSizeMB：这个参数设置DiskStore（磁盘缓存）的缓存区大小。默认是30MB。每个Cache都应该有自己的一个缓冲区。
+     diskExpiryThreadIntervalSeconds：磁盘失效线程运行时间间隔，默认是120秒。
+     memoryStoreEvictionPolicy：当达到maxElementsInMemory限制时，Ehcache将会根据指定的策略去清理内存。默认策略是LRU（最近最少使用）。你可以设置为FIFO（先进先出）或是LFU（较少使用）。
+     clearOnFlush：内存数量最大时是否清除。
+     memoryStoreEvictionPolicy:可选策略有：LRU（最近最少使用，默认策略）、FIFO（先进先出）、LFU（最少访问次数）。
+     FIFO，first in first out，这个是大家最熟的，先进先出。
+     LFU， Less Frequently Used，就是上面例子中使用的策略，直白一点就是讲一直以来最少被使用的。如上面所讲，缓存的元素有一个hit属性，hit值最小的将会被清出缓存。
+     LRU，Least Recently Used，最近最少使用的，缓存的元素有一个时间戳，当缓存容量满了，而又需要腾出地方来缓存新的元素的时候，那么现有缓存元素中时间戳离当前时间最远的元素将被清出缓存。
+  -->
+
+</ehcache>
+```
+
+​	
+
+​	
+

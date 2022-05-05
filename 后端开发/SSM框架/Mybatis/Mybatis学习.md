@@ -232,7 +232,25 @@ Mybatis-config.xml（注意这里[测试常见报错）](#abN9C)
 
 <br>
 
-## 2.4 编写代码
+## 2.4 IDEA连接数据库（可选）
+
+> 为了方便显示数据库内的数据，可在IDEA中连接数据库。
+
+1. 点击`Database`，点击`+`号，添加**Data Source**中的`MySQL`，
+
+<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220504181711.png" alt="image-20220504181709291" style="zoom: 67%;" />
+
+2. 在**General**中输入`User`（账号）、`Password`（密码），点击`Test Connection`测试连接，成功后点击`Schemas`。
+
+<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220504181914.png" alt="image-20220504181912860" style="zoom:67%;" />
+
+3. 在`Schemas`中勾选需要用到的数据库，点击OK即可。
+
+<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220504182107.png" alt="image-20220504182105620" style="zoom:67%;" />
+
+​	
+
+## 2.5 编写代码
 
 1. **实体类**
 
@@ -338,7 +356,7 @@ public interface UserDao {
 
 <br>
 
-## 2.5 测试
+## 2.6 测试
 
 1. **Junit测试**
 
@@ -419,7 +437,7 @@ public class UserDaoTest<userList> {
 
 <br>
 
- ## 2.6 错误分析
+ ## 2.7 错误分析
 
 1. **常见报错类型一**
 
@@ -1848,7 +1866,7 @@ public class User {
 
 <br>
 
-​	
+​		
 
 # 16、多对一处理
 
@@ -2470,13 +2488,13 @@ TeacherMapper.xml文件
 
 ​		
 
-​	
+​		
 
 # 19、动态SQL
 
 什么是动态SQL？
 
-> 动态SQL是指根据不同的条件生成不同的SQL语句。
+> **动态SQL是指根据不同的条件生成不同的SQL语句。**
 
 动态 SQL 是 MyBatis 的强大特性之一。如果你使用过 JDBC 或其它类似的框架，你应该能理解根据不同条件拼接 SQL  语句有多痛苦，例如拼接时要确保不能忘记添加必要的空格，还要注意去掉列表最后一个列名的逗号。利用动态 SQL，可以彻底摆脱这种痛苦。
 
@@ -2489,7 +2507,7 @@ TeacherMapper.xml文件
 
 ​		
 
-## 19.1 动态SQL - 环境搭建
+## 19.1 环境搭建
 
 **创建一个SQL表，**`字段：id，title，author，create_time，views`。
 
@@ -2756,22 +2774,20 @@ public class MyTest {
 
 ​	
 
-## 19.2 动态SQL - IF语句
+## 19.2 IF
 
 > 作用：相当于SQL中的IF语句检索查询
 >
 > 官网定义的固定格式：`if中的test为固定`
 >
 > ```xml
-> <select id="xxxxxxxx"
->      resultType="Blog">
->   SELECT * FROM BLOG
->   WHERE xxxxx = ‘xxxxxx’
->   <if test="title != null">
->     AND title like #{title}
->   </if>
-> </select>
-> ```
+> <select id="xxxxxxxx" resultType="Blog">
+>         SELECT * FROM BLOG WHERE xxxxx = ‘xxxxxx’
+>    	<if test="title != null">
+>    		AND title like #{title}
+>   	</if>
+>    </select>
+>   ```
 
 1. 接口
 
@@ -2836,4 +2852,274 @@ select * from blog where title = #{title} and author = #{author}
 
 ​	
 
-## 19.3 动态SQL - 
+## 19.3 choose、when、otherwise
+
+> 有时候，我们不想使用所有的条件，而只是想从多个条件中选择一个使用。针对这种情况，MyBatis 提供了 choose 元素，它有点像 Java 中的 switch 语句。
+>
+> ```xml
+> <select>
+> 	select * from 表
+>     <where>
+>     	<choose>
+>             ……
+>         </choose>
+>         <choose>
+>         	and ……
+>         </choose>
+>         <otherwise>
+>         	and ……
+>         </otherwise>
+>     </where>
+> </select>
+> ```
+
+只要找到满足的`<when>`，下面的都不会执行，跟Switch中的`case`原理一样。
+
+```xml
+<select id="queryBlogchoose" parameterType="map" resultType="blog">
+        select * from blog
+        <where>
+            <choose>
+                <when test="title != null">
+                    title = #{title}
+                </when>
+                <when test="author != null">
+                    and author = #{author}
+                </when>
+                <otherwise>
+                    and views = #{views}
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+```
+
+​	
+
+## 19.4 trim(where、set)
+
+**where**
+
+> *where* 元素只会在子元素返回任何内容的情况下才插入 “WHERE” 子句。而且，若子句的开头为 “AND” 或 “OR”，*where* 元素也会将它们`(and)、(or)`去除。
+>
+> ```xml
+> <select>
+> 	select * from 表
+>     <where>
+>         <if title="">
+>         	   ……
+>         </if>
+>     	<if title="">
+>             and ……
+>         </if>
+>     </where>
+> </select>
+> ```
+
+使用where标签后SQL语句写`select * from 表`即可，无需写where，同时能将if标签中的`and`、`or`去掉，保证字符串正确拼接。相当于`select * from blog where title = #{title}`。
+
+当使用where标签后，<where>里什么都不写，它也会自动取出where。相当于`select * from blog`。
+
+**例如：**
+
+```xml
+<select id="queryBlogIF" parameterType="map" resultType="blog">
+        select *
+        from blog
+        <where>
+            <if test="title != null">
+                title = #{title}
+            </if>
+            <if test="author != null">
+                and author = #{author}
+            </if>
+        </where>
+    </select>
+```
+
+​	
+
+**set**
+
+> 用于动态更新语句的类似解决方案叫做 *set*。*set* 元素会动态地在行首插入 SET 关键字，并会**删掉**额外的逗号。
+>
+> ```xml
+> <update>
+> 	update 表
+>     <set>
+>         <if title = "">
+>        		 ……,
+>         </if>
+>         <if title = "">
+>         	 ……,
+>         </if>
+>     </set>
+>    		where id = #{id};
+> </update>
+> ```
+
+**例如：**
+
+```xml
+<!--记得加上逗号-->
+    <update id="updateBlog" parameterType="map">
+        update blog
+
+        <set>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="author != null">
+                author = #{author}
+            </if>
+        </set>
+            where id = #{id};
+    </update>
+```
+
+​	
+
+**trim**
+
+> 与 *set* 元素等价的自定义 *trim* 元素。
+
+```xml
+<trim prefix="SET" suffixOverrides=",">
+  ...
+</trim>
+```
+
+​	
+
+**所谓的动态SQL，本质还是SQL语句，只是我们可以在SQL层面，去执行一个逻辑代码。**
+
+​	
+
+## 19.5 foreach
+
+> **不常用**
+>
+> 动态 SQL 的另一个常见使用场景是对集合进行遍历（尤其是在构建 IN 条件语句的时候）。
+
+准备：将数据库中前三个数据的id修改为1,2,3；
+
+需求：我们需要查询 blog 表中 id 分别为1,2,3的博客信息
+
+1. 接口
+
+```java
+List<Blog> queryBlogForeach(Map map);
+```
+
+2. 编写SQL语句
+
+```xml
+<select id="queryBlogForeach" parameterType="map" resultType="blog">
+  select * from blog
+   <where>
+       <!--
+       collection:指定输入对象中的集合属性
+       item:每次遍历生成的对象
+       open:开始遍历时的拼接字符串
+       close:结束时拼接的字符串
+       separator:遍历对象之间需要拼接的字符串
+       select * from blog where 1=1 and (id=1 or id=2 or id=3)
+     -->
+       <foreach collection="ids"  item="id" open="and (" close=")" separator="or">
+          id=#{id}
+       </foreach>
+   </where>
+</select>
+```
+
+3. 测试
+
+```java
+@Test
+public void testQueryBlogForeach(){
+   SqlSession session = MybatisUtils.getSession();
+   BlogMapper mapper = session.getMapper(BlogMapper.class);
+
+   HashMap map = new HashMap();
+   List<Integer> ids = new ArrayList<Integer>();
+   ids.add(1);
+   ids.add(2);
+   ids.add(3);
+   map.put("ids",ids);
+
+   List<Blog> blogs = mapper.queryBlogForeach(map);
+
+   System.out.println(blogs);
+
+   session.close();
+}
+```
+
+​	
+
+## 19.6 SQL片段
+
+有的时候，我们可能会将一些公共我的部分抽取出来，方便复用。
+
+1. 使用`<SQL>`标签抽取公共的部分。
+2. 在需要的地方使用`<include>`标签引用即可。
+
+```xml
+ <!--SQL片段-->
+    <sql id="if-title-author">
+        <if test="title != null">
+            title = #{title}
+        </if>
+        <if test="author != null">
+            and author = #{author}
+        </if>
+    </sql>
+
+<select id="queryBlogIF" parameterType="map" resultType="blog">
+        select *
+        from blog
+        <where>
+            <include refid="if-title-author"/>
+        </where>
+    </select>
+```
+
+​	
+
+**注意：**
+
+- 最好基于单表来定义SQL片段！（不要做太复杂的事情）
+- 不要存在`<where>`标签。
+
+---
+
+​	
+
+​	
+
+# 20、缓存
+
+## 20.1 简介
+
+> 问题：查询需要连接数据库，耗资源。
+>
+> 内存：一次查询的结果，给它暂存在一个可以直接取到的地方（内存），再次查询相同数据的时候，直接走缓存，就不用连接数据库了。
+
+1、什么是缓存 [**Cache**]？
+
+- 存在内存中的临时数据。
+- 将用户经常查询的数据放在缓存（内存）中，用户去查询数据就不用从磁盘上(关系型数据库数据文件)查询，从缓存中查询，从而提高查询效率，解决了高并发系统的性能问题。
+
+2、为什么使用缓存？
+
+- 减少和数据库的交互次数，减少系统开销，提高系统效率。
+
+3、什么样的数据能使用缓存？
+
+- 经常查询并且不经常改变的数据。【可以使用缓存】
+- 不经常查询且经常改变的数据【不可以使用缓存】
+
+​		
+
+## 20.1 Mybatis缓存
+

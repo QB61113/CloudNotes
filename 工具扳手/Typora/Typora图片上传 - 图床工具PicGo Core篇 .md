@@ -1,4 +1,4 @@
-# Typora图片上传 —— 图床工具PicGo-Core篇 
+# Typora图片自动上传 —— 图床工具PicGo-Core篇 
 
 [TOC]
 
@@ -36,7 +36,7 @@ Markdown是一种轻量级标记语言，排版语法简洁，让人们更多地
 
    ![开源仓库](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423130352.png)
 
-
+​	
 
 - [x] 右上角个人头像---->设置---->私人令牌，勾选projects，提交。
 
@@ -93,7 +93,7 @@ Node.js安装传送门：https://nodejs.org/en/
 
 > Everything工具传送门：https://www.voidtools.com/zh-cn/
 
-
+​	
 
 - [x] 分别输入以下安装插件的命令行：
 
@@ -105,7 +105,7 @@ picgo install super-prefix
 picgo install gitee-uploader
 ```
 
-
+​	
 
 - [x] 等待安装成功。
 
@@ -119,7 +119,7 @@ picgo install gitee-uploader
 
 ![image-20220423130848575](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423130850.png)
 
-
+​	
 
 - [x] 编写配置文件。
 
@@ -178,13 +178,13 @@ picgo install gitee-uploader
 
 ![image-20220423133014817](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423133016.png)
 
-
+​	
 
 - [x] 等待验证，验证成功后，**一定要点击下图绿色框框的URL进去看看图片是否能打开**。
 
 ![image-20220423133112375](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423133113.png)
 
-
+​	
 
 - [x] **若成功打开显示图片并且仓库中有图片**，恭喜你成功了，可以开始使用了（**下面就不用看了**）。
 
@@ -192,13 +192,13 @@ picgo install gitee-uploader
 
 ![image-20220423134444456](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423134445.png)
 
-
+​	
 
 - [x] **若打开是验证成功但是出现404页面**，并且编辑器图片显示`Image load failed` ，则说明**配置文件**有问题。
 
 ![image-20220423133528771](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423133530.png)
 
-
+​	
 
 图片显示**Image load failed**
 

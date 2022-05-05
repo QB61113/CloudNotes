@@ -1,9 +1,11 @@
-# CloudNotes
+# JavaSE - 动力节点老杜
 
 #### 介绍
-个人云笔记。
+
+JavaSE笔记 
 
 #### 软件架构
+
 编写工具：Typora
 
 图床工具：PicGo-Core

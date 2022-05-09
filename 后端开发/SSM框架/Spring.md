@@ -101,6 +101,8 @@ Spring就是现代化的Java开发！就是基于SPring的开发！
 
 <font color="green">**分析实现**：</font>先用我们原来的方式写一段实现代码。如下：
 
+**【案例一】**
+
 1. 先写一个UserDao接口
 
 ```java
@@ -266,4 +268,170 @@ Spring的底层全是set方法机制，如果没有set方法，Spring是跑不�
 ​	
 
 # 3、Hello Spring
+
+1. 准备一个实体类【Hello】。
+
+   > 这个实体类中必须存在**set**方法，依赖注入就是利用set方法注入的。
+
+```java
+public class Hello {
+    private String str;
+
+    public String getStr() {
+        return str;
+    }
+
+    public void setStr(String str) {
+        this.str = str;
+    }
+
+    @Override
+    public String toString() {
+        return "Hello{" +
+                "str='" + str + '\'' +
+                '}';
+    }
+}
+```
+
+2. 配置Spring文件【beans.xml】。
+
+   > 使用标签`<bean>`创建对象；
+   >
+   > 传统的创建对象：`类型 变量名 = new 类型();` 或者`对象 变量名 = new 对象();`，例如`Hello hello = new Hello();`
+   >
+   > Spring创建对象：`<bean id="" class="" >`
+   >
+   > ​											 	`<!--属性-->`
+   >
+   > ​												` <property name="" value=""/>`
+   >
+   >  										`</bean>`
+   >
+   > id：变量名（相当于Hello `hello` = new Hello()的hello）
+   >
+   > class：new 的对象（相当于这个实现类`Hello`）
+   >
+   > name：set后面的那部分，**首字母小写**（相当于`setStr`中的`str`）
+   >
+   > property：相当于给对象中的属性设置一个值
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--使用Spring来创建对象，在Spring中这些都被称为Bean
+
+    类型 变量名 = new 类型();
+    对象 变量名 = new 对象();
+    Hello hello = new Hello();
+
+    id = 变量名
+    class = new 的对象;
+    property = 相当于给对象中的属性设置一个值
+
+    -->
+    <bean id="hello" class="com.xleixz.pojo.Hello">
+        <!--属性-->
+        <property name="str" value="Hello Spring!"/>
+    </bean>
+
+</beans>
+```
+
+3. 测试类【MyTest】。
+
+> 获取Spring的上下文对象（固定的），拿到Spring的容器
+>
+> `ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");`
+>
+> 需要什么就get什么，我们的对象现在都在Spring中管理了，我们要使用，直接去`context`里面取出来就可以了
+>
+> `Hello hello = (Hello) context.getBean("hello");`
+
+```java
+public class MyTest {
+
+    @Test
+    public void test1() {
+        //获取Spring的上下文对象（固定的），拿到Spring的容器
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+        //需要什么就get什么
+        //我们的对象现在都在Spring中管理了，我们要使用，直接去里面取出来就可以了
+        Hello hello = (Hello) context.getBean("hello");/*强转*/
+        System.out.println(hello.toString());
+    }
+}
+```
+
+​	
+
+<font color="green">**解析代码：**</font>
+
+- Hello对象是由**Spring**创建的；
+- Hello对象的属性是**Spring容器**设置的。
+
+​	
+
+**这个过程就叫控制反转**：
+
+- 控制：谁来控制对象的创建 , 传统应用程序的对象是由程序本身控制创建的 , **而使用Spring后 , 对象是由Spring来创建的**；
+- 反转 : 程序本身不创建对象 , 而变成被动的接收对象；
+- 依赖注入 : 就是利用**set方法**来进行注入的。
+
+**IOC是一种编程思想，由主动的编程变成被动的接收。**
+
+​	
+
+**用Spring配置修改【案例一】:**
+
+1. 修改【beans.xml】Spring配置。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="mysqlImpl" class="com.xleixz.dao.UserDaoMysqlImpl"/>
+    <bean id="oracleImpl" class="com.xleixz.dao.UserDaoOracleImpl"/>
+    <bean id="UserServiceImpl" class="com.xleixz.service.UserServiceImpl">
+        <!--
+		注意: 这里的name并不是属性，而是set方法后面的那部分，首字母小写
+        ref：引用Spring容器中创建好的对象
+        value：具体的值，基本数据类型！
+        -->
+        <property name="userDao" ref="mysqlImpl"/>
+    </bean>
+</beans>
+```
+
+2. 【MyTest.java】测试类
+
+```java
+@Test
+    public void test() {
+        //获取ApplicationContext ：拿到Spring的容器
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        //需要什么就get什么
+        UserServiceImpl userServiceImpl = (UserServiceImpl) context.getBean("UserServiceImpl");
+        
+        userServiceImpl.getUser();
+    }
+```
+
+​	
+
+从此以后就不需要改动代码了，要实现不同的操作 , 只需要在xml配置文件中进行修改即可。
+
+一句话总结：**对象由Spring 来创建 , 管理 , 装配 ! **
+
+​	
+
+
 

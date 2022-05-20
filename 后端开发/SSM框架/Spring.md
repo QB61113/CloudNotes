@@ -1,5 +1,7 @@
 # Spring
 
+---
+
 # 1、Spring简介
 
 **Spring发展**
@@ -90,8 +92,6 @@ Spring就是现代化的Java开发！就是基于SPring的开发！
 目前大部分公司都在使用SpringBoot进行快速开发，学习SpringBoot的前提是需要完全掌握**Spring**及**SpringMVC**！
 
 ---
-
-​	
 
 ​	
 
@@ -265,8 +265,6 @@ Spring的底层全是set方法机制，如果没有set方法，Spring是跑不�
 
 ​	
 
-​	
-
 # 3、Hello Spring
 
 1. 准备一个实体类【Hello】。
@@ -429,13 +427,11 @@ public class MyTest {
 
 从此以后就不需要改动代码了，要实现不同的操作 , 只需要在xml配置文件中进行修改即可。
 
-一句话总结：**对象由Spring 来创建 , 管理 , 装配 ! **
-
-​	
-
-​	
+一句话总结：**对象由Spring 来创建 , 管理 , 装配 ! **	
 
 ---
+
+​	
 
 # 4、IOC创建对象的方式
 

@@ -2,12 +2,12 @@
 
 **方法一**
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425153000.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425153000.png" alt="20220425153000" style="zoom:67%;" />
 
-<br>
+​	
 
 **方法二**
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425153101.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425153101.png" alt="20220425153101" style="zoom:50%;" />
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425153108.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425153108.png" alt="20220425153108" style="zoom: 50%;" />

@@ -20,41 +20,41 @@
 
 1. 使用Putty工具解决每次pull和push都需要输入账号密码的问题
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425145538" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425145538.png" alt="20220425145538" style="zoom:50%;" />
 
-​	
+​		
 
 2. 点击Generate，要来回在框内来回滑动鼠标
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425145647" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425145647.png" alt="20220425145647" style="zoom:50%;" />
 
- 	
+ 		
 
 3. 全选复制完之后，点击save Private key 按钮，保存.ppk文件，名字自取
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425145728)
+![20220425145728](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425145728.png)
 
 ​		
 
 4. 将刚刚复制的公钥粘贴到Gitee---->头像---->设置---->SSH公钥处，点击确定
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425145748" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425145748.png" alt="20220425145748" style="zoom:50%;" />
 
-​	
+​		
 
 5. 打开Pageant
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425145828" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425145828.png" alt="20220425145828" style="zoom:50%;" />
 
-​	
+​		
 
 6. 点击Add Key ，找到刚刚保存的.ppl文件，添加进来
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425145847)
+![20220425145847](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425145847.png)
 
 ​	
 
 7. 到仓库复制SSH密钥后，克隆即可，**记得指明加载putty密钥位置**
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425150039" alt="img" style="zoom: 50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425150039.png" alt="20220425150039" style="zoom:50%;" />
 

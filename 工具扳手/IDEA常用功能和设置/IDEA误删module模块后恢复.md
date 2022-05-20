@@ -1,7 +1,7 @@
-# IDEA误删module模块后恢复
+IDEA误删module模块后恢复
 
 > 步骤
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425153449.png" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425153449.png" alt="20220425153449" style="zoom: 67%;" />
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425153457.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425153457.png" alt="20220425153457" style="zoom:50%;" />

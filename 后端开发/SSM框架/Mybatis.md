@@ -28,26 +28,26 @@
 
 ​	
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133612.png)
+![20220424133612](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133612.png)
 
+​	
 
+![20220424133619](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133619.png)
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133619.png)
+​	
 
-
-
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220429232914.png)
+![20220429232914](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220429232914.png)
 
 ​	
 
 **GitHub仓库：**[https://github.com/](https://github.com/)
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133659.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133659.png" alt="20220424133659" style="zoom:50%;" />
 
+​	
 
+![20220424133716](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133716.png)
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133716.png)
-
-
+​	
 
 **中文帮助文档：**[https://github.com/tuguangquan/mybatis](https://github.com/tuguangquan/mybatis)
 
@@ -74,9 +74,7 @@
 
 ---
 
-<br>
-
-​	
+​		
 
 # 2、第一个Mybatis程序
 
@@ -106,7 +104,7 @@ INSERT into user(id,name,pwd) VALUES
 (3,'王五','123456');
 ```
 
-<br>
+​	
 
 ## 2.2 创建项目
 

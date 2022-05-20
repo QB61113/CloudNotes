@@ -24,7 +24,7 @@ GitHub : <https://github.com/spring-projects>
 
 Spring Maven导包：<https://mvnrepository.com/tags/spring?p=2>
 
-![image-20220506182457028](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220506182501.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220506182501.png" alt="20220506182501" style="zoom: 50%;" />
 
 ​	
 
@@ -65,7 +65,7 @@ Spring 框架是一个分层架构，由 7 个定义良好的模块组成。Spri
 
 七大模块：
 
-![image-20220507200300339](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507200303.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507200303.png" alt="image-20220507200300339" style="zoom:50%;" />
 
 ​	
 
@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
     }
 ```
 
-![image-20220507213610466](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507213612.png)
+![20220507213612](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507213612.png)
 
 ​	
 
@@ -186,7 +186,7 @@ public class UserDaoOracleImpl implements UserDao {
 
 <font color="#FF0000">不可能每次都去修改【UserServiceImpl】</font>
 
-![image-20220507214229421](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507214231.png)
+![20220507214231](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507214231.png)
 
 ​		
 
@@ -201,7 +201,7 @@ public void setUserDao(UserDao userDao) {
 }
 ```
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507214534.png" alt="image-20220507214532311" style="zoom: 67%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507214534.png" alt="20220507214534" style="zoom: 50%;" />
 
 2. 测试类
 
@@ -223,13 +223,13 @@ public void setUserDao(UserDao userDao) {
 
 之前，程序是主动创建对象！控制权在程序员手上！
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507224019.png" alt="image-20220507224017230" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507224019.png" alt="20220507224019" style="zoom: 50%;" />
 
 使用set注入后，程序员不再具有主动性，而是变成了被动的接受对象！
 
 Spring的底层全是set方法机制，如果没有set方法，Spring是跑不起来的。
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507224038.png" alt="image-20220507224037363" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507224038.png" alt="20220507224038" style="zoom:50%;" />
 
 ​	
 
@@ -245,7 +245,7 @@ Spring的底层全是set方法机制，如果没有set方法，Spring是跑不�
 
 控制反转后将对象的创建转移给第三方，个人认为所谓控制反转就是：**获得依赖对象的方式反转了。**
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507225349.png" alt="image-20220507225347298" style="zoom: 67%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507225349.png" alt="20220507225349" style="zoom:50%;" />
 
 ​	
 
@@ -253,7 +253,7 @@ Spring的底层全是set方法机制，如果没有set方法，Spring是跑不�
 
 原理过程：**Spring容器在初始化时先读取配置文件，根据配置文件或元数据创建与组织对象存入容器中，程序使用时再从IOC容器中取出需要的对象。**
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220507225708.png" alt="image-20220507225706834" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507225708.png" alt="20220507225708" style="zoom:50%;" />
 
 ​	
 
@@ -500,7 +500,7 @@ public void test(){
 
 运行结果
 
-![image-20220513232357040](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220513232359.png)
+![20220513232359](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220513232359.png)
 
 **结果可以发现，在调用show方法之前，User对象已经通过无参构造初始化了！**
 
@@ -512,12 +512,9 @@ public void test(){
 
 **Java类中不存在有参构造方法时，默认的是存在无参构造方法，但是一旦写了有参构造方法，不修改beans.xml时会报错，并且程序无法执行。**
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220513233636.png" alt="image-20220513233634622" style="zoom: 67%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220513233636.png" alt="20220513233636" style="zoom: 67%;" />
 
-![image-20220513233657878](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220513233659.png)
-
-​	
+![20220513233659](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220513233659.png)
 
 > 通过有参构造方法来创建
 
-![image-20220519010527588](https://cdn.jsdelivr.net/gh/xleixz/Clouds-Images/image-20220519010527588.png)

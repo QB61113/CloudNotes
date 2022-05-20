@@ -1,0 +1,337 @@
+# Java方法
+- println() 是一个方法。
+- System 是系统类。
+- out 是标准输出对象。
+
+这句话的用法是调用系统类 System 中的标准输出对象 out 中的方法 println()。
+## 那么什么是方法呢？
+Java方法是语句的集合，它们在一起执行一个功能。
+> - 方法是解决一类问题的步骤的有序组合
+> - 方法包含于类或对象中
+> - 方法在程序中被创建，在其他地方被引用
+
+## 方法的优点
+> - 1. 使程序变得更简短而清晰。
+> - 2. 有利于程序维护。
+> - 3. 可以提高程序开发的效率。
+> - 4. 提高了代码的重用性。
+
+## 方法的命名规则
+> - 1.方法的名字的第一个单词应以小写字母作为开头，后面的单词则用大写字母开头写，不使用连接符。例如：**addPerson**。
+> - 2.下划线可能出现在 JUnit 测试方法名称中用以分隔名称的逻辑组件。一个典型的模式是：**test<MethodUnderTest>_<state>**，例如 **testPop_emptyStack**。
+
+
+---
+
+# 方法的定义
+```java
+修饰符 返回值类型 方法名(参数类型 参数名){
+    ···
+   方法体
+    ···
+    return 返回值;
+}
+```
+方法包含一个方法头和一个方法体。下面是一个方法的所有部分：
+> - **修饰符：**修饰符，这是可选的，告诉编译器如何调用该方法。定义了该方法的访问类型。
+> - **返回值类型 ：**方法可能会返回值。returnValueType 是方法返回值的数据类型。有些方法执行所需的操作，但没有返回值。在这种情况下，returnValueType 是关键字**void**。
+> - **方法名：**是方法的实际名称。方法名和参数表共同构成方法签名。
+> - **参数类型：**参数像是一个占位符。当方法被调用时，传递值给参数。这个值被称为实参或变量。参数列表是指方法的参数类型、顺序和参数的个数。参数是可选的，方法可以不包含任何参数。
+> - **方法体：**方法体包含具体的语句，定义该方法的功能。
+
+![](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185729.jpeg)
+`public static int age(int birthday){...}`
+参数可以有多个：
+`static float interest(float principal, int year){...}`
+
+```java
+/** 返回两个整型变量数据的较大值 */
+public static int max(int num1, int num2) {
+   int result;
+   if (num1 > num2)
+      result = num1;
+   else
+      result = num2;
+ 
+   return result; 
+}
+
+更简略的写法：（三元运算符）:
+
+public static int max(int num1, int num2) {
+  return num1 > num2 ? num1 : num2;
+}
+```
+
+---
+
+# 方法调用
+Java 支持两种调用方法的方式，根据方法是否返回值来选择。
+当程序调用一个方法时，程序的控制权交给了被调用的方法。当被调用方法的返回语句执行或者到达方法体闭括号时候交还控制权给程序。
+当方法返回一个值的时候，方法调用通常被当做一个值。例如：
+`int max = max(90, 99);`
+如果方法返回值是void，方法调用一定是一条语句。例如，方法println返回void。下面的调用是个语句：
+`System.out.println("hell world!");`
+
+调用方法示例：
+```java
+public class TestMax {
+   /** 主方法 */
+   public static void main(String[] args) {
+      int i = 5;
+      int j = 2;
+      int k = max(i, j);
+      System.out.println( i + " 和 " + j + " 比较，最大值是：" + k);
+   }
+ 
+   /** 返回两个整数变量较大的值 */
+   public static int max(int num1, int num2) {
+      int result;
+      if (num1 > num2)
+         result = num1;
+      else
+         result = num2;
+ 
+      return result; 
+   }
+}
+```
+# void 关键字
+本节说明如何声明和调用一个 void 方法。
+下面的例子声明了一个名为 printGrade 的方法，并且调用它来打印给定的分数。
+```java
+public class TestVoidMethod {
+  public static void main(String[] args) {
+    printGrade(78.5);
+  }
+ 
+  public static void printGrade(double score) {
+    if (score >= 90.0) {
+       System.out.println('A');
+    }
+    else if (score >= 80.0) {
+       System.out.println('B');
+    }
+    else if (score >= 70.0) {
+       System.out.println('C');
+    }
+    else if (score >= 60.0) {
+       System.out.println('D');
+    }
+    else {
+       System.out.println('F');
+    }
+  }
+}
+
+
+//run  
+C
+```
+这里printGrade方法是一个void类型方法，它不返回值。
+一个void方法的调用一定是一个语句。 所以，它被在main方法第三行以语句形式调用。就像任何以分号结束的语句一样。
+# 通过值传递参数
+调用一个方法时候需要提供参数，你必须按照参数列表指定的顺序提供。
+例如，下面的方法连续n次打印一个消息：
+```java
+public static void nPrintln(String message, int n) {
+  for (int i = 0; i < n; i++) {
+    System.out.println(message);
+  }
+}
+```
+下面的例子演示按值传递的效果。
+该程序创建一个方法，该方法用于交换两个变量。
+```java
+public class TestPassByValue {
+  public static void main(String[] args) {
+    int num1 = 1;
+    int num2 = 2;
+ 
+    System.out.println("交换前 num1 的值为：" +
+                        num1 + " ，num2 的值为：" + num2);
+ 
+    // 调用swap方法
+    swap(num1, num2);
+    System.out.println("交换后 num1 的值为：" +
+                       num1 + " ，num2 的值为：" + num2);
+  }
+  /** 交换两个变量的方法 */
+  public static void swap(int n1, int n2) {
+    System.out.println("\t进入 swap 方法");
+    System.out.println("\t\t交换前 n1 的值为：" + n1
+                         + "，n2 的值：" + n2);
+    // 交换 n1 与 n2的值
+    int temp = n1;
+    n1 = n2;
+    n2 = temp;
+ 
+    System.out.println("\t\t交换后 n1 的值为 " + n1
+                         + "，n2 的值：" + n2);
+  }
+}
+
+
+/**run*/
+
+交换前 num1 的值为：1 ，num2 的值为：2
+    进入 swap 方法
+        交换前 n1 的值为：1，n2 的值：2
+        交换后 n1 的值为 2，n2 的值：1
+交换后 num1 的值为：1 ，num2 的值为：2
+```
+传递两个参数调用swap方法。有趣的是，方法被调用后，实参的值并没有改变。
+# 方法的重载
+上面使用的max方法仅仅适用于int型数据。但如果你想得到两个浮点类型数据的最大值呢？
+解决方法是创建另一个有相同名字但参数不同的方法，如下面代码所示：
+```java
+public static double max(double num1, double num2) {
+  if (num1 > num2)
+    return num1;
+  else
+    return num2;
+}
+```
+如果你调用max方法时传递的是int型参数，则 int型参数的max方法就会被调用；
+如果传递的是double型参数，则double类型的max方法体会被调用，这叫做方法重载；
+就是说一个类的两个方法拥有相同的名字，但是有不同的参数列表。
+Java编译器根据方法签名判断哪个方法应该被调用。
+方法重载可以让程序更清晰易读。执行密切相关任务的方法应该使用相同的名字。
+重载的方法必须拥有不同的参数列表。你不能仅仅依据修饰符或者返回类型的不同来重载方法。
+
+---
+
+# 变量作用域
+> 变量的范围是程序中该变量可以被引用的部分。
+> 方法内定义的变量被称为局部变量。
+> 局部变量的作用范围从声明开始，直到包含它的块结束。
+> 局部变量必须声明才可以使用。
+> 方法的参数范围涵盖整个方法。参数实际上是一个局部变量。
+> for循环的初始化部分声明的变量，其作用范围在整个循环。
+> 但循环体内声明的变量其适用范围是从它声明到循环体结束。
+
+它包含如下所示的变量声明：
+![](https://cdn.nlark.com/yuque/0/2021/jpeg/2560440/1622628112025-6ff98e01-aa3f-4d2d-a102-acfcf72517cb.jpeg#align=left&display=inline&height=216&margin=%5Bobject%20Object%5D&originHeight=216&originWidth=430&size=0&status=done&style=none&width=430)
+可以在一个方法里，不同的非嵌套块中多次声明一个具有相同的名称局部变量，但你不能在嵌套块内两次声明局部变量。
+
+---
+
+# 构造方法
+> 当一个对象被创建时候，构造方法用来初始化该对象。构造方法和它所在类的名字相同，但构造方法没有返回值。
+> 通常会使用构造方法给一个类的实例变量赋初值，或者执行其它必要的步骤来创建一个完整的对象。
+> 不管你是否自定义构造方法，所有的类都有构造方法，因为 Java 自动提供了一个默认构造方法，默认构造方法的访问修饰符和类的访问修饰符相同(类为 public，构造函数也为 public；类改为 protected，构造函数也改为 protected)。
+> 一旦你定义了自己的构造方法，默认构造方法就会失效。
+
+```java
+// 一个简单的构造函数
+class MyClass {
+  int x;
+ 
+  // 以下是构造函数
+  MyClass() {
+    x = 10;
+  }
+}
+```
+你可以像下面这样调用构造方法来初始化一个对象：
+```java
+public class ConsDemo {
+   public static void main(String args[]) {
+      MyClass t1 = new MyClass();
+      MyClass t2 = new MyClass();
+      System.out.println(t1.x + " " + t2.x);
+   }
+}
+```
+
+---
+
+# 可变参数
+在方法声明中，在指定参数类型后加一个省略号(...) 。
+`typeName ... parameterName`
+一个方法中只能指定一个可变参数，它必须是方法的最后一个参数。任何普通的参数必须在它之前声明。
+```java
+public class VarargsDemo {
+    public static void main(String args[]) {
+        // 调用可变参数的方法
+        printMax(34, 3, 3, 2, 56.5);
+        printMax(new double[]{1, 2, 3});
+    }
+ 
+    public static void printMax( double... numbers) {
+        if (numbers.length == 0) {
+            System.out.println("No argument passed");
+            return;
+        }
+ 
+        double result = numbers[0];
+ 
+        for (int i = 1; i <  numbers.length; i++){
+            if (numbers[i] >  result) {
+                result = numbers[i];
+            }
+        }
+        System.out.println("The max value is " + result);
+    }
+}
+
+/**run*/
+The max value is 56.5
+The max value is 3.0
+```
+
+---
+
+# 附加：
+## finalize() 方法
+> Java 允许定义这样的方法，它在对象被垃圾收集器析构(回收)之前调用，这个方法叫做 finalize( )，它用来清除回收对象。
+> 例如，你可以使用 finalize() 来确保一个对象打开的文件被关闭了。
+> 在 finalize() 方法里，你必须指定在对象销毁时候要执行的操作。
+
+finalize() 一般格式是：
+```java
+protected void finalize()
+{
+   // 在这里终结代码
+}
+```
+> 关键字 protected 是一个限定符，它确保 finalize() 方法不会被该类以外的代码调用。
+> 当然，Java 的内存回收可以由 JVM 来自动完成。如果你手动使用，则可以使用上面的方法。
+
+```java
+public class FinalizationDemo {  
+  public static void main(String[] args) {  
+    Cake c1 = new Cake(1);  
+    Cake c2 = new Cake(2);  
+    Cake c3 = new Cake(3);  
+      
+    c2 = c3 = null;  
+    System.gc(); //调用Java垃圾收集器
+  }  
+}  
+ 
+class Cake extends Object {  
+  private int id;  
+  public Cake(int id) {  
+    this.id = id;  
+    System.out.println("Cake Object " + id + "is created");  
+  }  
+    
+  protected void finalize() throws java.lang.Throwable {  
+    super.finalize();  
+    System.out.println("Cake Object " + id + "is disposed");  
+  }  
+}
+
+
+/**run
+*/
+
+$ javac FinalizationDemo.java 
+$ java FinalizationDemo
+Cake Object 1is created
+Cake Object 2is created
+Cake Object 3is created
+Cake Object 3is disposed
+Cake Object 2is disposed
+```

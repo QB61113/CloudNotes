@@ -1,4 +1,4 @@
-# Mybatis
+Mybatis
 
 <hr>
 
@@ -109,14 +109,14 @@ INSERT into user(id,name,pwd) VALUES
 ## 2.2 创建项目
 
 创建一个普通的Maven项目，及时将path文件修改为正确的目录，避免占用C盘资源。
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133851.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133851.png" alt="20220424133851" style="zoom:50%;" />
 
-<br>
+​	
 
 删除src目录，可以当做父工程使用。
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133857.png)
+![20220424133857](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133857.png)
 
-<br>
+​	
 
  在pom.xml文件中导入依赖
 
@@ -144,14 +144,14 @@ INSERT into user(id,name,pwd) VALUES
     </dependencies>
 ```
 
-<br>
+​	
 
 ## 2.3 创建模块
 
 new---->Module---->Maven，在resources里新建一个xml配置文件
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133907.png)
+![20220424133907](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133907.png)
 
-<br>
+​	
 
 1. 编写Mybatis工具类
 
@@ -160,10 +160,10 @@ new---->Module---->Maven，在resources里新建一个xml配置文件
 然后封装成一个工具类。
 `InputStream inputStream = Resources.getResourceAsStream(resource); `
 `SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);`
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133916.png)
+![20220424133916](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133916.png)
 
 Mybatis工具类：
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424133925.png" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133925.png" alt="20220424133925" style="zoom:50%;" />
 
 ```java
 public class MybatisUtils {
@@ -195,7 +195,7 @@ public class MybatisUtils {
 }
 ```
 
-<br>
+​	
 
 2. 编写Mybatis的核心配置文件。
 
@@ -228,7 +228,7 @@ Mybatis-config.xml（注意这里[测试常见报错）](#abN9C)
 </configuration>
 ```
 
-<br>
+​	
 
 ## 2.4 IDEA连接数据库（可选）
 
@@ -236,17 +236,17 @@ Mybatis-config.xml（注意这里[测试常见报错）](#abN9C)
 
 1. 点击`Database`，点击`+`号，添加**Data Source**中的`MySQL`，
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220504181711.png" alt="image-20220504181709291" style="zoom: 67%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220504181711.png" alt="20220504181711" style="zoom:50%;" />
 
 2. 在**General**中输入`User`（账号）、`Password`（密码），点击`Test Connection`测试连接，成功后点击`Schemas`。
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220504181914.png" alt="image-20220504181912860" style="zoom:67%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220504181914.png" alt="20220504181914" style="zoom:50%;" />
 
 3. 在`Schemas`中勾选需要用到的数据库，点击OK即可。
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220504182107.png" alt="image-20220504182105620" style="zoom:67%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220504182107.png" alt="20220504182107" style="zoom: 50%;" />
 
-​	
+​		
 
 ## 2.5 编写代码
 
@@ -254,7 +254,7 @@ Mybatis-config.xml（注意这里[测试常见报错）](#abN9C)
 
 文件：User
 位置：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134002.png)
+![20220424134002](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134002.png)
 
 ```java
 //实体类
@@ -310,13 +310,13 @@ public class User {
 
 ```
 
-<br>
+​	
 
 2. **Mapper接口**
 
 文件：UserDao（Dao等价于Mapper。）
 位置：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430002239.png)
+![20220430002239](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430002239.png)
 
 ```java
 //Dao等价于Mapper
@@ -326,14 +326,14 @@ public interface UserDao {
 }
 ```
 
-<br>
+​	
 
 3. **接口实现类**
 
 由原来的UserDaoImpl转变为一个Mapper配置文件
 文件：UserMapper.xml
 位置：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134044.png)
+![20220424134044](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134044.png)
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -352,7 +352,7 @@ public interface UserDao {
 </mapper>
 ```
 
-<br>
+​	
 
 ## 2.6 测试
 
@@ -384,9 +384,9 @@ public class UserDaoTest<userList> {
 
 ```
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134107.png)
+![20220424134107](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134107.png)
 
-<br>
+​	
 
 > 方式二（较老，不推荐，了解）
 
@@ -433,7 +433,7 @@ public class UserDaoTest<userList> {
 
 ```
 
-<br>
+​	
 
  ## 2.7 错误分析
 
@@ -451,12 +451,12 @@ public class UserDaoTest<userList> {
     </mappers>
 ```
 
-<br>
+​	
 
 2. **常见报错类型二**
 
 `The error may exist in xleixz/dao/UserMapper.xml`
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134130.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134130.png" alt="20220424134130" style="zoom:50%;" />
 原因是Test中没有**UserMapper.xml**文件，可以通过手动复制到Test中，但是这样**太多！太麻烦！**
 
 > ---->解决：手动配置资源过滤，将Build配置信息导入到**pop**文件中。
@@ -507,9 +507,9 @@ value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;
 ## 3.1 namespace
 
 ==namespace==中的包名要和Mapper接口的包名一致
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134307.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134307.png" alt="20220424134307" style="zoom:50%;" />
 
-<br>
+​	
 
 ## 3.2 select
 
@@ -568,7 +568,7 @@ public interface UserMapper {
     }
 ```
 
-<br>
+​	
 
 ## 3.3 insert
 
@@ -591,7 +591,7 @@ public interface UserMapper {
   </mapper>
 ```
 
-<br>
+​	
 
 ## 3.4 update
 
@@ -615,7 +615,7 @@ public interface UserMapper {
   </mapper>
 ```
 
-<br>
+​	
 
 ## 3.5 delete
 
@@ -637,7 +637,7 @@ public interface UserMapper {
   </mapper>
 ```
 
-<br>
+​	
 
 ## 3.6 错误分析
 
@@ -654,7 +654,7 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 
 程序配置文件，必须符合规则！！
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134332.png)
+![20220424134332](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134332.png)
 `NullPointerException`**空指针异常**报错，原因是没有注册到资源！！
 
 **输出的xml文件中存在中文乱码问题！**
@@ -662,8 +662,6 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 **Maven资源无法导出问题**，解决---->在Maven中加入`build`，详情见[Maven资源无法导出](https://www.yuque.com/xleixz/ksbdf5/cu8qnq#Fus64)
 
 ---
-
-<br>
 
 ​	
 
@@ -715,9 +713,7 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 
 ----
 
-<br>
-
-​	
+​		
 
 # 5、模糊查询拓展
 
@@ -767,11 +763,9 @@ public interface UserMapper {
     }
 ```
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134352.png)
+![20220424134352](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134352.png)
 
 ---
-
-​	
 
 ​	
 
@@ -800,7 +794,7 @@ Mybatis的配置文件包含了会深深影响Mybatis行为的设置和属性信
 - [databaseIdProvider（数据库厂商标识）](https://mybatis.org/mybatis-3/zh/configuration.html#databaseIdProvider)
 - [mappers（映射器）](https://mybatis.org/mybatis-3/zh/configuration.html#mappers)
 
-<br>
+​	
 
 ### 6.1.2 环境配置（environments）
 
@@ -827,7 +821,7 @@ Mybatis的配置文件包含了会深深影响Mybatis行为的设置和属性信
 
 **不过要记住：尽管可以配置多个环境，但每个 SqlSessionFactory 实例只能选择一种环境。**
 
-<br>
+​	
 
 ### 6.1.3 事务管理器（transactionManager）
 
@@ -838,7 +832,7 @@ Mybatis的配置文件包含了会深深影响Mybatis行为的设置和属性信
 -  **JDBC** – 这个配置直接使用了 JDBC 的提交和回滚设施，它依赖从数据源获得的连接来管理事务作用域。 
 -  **MANAGED** – 这个配置几乎没做什么。它从不提交或回滚一个连接，而是让容器来管理事务的整个生命周期（比如 JEE 应用服务器的上下文）。 默认情况下它会关闭连接。然而一些容器并不希望连接被关闭，因此需要将 closeConnection 属性设置为 false 来阻止默认的关闭行为。
 
-<br>
+​	
 
 ### 6.1.4 数据源（dataSource）
 
@@ -853,12 +847,12 @@ dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象
 
 **JNDI** – 这个数据源实现是为了能在如 EJB 或应用服务器这类容器中使用，容器可以集中或在外部配置数据源，然后放置一个 JNDI 上下文的数据源引用。  
 
-<br>
+​	
 
 **重点**
 **Mybatis默认的事物管理器就是JDBC，连接池就是POOLED。**
 
-<br>
+​	
 
 ### 6.1.5 属性（properties）
 
@@ -890,7 +884,7 @@ password=123456
 注意：可以直接引入外部文件，也可以在其中增加一些属性配置，如果两个文件有同一字段，**优先使用外部配置文件！**
 **优先使用外部配置文件**理解：当配置文件**db.properties**中写了username和password，**核心配置文件**mybatis-config.xml中的`properties`标签中也写了username和password，则优先使用**db.propertise**文件中的配置信息。
 
-<br>
+​	
 
 ## 6.2 别名优化
 
@@ -933,7 +927,7 @@ password=123456
   </mapper>
 ```
 
-<br>
+​	
 
 **方式二：**
 
@@ -959,7 +953,7 @@ password=123456
     </select>
 ```
 
-<br>
+​	
 
 **方法三：**
 
@@ -973,7 +967,7 @@ public class User {
 }
 ```
 
-<br>
+​	
 
 **方法总结和区别**：
 
@@ -1012,7 +1006,7 @@ public class User {
 | collection | Collection |
 | iterator   | Iterator   |
 
-<br>
+​	
 
 ### 6.2.2设置（settings）
 
@@ -1051,7 +1045,7 @@ public class User {
 </settings>
 ```
 
-<br>
+​	
 
 ## 6.3 其他配置【了解即可】
 
@@ -1066,7 +1060,7 @@ public class User {
   - mybatis-plus
   - 通用Mapper
 
-<br>
+​	
 
 ## 6.4 映射器（mappers）
 
@@ -1083,7 +1077,7 @@ MapperRegistry：注册绑定我们的Mapper文件。
     </mappers>
 ```
 
-<br>
+​	
 
 **方式二**
 
@@ -1101,7 +1095,7 @@ class方式，使用class文件绑定注册：
 - 接口和它的Mapper配置文件必须同名！
 - 接口和它的Mapper配置文件必须在同一包下！
 
-<br>
+​	
 
 **方式三**
 
@@ -1116,8 +1110,6 @@ package方式，使用扫描包记性注入绑定：
 
 ---
 
-<br>
-
 ​	
 
 # 7、生命周期和作用域（Scope）
@@ -1127,7 +1119,7 @@ package方式，使用扫描包记性注入绑定：
 **生命周期**和**作用域**是至关重要的，因为错误的使用会导致非常严重的**并发问题**。  
 
 程序运行流程：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134434.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134434.png" alt="20220424134434" style="zoom:50%;" />
 
 **SqlSessionFactoryBuilder：**
 
@@ -1147,21 +1139,20 @@ package方式，使用扫描包记性注入绑定：
 - SqlSession的实例不是线程安全的，因此是不能被共享的，所以他的最佳的作用域是请求或方法作用域。
 - 用完之后需要赶紧**关闭**，否则资源被占用！_**这个操作是十分重要的。**_
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134447.png)
+![20220424134447](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134447.png)
 这里面的每一个Mapper，就代表一个具体的业务！
 
 ---
 
-<br>
-
-​	
+​		
 
 # 8、解决属性名和字段名不一致的问题
 
 ## 8.1 问题
 
 数据库中的字段
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134502.png" alt="img" style="zoom: 50%;" />
+
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134502.png" alt="20220424134502" style="zoom: 50%;" />
 
 新建一个项目，拷贝之前的，测试实体类字段不一致的情况。
 
@@ -1174,9 +1165,11 @@ public class User {
 ```
 
 测试出现问题：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134525.png)
+
+![20220424134525](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134525.png)
+
 password字段为null。
-原因是：
+**原因是：**
 
 ```
 select * from mybatis.user where id = #{id};
@@ -1185,7 +1178,7 @@ select * from mybatis.user where id = #{id};
 select id,name,pwd from mybatis.user where id = #{id};
 ```
 
-<br>
+​	
 
 ## 8.2 解决方法
 
@@ -1202,8 +1195,6 @@ select id,name,pwd from mybatis.user where id = #{id};
 -  方法二（推荐）：引入resultMap结果集映射【见[resultMap结果集映射](#9、resultMap结果集映射)】 
 
 ---
-
-<br>
 
 ​	
 
@@ -1245,9 +1236,7 @@ id  name  password
 
 ---
 
-<br>
-
-​	
+​		
 
 # 10、日志
 
@@ -1256,9 +1245,12 @@ id  name  password
 > Mybaits：[settings（设置）](https://mybatis.org/mybatis-3/zh/configuration.html#settings)
 
 如果一个数据库操作，出现了异常，需要排错。日志就是最好的助手！
+
 以前：sout、debug；
+
 现在：日志工厂。
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134600.png)
+
+![20220424134600](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134600.png)
 
 - SLF4J
 - LOG4J【掌握】
@@ -1271,7 +1263,8 @@ id  name  password
 在Mybatis中具体使用哪一个日志实现，在设置中设定。
 
 核心配置文件顺序：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134613.png)
+
+![20220424134613](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134613.png)
 
 ​	
 
@@ -1286,9 +1279,10 @@ id  name  password
 ```
 
 效果：
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134625.png" alt="img" style="zoom:50%;" />
 
-<br>
+![20220424134625](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134625.png)
+
+​	
 
 ## 10.2 log4j
 
@@ -1301,7 +1295,7 @@ id  name  password
 > 通过定义每一条日志信息的级别，我们能够更加细致地控制日志的生成过程；
 > 通过一个配置文件来灵活地进行配置，不需要修改应用的代码。
 
-<br>
+​	
 
 ### 10.2.2 配置log4j文件
 
@@ -1355,7 +1349,7 @@ log4j.logger.java.sql.PreparedStatement=DEBUG
 </settings>
 ```
 
-<br>
+​	
 
 ### 10.2.3 log4j简单测试使用
 
@@ -1381,24 +1375,25 @@ static Logger logger = Logger.getLogger(UserMapperTest.class);
 
 4. 运行后会自动生成log日志文件，相当于在程序中加入`System.out.println(info)`一样，在log日志文件可以清晰的看到日志信息。
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134652.png" alt="img" style="zoom:33%;" />
+![20220424134652](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134652.png)
 
-<br>
+​	
 
 ### 10.2.4 IDEA无法打开log文件的处理方法
 
  IDEA有的时候无法打开一些后缀的文件，可以在File-settings-Editor-File Types中添加想要打开的文件类型。 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134704.png" alt="img" style="zoom: 50%;" />
 
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134704.png" alt="20220424134704" style="zoom:50%;" />
 
+​	
 
-再次回到IDEA打开log文件， 此时IDEA会弹出如下提示，也就是安装log文件的插件，点击**Install plugins**安装插件之后，也就可以正常查看文件了。  ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424134718.png)
+再次回到IDEA打开log文件， 此时IDEA会弹出如下提示，也就是安装log文件的插件，点击**Install plugins**安装插件之后，也就可以正常查看文件了。 
+
+![20220424134718](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134718.png)
 
 ----
 
-<br>
-
-​	
+​		
 
 # 11、分页
 
@@ -1463,7 +1458,7 @@ List<User> getUserByLimit(Map<String, Integer> map);
     }
 ```
 
-<br>
+​	
 
 ## 11.2 【不建议使用】RowBounds实现分页
 
@@ -1510,23 +1505,21 @@ List<User> getUserByLimit(Map<String, Integer> map);
     }
 ```
 
-<br>
+​	
 
 ## 11.3 分页插件
 
 > 传送门：https://pagehelper.github.io/
 
-![image-20220423171129382](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423171131.png)
+![20220423171131](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220423171131.png)
 
-
+​	
 
 了解即可，当公司的架构师需要使用时，需要知道是什么即可！
 
 ---
 
-<br>
-
-​	
+​		
 
 # 12、使用注解开发
 
@@ -1538,7 +1531,7 @@ List<User> getUserByLimit(Map<String, Integer> map);
 
 **根本原因**：**==解耦==，可拓展，提高复用，分层开发中，上层不用管具体的实现，都遵守共同的标准，使得开发变得容易，规范性好。**
 
-<br>
+​	
 
 **关于接口的理解**
 
@@ -1553,7 +1546,7 @@ List<User> getUserByLimit(Map<String, Integer> map);
 
 一个个体有可能有多个抽象面。抽象体与抽象面是有区别的。
 
-<br>
+​	
 
 **三个面向区别**
 
@@ -1563,7 +1556,7 @@ List<User> getUserByLimit(Map<String, Integer> map);
 
 接口设计与非接口设计是针对复用技术而言的，与面向对象（过程）不是一个问题。更多的体现就是对系统整体的架构。
 
-<br>
+​	
 
 ## 12.2 使用注解开发
 
@@ -1607,29 +1600,25 @@ public interface UserMapper {
 
 ```
 
-
+​	
 
 本质：反射机制实现。
 
 底层：动态代理。
 
-![动态代理](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423180646.png)
+![20220423180646](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220423180646.png)
 
 ---
 
-<br>
-
-​	
+​		
 
 # 13、Mybatis执行流程
 
-![mmexport1650709175727](https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423182127.jpg)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220423182127.jpg" alt="20220423182127" style="zoom: 67%;" />
 
 ---
 
-<br>
-
-​	
+​		
 
 # 14、使用注解实现增删改查
 
@@ -1664,7 +1653,7 @@ public class MybatisUtils {
 }
 ```
 
-<br>
+​	
 
 **编写接口，增加注解**
 
@@ -1690,7 +1679,7 @@ public interface UserMapper {
 }
 ```
 
-<br>
+​	
 
 **测试类**
 
@@ -1762,11 +1751,11 @@ public class UserMapperTest {
 }
 ```
 
-<br>
+​	
 
 **==注意：==必须将接口注册到核心配置文件中！**（具体见前面映射器章节）
 
-<br>
+​	
 
 ## 14.2 关于@Param()注解
 
@@ -1775,7 +1764,7 @@ public class UserMapperTest {
 - 如果只有一个基本类型，可以会略，但是建议加上。
 - 在SQL中引用的就是这里的`@Param("")`中设定的属性名。
 
-<br>
+​		
 
 ## 14.3 #{} 和 ${}区别
 
@@ -1784,8 +1773,6 @@ public class UserMapperTest {
 ==**能用#{}时尽量用#{}**==。
 
 ---
-
-<br>
 
 ​	
 
@@ -1799,9 +1786,9 @@ public class UserMapperTest {
 >
 > 官网帮助文档传送门：[下载Lombok](https://projectlombok.org/ "Lombok下载网址")
 
-<img src="https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423202247.png" alt="image-20220423202243377" style="zoom:33%;" />
+![20220423202247](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220423202247.png)
 
-
+​	
 
 1. 在IDEA中安装插件
 
@@ -1843,7 +1830,7 @@ public class UserMapperTest {
 @UtilityClass
 ```
 
-<br>
+​	
 
 举例：
 
@@ -1862,21 +1849,19 @@ public class User {
 
 ---
 
-<br>
-
-​		
+​			
 
 # 16、多对一处理
 
 多对一：
 
-<img src="https://gitee.com/xleixz/cloud-notes/raw/master/Typora-Images/20220423213600.png" alt="image-20220423213559105" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220423213600.png" alt="20220423213600" style="zoom:50%;" />
 
 - 多个学生，对应一个老师；
 - 对于学生而言，**关联**：多个学生，关联一个老师【多对一】；
 - 对于老师而言，**集合**：一个老师，有很多学生【一对多】。
 
-​	
+​		
 
 SQL：
 
@@ -1969,7 +1954,7 @@ public class MybatisUtils {
 
 ```
 
-​	
+​		
 
 3. 核心配置文件Mybatis-config.xml
 
@@ -2013,7 +1998,7 @@ public class MybatisUtils {
 </configuration>
 ```
 
-​	
+​		
 
 4. properties属性文件
 
@@ -2024,7 +2009,7 @@ username=root
 password=123456
 ```
 
-​	
+​		
 
 #### 16.1.2环境搭建
 
@@ -2042,7 +2027,7 @@ password=123456
 </dependency>
 ```
 
-​	
+​		
 
 2. 新建实体类Teacher，Student
 
@@ -2067,7 +2052,7 @@ public class Teacher {
 }
 ```
 
-​	
+​		
 
 3. 建立Mapper接口
 
@@ -2083,7 +2068,7 @@ public interface TeacherMapper {
 }
 ```
 
-​	
+​		
 
 4. 建立Mapper.xml文件
 
@@ -2107,7 +2092,7 @@ public interface TeacherMapper {
 </mapper>
 ```
 
-​	
+​		
 
 5. 在核心配置文件中绑定注册Mapper接口或文件
 
@@ -2151,7 +2136,7 @@ public interface TeacherMapper {
 </configuration>
 ```
 
-<br>
+​	
 
 6. 测试
 
@@ -2173,13 +2158,13 @@ public class MyTest {
 }
 ```
 
-​		
+​			
 
 #### 16.1.3 目录结构
 
-![image-20220430220418026](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430220419.png)
+![20220430220419](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430220419.png)
 
-​	
+​		
 
 ## 16.2 按照查询嵌套处理
 
@@ -2237,11 +2222,11 @@ public class MyTest {
 }
 ```
 
+​		
 
+![20220430211838](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430211838.png)
 
-![image-20220430211836307](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430211838.png)
-
-​	
+​		
 
 ## 16.3 按照结果嵌套处理
 
@@ -2274,7 +2259,7 @@ public class MyTest {
 
 ```
 
-​	
+​		
 
 测试类。
 
@@ -2293,9 +2278,9 @@ public class MyTest {
 }
 ```
 
+​	
 
-
-![image-20220430213517684](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430213520.png)
+![20220430213520](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430213520.png)
 
 ​	
 
@@ -2306,9 +2291,7 @@ public class MyTest {
 
 ---
 
-​	
-
-​	
+​			
 
 # 17、一对多处理
 
@@ -2349,7 +2332,7 @@ public class Student {
 
 2. 目录结构
 
-![image-20220430230526225](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430230527.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430230527.png" alt="20220430230527" style="zoom:50%;" />
 
 ​	
 
@@ -2391,7 +2374,7 @@ TeacherMapper.xml文件：
     </mapper>
 ```
 
-​	
+​		
 
 测试类：
 
@@ -2407,7 +2390,7 @@ TeacherMapper.xml文件：
     }
 ```
 
-​	
+​		
 
 ## 17.2 按照查询嵌套处理
 
@@ -2458,13 +2441,11 @@ TeacherMapper.xml文件
     }
 ```
 
-![image-20220430225645743](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220430225647.png)
+![20220430225647](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430225647.png)
 
 ---
 
-​	
-
-​	
+​		
 
 # 18、总结多对一和一对多
 
@@ -2483,8 +2464,6 @@ TeacherMapper.xml文件
 - 如果问题不好排查错误，可以使用日志，建议使用Log4j
 
 ---
-
-​		
 
 ​		
 
@@ -2525,9 +2504,9 @@ CREATE TABLE `blog` (
 
 目录结构：
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220501220443.png" alt="image-20220501220442096" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220501220443.png" alt="20220501220443" style="zoom:50%;" />
 
-​		
+​			
 
 1. 在`pom.xml`文件导包
 
@@ -2770,7 +2749,7 @@ public class MyTest {
 
 初始化数据完毕！
 
-​	
+​		
 
 ## 19.2 IF
 
@@ -2846,7 +2825,7 @@ select * from blog where title = #{title} and author = #{author}
 
 ​	
 
-![image-20220501223240195](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220501223242.png)
+![20220501223242](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220501223242.png)
 
 ​	
 
@@ -3093,8 +3072,6 @@ public void testQueryBlogForeach(){
 
 ​	
 
-​	
-
 # 20、缓存
 
 ## 20.1 简介
@@ -3190,7 +3167,7 @@ User queryUserById(@Param("id") int id);
 
 5. 查看日志输出。
 
-![image-20220505191758746](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505191802.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220505191802.png" alt="20220505191802" style="zoom:50%;" />
 
 ​	
 
@@ -3200,7 +3177,7 @@ User queryUserById(@Param("id") int id);
 
 2. 增删改操作，可能会改变原来的数据，所以必定会刷新缓存！
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505211836.png" alt="image-20220505211832395" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220505211836.png" alt="20220505211836" style="zoom:50%;" />
 
 3. 查询不同的Mapper.xml。
 
@@ -3211,7 +3188,7 @@ User queryUserById(@Param("id") int id);
 sqlSession.clearCache();
 ```
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505212055.png" alt="image-20220505212053444" style="zoom: 50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220505212055.png" alt="20220505212055" style="zoom:50%;" />
 
 ​	
 
@@ -3291,7 +3268,7 @@ sqlSession.clearCache();
 
 当第一次缓存关闭后，会存入二级缓存，无需再查询数据库。
 
-![image-20220505220932286](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505220933.png)
+![20220505220933](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220505220933.png)
 
 ​		
 
@@ -3307,7 +3284,7 @@ sqlSession.clearCache();
 
 ## 20.4 缓存原理
 
-![image-20220505221701665](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220505221703.png)
+![20220505221703](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220505221703.png)
 
 ​	
 
@@ -3393,8 +3370,6 @@ Ehcache是一种广泛使用的java分布式缓存，用于通用缓存；
 
 </ehcache>
 ```
-
-​	
 
 ​	
 

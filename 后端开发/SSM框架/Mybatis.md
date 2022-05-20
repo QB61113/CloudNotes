@@ -1,4 +1,4 @@
-Mybatis
+# Mybatis
 
 <hr>
 
@@ -32,18 +32,13 @@ Mybatis
 
 ​	
 
-![20220424133619](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133619.png)
-
-​	
-
-![20220429232914](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220429232914.png)
-
-​	
-
 **GitHub仓库：**[https://github.com/](https://github.com/)
+
 <img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133659.png" alt="20220424133659" style="zoom:50%;" />
 
 ​	
+
+
 
 ![20220424133716](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133716.png)
 

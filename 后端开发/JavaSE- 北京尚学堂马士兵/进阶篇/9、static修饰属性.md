@@ -51,7 +51,7 @@ public class Test {
 ```
 
 一般官方的推荐访问方式：可以通过类名.属性名的方式去访问：
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190441.png)
+![20220427190441](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190441.png)
 
 - static修饰属性总结
 > 1. 在类加载的时候一起加载入方法区的静态域域中
@@ -64,7 +64,7 @@ public class Test {
 static修饰属性的实例
 > 数据的共享
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190451.png)
+![20220427190451](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190451.png)
 
 属性
 > 静态属性（类变量）

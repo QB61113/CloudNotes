@@ -39,7 +39,7 @@ Java方法是语句的集合，它们在一起执行一个功能。
 > - **参数类型：**参数像是一个占位符。当方法被调用时，传递值给参数。这个值被称为实参或变量。参数列表是指方法的参数类型、顺序和参数的个数。参数是可选的，方法可以不包含任何参数。
 > - **方法体：**方法体包含具体的语句，定义该方法的功能。
 
-![](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185729.jpeg)
+![20220427185729](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185729.jpeg)
 `public static int age(int birthday){...}`
 参数可以有多个：
 `static float interest(float principal, int year){...}`

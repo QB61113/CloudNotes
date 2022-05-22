@@ -4,7 +4,7 @@ _toString()方法会返回一个“以文本方式表达”此对象的字符串
 
 - _IDEA快捷键_
    - _Alt + insert_
->       - ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427191409.png)
+>       ![20220427191409](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427191409.png)
 
->       - ![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427191415.png)
+>       ![20220427191415](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427191415.png)
 

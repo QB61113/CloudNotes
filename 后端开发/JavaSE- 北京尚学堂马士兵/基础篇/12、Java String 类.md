@@ -15,7 +15,7 @@ String s3 = s1;                    // 相同引用
 String s4 = new String("Runoob");   // String 对象创建
 String s5 = new String("Runoob");   // String 对象创建
 ```
-![](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185559.png)
+![20220427185559](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185559.png)
 
 - String 类有 11 种构造方法，这些方法提供不同的参数来初始化字符串，比如提供一个字符数组参数:
 ```java

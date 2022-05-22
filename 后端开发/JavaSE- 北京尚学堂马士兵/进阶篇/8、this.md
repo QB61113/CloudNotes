@@ -8,16 +8,16 @@ this关键字 用法
 >    - 这时候如果想要表示属性的话，在前面要加上：this.修饰
 >    - 如果不发生重名问题的话，要是访问属性也可以省略this.
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190143.png)
+![20220427190143](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190143.png)
 
 > - this修饰方法
 >    - 在同一个类中，方法可以互相调用，this.可以省略不写
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190149.png)
+![20220427190149](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190149.png)
 
 > - this可以修饰构造器
 >    - 同一个类中的构造器可以相互用this调用
 >    - 注意：this修饰构造器必须放在第一行
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190156.png)
+![20220427190156](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190156.png)
 

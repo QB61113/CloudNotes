@@ -20,8 +20,9 @@ Runoob..!
 Runoob..Java!
 RunooJava!
 ```
-![](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185618.svg)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185618.svg" alt="20220427185618" style="zoom:50%;" />
 然而在应用程序要求线程安全的情况下，则必须使用 StringBuffer 类。
+
 ```java
 public class Test{
   public static void main(String args[]){

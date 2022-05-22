@@ -7,7 +7,7 @@
         //toString:对数组进行遍历查看的，返回的是一个字符串，这个字符串比较好看
         System.out.println(Arrays.toString(arr));
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185845.png)
+![20220427185845](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185845.png)
 
 ---
 
@@ -20,7 +20,7 @@ Arrays.sort(arr);
         System.out.println(Arrays.toString(arr));
         System.out.println(Arrays.binarySearch(arr, 4));
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185934.png)
+![20220427185934](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185934.png)
 
 ---
 
@@ -33,7 +33,7 @@ Arrays.sort(arr);
         System.out.println(Arrays.toString(arr));
        
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185942.png)
+![20220427185942](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185942.png)
 
 ---
 
@@ -46,7 +46,7 @@ int[] arr2 = {1, 3, 7, 2, 4, 8};
         int[] newArr = Arrays.copyOf(arr2, 4);
         System.out.println(Arrays.toString(newArr));
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185954.png)
+![20220427185954](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185954.png)
 
 ---
 
@@ -57,7 +57,7 @@ int[] arr2 = {1, 3, 7, 2, 4, 8};
 int[] newArr2 = Arrays.copyOfRange(arr2, 1, 4);//[1,4)-->1,2,3位置
         System.out.println(Arrays.toString(newArr2));
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190008.png)
+![20220427190008](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190008.png)
 
 ---
 
@@ -71,7 +71,7 @@ int[] arr3 = {1, 3, 7, 2, 4, 8};
         System.out.println(arr3 == arr4);
 //false ==比较左右两侧的值是否相等，比较的是左右的地址值，返回结果一定是false
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190017.png)
+![20220427190017](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190017.png)
 
 ---
 
@@ -83,4 +83,4 @@ int[] arr5 = {1, 3, 7, 2, 4, 8};
         Arrays.fill(arr5, 10);
         System.out.println(Arrays.toString(arr5));
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427190031.png)
+![20220427190031](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427190031.png)

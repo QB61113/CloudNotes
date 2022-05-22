@@ -435,5 +435,5 @@ public class 二维数组 {
     }
 }
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185646.png)
+![20220427185646](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185646.png)
 

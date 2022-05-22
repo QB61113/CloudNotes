@@ -28,7 +28,7 @@ Date对象创建以后，可以调用下面的方法。
 | 8 | **int hashCode( )**
  返回此对象的哈希码值。 |
 | 9 | **void setTime(long time)**
- 
+
 用自1970年1月1日00:00:00 GMT以后time毫秒数设置时间和日期。 |
 | 10 | **String toString( )**
 把此 Date 对象转换为以下形式的 String： dow mon dd hh:mm:ss zzz yyyy 其中： dow 是一周中的某一天 (Sun, Mon, Tue, Wed, Thu, Fri, Sat)。 |

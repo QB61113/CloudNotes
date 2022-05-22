@@ -19,7 +19,7 @@ byte c = 0x4a;
 | Double | double |
 
 
-![](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220427185349.png)
+![20220427185349](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220427185349.png)
 Number 类属于 java.lang 包。
 ```java
 public class Test{

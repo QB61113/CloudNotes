@@ -35,7 +35,7 @@
 
 ### 2.2 如果在webapp的根目录下还有其他目录
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424161529.png)
+![20220424161529](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424161529.png)
 
 #### （1）方法
 
@@ -71,7 +71,7 @@
    - 注意配置原则
       - 局部优先原则（就近原则）
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424161541.png" alt="img" style="zoom:50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424161541.png" alt="20220424161541" style="zoom:50%;" />
 
 ## 四、欢迎页可以是一个Servlet
 
@@ -135,4 +135,4 @@ public class WelcomeServlet extends HttpServlet {
 
 </web-app>
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424161558.png)
+![20220424161558](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424161558.png)

@@ -4,4 +4,4 @@
 
 > 过滤重复的数据
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425131901.png)
+![20220425131901](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425131901.png)

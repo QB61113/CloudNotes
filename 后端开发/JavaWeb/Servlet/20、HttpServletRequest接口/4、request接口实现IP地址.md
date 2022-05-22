@@ -53,6 +53,6 @@ public class RequestTestServlet extends HttpServlet {
   
 </web-app>
 ```
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424162150.png" alt="img" style="zoom: 50%;" />
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424162159.png" alt="img" style="zoom:50%;" />
+![image-20220523001745534](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220523001745534.png)
+![20220424162159](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424162159.png)
 

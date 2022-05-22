@@ -55,9 +55,9 @@
 
 - > `<%  %>`在这个里面写Java的时候，要时刻记住是在方法体中写代码
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424214505.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424214505.png" alt="20220424214505" style="zoom:50%;" />
 
-
+​	
 
 ### 3.2 JSP专业注释
 
@@ -74,9 +74,9 @@
 
 :mag:`<%!  %>`这个符号编写的Java代码块会被翻译到service方法之外，这个很少用。因为：
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424214644.png" alt="img" style="zoom:33%;" />
+![20220424214644](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424214644.png)
 
-
+​	
 
 ### 3.3 JSP输出语句
 
@@ -86,11 +86,11 @@
 
 ⚠️以上代码中的==out==是JSP的==九大内置对象之一==，可以直接拿来用，当然必须==只能在service方法内部使用==
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424214826.png)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424214826.png" alt="20220424214826" style="zoom:50%;" />
 
 ✅如果向浏览器上输出的内容没有Java代码，可以直接在JSP里编写，不需要写到`<% %>`里
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424214847.png)
+![20220424214847](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424214847.png)
 
 ✅如果输出的内容含有java代码，这个时候可以使用一下格式的语法
 
@@ -98,11 +98,11 @@
 
 - ==当输出的是一个动态变量时使用，因为输出的内容可以直接在JSP里编写==
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424214900.png)
+![20220424214900](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424214900.png)
 
 - - 所以`<% = %>`最终被翻译成了java代码：`out.print();`
 
-
+​	
 
 ### 3.4 JSP基础语法总结
 
@@ -131,7 +131,7 @@
 
 - - JSP专业注释
 
-
+​		
 
 ## 四、JSP和Servlet的本质区别（面试题）
 
@@ -145,17 +145,17 @@ JSP的职责是：展示数据
 
 JSP最强项的是做数据的展示
 
-
+​	
 
 ## 五、JSP的page指令，解决响应时的中文乱码问题
 
 :mag:配置指：`<%@page contentType="text/html;charset=UTF-8" %>`表示响应内容时text/html，采用的字符集是UTF-8
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424182056.png)
+![20220424182056](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424182056.png)
 
 相当于：
 
-![image-20220424182518486](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424182519.png)
+![20220424182519](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424182519.png)
 
 
 

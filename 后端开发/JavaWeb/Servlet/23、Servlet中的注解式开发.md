@@ -14,7 +14,7 @@
       - 有的一些需要变化的信息，还是需要配置到web.xml文件中，一般都是`注解+配置文件`的开发模式
       - 一些不会经常变化修改的配置建议使用注解，一些可能会被修改的建议写到配置文件中
 
-
+​	
 
 ## 二、注解的使用
 
@@ -26,7 +26,7 @@
 
   
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424174658.png)
+![20220424174658](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424174658.png)
 
 - [x] Servlet类上使用：`@WebServlet`
 - [x] Servlet注解的属性
@@ -38,13 +38,13 @@
 - [x] 注解对象的使用格式`initPatams`
    - `@注解名称(属性名=属性值,属性名=属性值,属性名=属性值)`
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424174739.png)
+![20220424174739](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424174739.png)
 
 - [x] 不需要将所有的属性都写上，只需要提供需要的（需要什么用什么）
 
 ⚠️当注解的属性是一个数组，并且数字中只有一个元素，大括号可以省略
 
-
+​	
 
 ## 三、模板方法设计模式解决类爆炸
 
@@ -60,7 +60,7 @@
    - 处理银行卡片业务的对应一个CardServlet
 - [x] 通配写法
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424174748.png)
+![20220424174748](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424174748.png)
 ```java
 package oa.action;
 

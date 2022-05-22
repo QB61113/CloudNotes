@@ -4,5 +4,5 @@
 
 用于实现连接
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425132042.png)
+![20220425132042](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425132042.png)
 

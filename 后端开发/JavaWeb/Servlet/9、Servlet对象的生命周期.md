@@ -124,7 +124,7 @@ A destory启动了
 
     }
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424155715.png)
+![20220424155715](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424155715.png)
 
 - 如果没有无参数的构造方法会导致500错误
 - 一般不建议程序员来定义构造方法
@@ -284,7 +284,7 @@ public class BServlet implements Servlet {
     </servlet-mapping>
 </web-app>
 ```
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424155753.png)
+![20220424155753](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424155753.png)
 
 2. 一般不配，特殊情况下才配
 

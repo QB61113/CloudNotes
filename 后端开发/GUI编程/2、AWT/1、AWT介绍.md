@@ -4,11 +4,11 @@
 
 > 包含了很多类和接口   
 
-<br>
+​	
 
 ### 1.1 元素
 
 > 元素：窗口，按钮，文本框
 
-![](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425160230.jpeg)
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425160230.jpeg" alt="20220425160230" style="zoom:50%;" />
 

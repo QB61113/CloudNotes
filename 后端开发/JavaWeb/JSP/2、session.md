@@ -12,7 +12,7 @@
   - 只要B和S断开了，==关闭浏览器这个动作，服务器是不知道的==（关闭浏览器和退出账号是不一样的，一个安全，一个不安全）
 - [x] session是以cookie形式保存在浏览器中
 
-
+​	
 
 ## 二、语法规范
 
@@ -24,7 +24,7 @@
 - [x] 从会话域取出数据
   - `Object obj = session.getAttribute();`
 
-
+​	
 
 ## 三、session实现原理
 
@@ -36,7 +36,7 @@
 
 ✅关闭浏览器，内存小时，cookie消失，sessionid消失，会话等同于结束
 
-
+​	
 
 ⚠️cookie禁用了，session还能找到吗？
 
@@ -46,7 +46,7 @@
 
 - URL重写会增高开发者的成本，开发者在编写任何请求路径的时候，都需要在后面添加一个sessionid
 
-
+​	
 
 ## 四、session对象的获取
 
@@ -62,7 +62,7 @@
 
 作用：从WEB服务器中获取session对象，如果session对象没有，则返回一个null
 
-
+​	
 
 ### 4.1 session什么时候被销毁？
 
@@ -72,7 +72,7 @@
 
 ✅一种销毁：是手动销毁（点击退出按钮）`session*.*invalidate();`
 
-
+​	
 
 ### 4.2 超时机制
 
@@ -89,17 +89,17 @@
     
 ```
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425003558.png)
+![20220425003558](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425003558.png)
 
-
+​	
 
 ###  4.3 注意
 
 ✅JSP会在程序启动时，创建session对象，使得session对象不为空，可以在inedx.jsp中设置，使得JSP不创建seesion，但是不影响seesion的功能
 
-![img](https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220425003613.png)
+![20220425003613](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220425003613.png)
 
-
+​	
 
 ### 4.4 域对象的总结
 

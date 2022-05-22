@@ -169,7 +169,7 @@ public class HelloServlet implements Servlet {
 - [x] 请求路径要带上项目名
    - IDEA中
 
-<img src="https://gitee.com/xleixz/CloudNotes-Images/raw/master/Typora-Images/20220424151013.png" alt="img" style="zoom: 50%;" />
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424151013.png" alt="20220424151013" style="zoom: 33%;" />
 
 ## 四、总结
 

@@ -51,7 +51,7 @@ Spring Maven导包：<https://mvnrepository.com/tags/spring?p=2>
 - 控制反转（IOC），面向切面编程（AOP）；
 - 支持事务的处理，对框架整合的支持。
 
-
+​	
 
 <font color="green" >**一句话总结：Spring就是一个轻量级的控制反转（IOC）和面向切面编程（AOP）的框架！**</font>
 
@@ -251,7 +251,7 @@ Spring的底层全是set方法机制，如果没有set方法，Spring是跑不�
 
 **IOC是Spring框架的核心内容**，使用多种方式完美的实现了IOC，**可以使用XML配置，也可以使用注解，新版本的Spring也可以零配置实现IOC。**
 
-原理过程：**Spring容器在初始化时先读取配置文件，根据配置文件或元数据创建与组织对象存入容器中，程序使用时再从IOC容器中取出需要的对象。**
+<font color="green">原理过程：</font>**Spring容器在初始化时先读取配置文件，根据配置文件或元数据创建与组织对象存入容器中，程序使用时再从IOC容器中取出需要的对象。**
 
 <img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220507225708.png" alt="20220507225708" style="zoom:50%;" />
 
@@ -304,7 +304,7 @@ public class Hello {
    >
    > ​												` <property name="" value=""/>`
    >
-   >  										`</bean>`
+   >  ​									`</bean>`
    >
    > id：变量名（相当于Hello `hello` = new Hello()的hello）
    >
@@ -487,9 +487,9 @@ public class User {
 @Test
 public void test(){
    ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
-   //在执行getBean的时候, user已经创建好了 , 通过无参构造
+   //在执行getBean的时候,user已经创建好了,通过无参构造
    User user = (User) context.getBean("user");
-   //调用对象的方法 .
+   //调用对象的方法.
    user.show();
 }
 ```

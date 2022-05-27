@@ -512,5 +512,107 @@ public void test(){
 
 ![20220513233659](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220513233659.png)
 
+​	
+
 > 通过有参构造方法来创建
+
+方法一：**下标赋值**
+
+```xml
+<!--第一种方法：下标赋值-->
+    <bean id="user" class="com.xleixz.pojo.User">
+        <constructor-arg index="0" value="有参构造，下标赋值"/>
+    </bean>
+```
+
+​	
+
+方法二：**类型**，【不推荐使用】
+
+```xml
+<!--方法二：类型    不建议使用，因为假如出现了两个String类型时，此时会出现错误-->
+    <bean id="user" class="com.xleixz.pojo.User">
+        <constructor-arg type="java.lang.String" value="有参构造，类型赋值"/>
+    </bean>
+```
+
+​	
+
+方法三：**直接通过参数名**
+
+```xml
+<!--方法三：直接通过参数名-->
+    <bean id="user" class="com.xleixz.pojo.User">
+        <constructor-arg name="name" value="有参构造，值赋值"/>
+    </bean>
+```
+
+​	
+
+**总结：在配置文件加载的时候，容器中管理的对象就已经初始化了。**
+
+假如再创建一个实体类【UserT】，使用无参构造，bean对象后，什么都不写，不调用UserT实体类，仍然会被实例化。
+
+1. 实体类【UserT】
+
+```java
+public class UserT {
+
+    private String name;
+
+
+    public UserT() {
+        System.out.println("UserT被创建了");
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void show() {
+
+        System.out.println("name = " + name);
+
+    }
+
+}
+```
+
+2. Spring配置文件【beans.xml】
+
+```xml
+<bean id="userT" class="com.xleixz.pojo.UserT">
+
+</bean>
+```
+
+3. 测试类【MyTest】
+
+```java
+public class MyTest {
+
+    public static void main(String[] args) {
+
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+        User user = (User) context.getBean("user");
+
+        user.show();
+
+    }
+}
+```
+
+![image-20220527233858182](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220527233858182.png)
+
+---
+
+​	
+
+# 5、Spring配置说明
 

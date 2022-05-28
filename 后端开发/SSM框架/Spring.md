@@ -616,3 +616,119 @@ public class MyTest {
 
 # 5、Spring配置说明
 
+## 5.1 别名
+
+Spring配置文件【beans.xml】
+
+```xml
+<!--别名，如果添加了别名，也可以使用别名获取到这个对象-->
+<alias name="user" alias="asdfg"/>
+```
+
+测试类【MyTest】 
+
+```java
+public class MyTest {
+
+    public static void main(String[] args) {
+
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+        User user = (User) context.getBean("asdfg");
+
+        user.show();
+
+    }
+}
+```
+
+​	
+
+## 5.2 Bean的配置
+
+Spring配置文件【beans.xml】
+
+```xml
+ <!--id：bean的唯一标识符，也就是相当于对象名
+        class：bean对象所对应的全限定名：包名+类型
+        name：也是别名，name可以同时取多个别名(逗号，空格都可以分割)
+        -->
+    <bean id="userT" class="com.xleixz.pojo.UserT" name="user2,u2">
+        <property name="name" value="xleixz"/>
+
+    </bean>
+```
+
+测试类【MyTest】
+
+```java
+public class MyTest {
+
+    public static void main(String[] args) {
+
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+
+        UserT user = (UserT) context.getBean("u2");
+
+        user.show();
+        
+    }
+} 
+```
+
+​	
+
+## 5.3 import
+
+这个import，一般用于团队开发使用，他可以将多个配置文件，导入合并为一个。
+
+假设项目中有多个人开发，下面这三个人负责不同的类开发，不同的类需要注册在不同的bean中，我们可以利用import将所有人的beans.xml合并为一个总的！
+
+- 张三
+- 李四
+- 王五
+- applicationContext.xml
+
+```xml
+<import resource="beans.xml"/>
+<import resource="beans2.xml"/>
+<import resource="beans3.xml"/>
+```
+
+```java
+public class MyTest {
+
+    public static void main(String[] args) {
+
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        UserT user = (UserT) context.getBean("u2");
+
+        user.show();
+
+    }
+}
+```
+
+​	
+
+使用的时候，直接使用总的配置就可以了。
+
+---
+
+​	
+
+# 6、DI依赖注入
+
+## 6.1 构造器注入
+
+[构造器注入方式](#4、IOC创建对象的方式 "点击查看第四章构造器注入方式")
+
+​	
+
+## 6.2 Set方式注入【最重点】
+
+​	
+
+## 6.3 拓展方式注入
+

@@ -728,7 +728,261 @@ public class MyTest {
 
 ## 6.2 Set方式注入【最重点】
 
+**依赖注入：Set注入！**
+
+- 依赖：bean对象的创建依赖于容器！
+- 注入：bean对象中的所有属性，由容器来注入！
+
 ​	
 
+**【普通值注入】**
+
+1. 复杂类型【Address.java】
+
+```java
+public class Address {
+
+    private String address;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+}
+```
+
+2. 真实测试对象【Student.java】
+
+```java
+    private String name;
+    private Address address;
+    private String [] books;
+    private List<String> hobbies;
+    private Map<String,String> card;
+    private Set<String> games;
+    private String wife;
+    private Properties info;
+```
+
+3. Spring配置文件【beans.xml】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="student" class="com.xleixz.pojo.Student">
+         <!--第一种，普通值注入，value-->
+        <property name="name" value="小雷"/>
+    </bean>
+
+</beans>
+```
+
+4. 测试类【MyTest.java】
+
+```java
+public class MyTest {
+
+    public static void main(String[] args) {
+        ApplicationContext context  = new ClassPathXmlApplicationContext("beans.xml");
+        Student student = (Student)context.getBean("student");
+
+        System.out.println(student.toString());
+        System.out.println(student.getName());
+        System.out.println(student.getAddress());
+    }
+}
+```
+
+​	
+
+**【Bean注入】**
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">
+        <!--第二种，Bean注入，ref-->
+        <property name="address" ref="address"/>
+</bean>
+```
+
+​	
+
+【**数组注入**】
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">  
+<!--第三种，数组注入，ref-->
+        <property name="books">
+            <array>
+                <value>红楼梦</value>
+                <value>西游记</value>
+                <value>水浒传</value>
+                <value>三国演义</value>
+            </array>
+        </property>
+</bean>
+```
+
+​	
+
+【**List注入**】
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">  
+<!--第四种，List注入-->
+        <property name="hobbies">
+            <list>
+                <value>听歌</value>
+                <value>看电影</value>
+            </list>
+        </property>
+</bean>
+```
+
+​	
+
+【**Map注入**】
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">  
+ <!--第五种，Map注入-->
+        <property name="card">
+            <map>
+                <entry key="身份证" value="123232132323"/>
+                <entry key="银行卡" value="79853495495450345"/>
+            </map>
+        </property>
+</bean>
+```
+
+​	
+
+【**Set注入**】
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">  
+ <!--第六种，Set注入-->
+        <property name="games">
+            <set>
+                <value>LOL</value>
+                <value>GTA5</value>
+                <value>PUBG</value>
+            </set>
+        </property>
+</bean>
+```
+
+​	
+
+【**null值注入**】
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">  
+ <!--第七种，null值注入-->
+        <property name="wife">
+            <null/>
+        </property>
+</bean>
+```
+
+​	
+
+【**Properties注入**】
+
+```xml
+<bean id="student" class="com.xleixz.pojo.Student">   
+<!--第八种，Properties注入-->
+        <property name="info">
+            <props>
+                <prop key="name">小雷</prop>
+                <prop key="password">123456</prop>
+            </props>
+        </property>
+</bean>
+```
+
+
+
 ## 6.3 拓展方式注入
+
+我们可以使用`p命名空间`和`c命名空间`进行注入。
+
+【**p命名空间**】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--P命名空间注入，可以直接注入属性的值：properties-->
+    <bean id="user" class="com.xleixz.pojo.User" p:name="小雷test1" p:age="22"/>
+
+</beans>
+```
+
+测试：
+
+```java
+@Test
+    public void test2() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("Userbeans.xml");
+        User user = context.getBean("user", User.class);
+        System.out.println(user);
+    }
+```
+
+​	
+
+【**c命名空间**】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--C命名空间注入，可以通过构造器注入：construct-->
+    <bean id="user2" class="com.xleixz.pojo.User" c:name="小雷test2" c:age="22"/>
+
+</beans>
+```
+
+测试：
+
+```java
+  @Test
+    public void test3() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("Userbeans.xml");
+        User user2 = context.getBean("user2", User.class);
+        System.out.println(user2);
+    }
+```
+
+​	
+
+**注意：**p命名空间和c命名空间不能直接使用，需要导入xml约束！！
+
+```xml
+xmlns:p="http://www.springframework.org/schema/p"
+xmlns:c="http://www.springframework.org/schema/c"
+```
+
+---
+
+​	
+
+# 7、Bean的作用域
+
+
 

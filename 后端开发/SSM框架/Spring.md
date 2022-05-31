@@ -18,7 +18,7 @@ Spring : 春天 --->给软件行业带来了春天
 
 **Spring理念 : 使现有技术更加实用 . 本身就是一个大杂烩 , 整合现有的框架技术。**
 
-Spring官网 : <http://spring.io/> 
+Spring官网 : <http://spring.io/>
 
 官方下载地址 : <https://repo.spring.io/libs-release-local/org/springframework/spring/>
 
@@ -265,7 +265,7 @@ Spring的底层全是set方法机制，如果没有set方法，Spring是跑不�
 
 ​	
 
-# 3、Hello Spring
+# 3、Hello Spring【实战基础】
 
 1. 准备一个实体类【Hello】。
 
@@ -349,6 +349,8 @@ public class Hello {
 > 需要什么就get什么，我们的对象现在都在Spring中管理了，我们要使用，直接去`context`里面取出来就可以了
 >
 > `Hello hello = (Hello) context.getBean("hello");`
+>
+> 如果不想强转可以写成`Hello hello = context.getBean("hello",Hello.class);`
 
 ```java
 public class MyTest {
@@ -418,7 +420,6 @@ public class MyTest {
         ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
         //需要什么就get什么
         UserServiceImpl userServiceImpl = (UserServiceImpl) context.getBean("UserServiceImpl");
-        
         userServiceImpl.getUser();
     }
 ```
@@ -527,7 +528,7 @@ public void test(){
 
 ​	
 
-方法二：**类型**，【不推荐使用】
+方法二：**类型**，【<font color="red">不推荐使用</font>】
 
 ```xml
 <!--方法二：类型    不建议使用，因为假如出现了两个String类型时，此时会出现错误-->
@@ -907,7 +908,7 @@ public class MyTest {
 </bean>
 ```
 
-
+​	
 
 ## 6.3 拓展方式注入
 
@@ -991,5 +992,362 @@ xmlns:c="http://www.springframework.org/schema/c"
 | [application](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-factory-scopes-application) | Scopes a single bean definition to the lifecycle of a `ServletContext`. Only valid in the context of a web-aware Spring `ApplicationContext`. |
 | [websocket](https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#websocket-stomp-websocket-scope) | Scopes a single bean definition to the lifecycle of a `WebSocket`. Only valid in the context of a web-aware Spring `ApplicationContext`. |
 
+1. 单例模式（Spring默认机制）
 
+```xml
+<bean id="user2" class="com.xleixz.pojo.User" c:age="18" c:name="小雷" scope="singleton"/>
+```
+
+2. 原型模式：每次从容器中get的时候，都会产生一个新对象！
+
+```xml
+<bean id="accountService" class="com.something.DefaultAccountService" scope="prototype"/>
+```
+
+3. 其余的`request`、`session`、`application`这些只能在web开发中使用到！
+
+---
+
+​	
+
+# 7、Bean的自动装配
+
+自动装配是Spring满足bean依赖的一种方式！
+
+Spring会在上下文中自动寻找，并自动给bean装配属性！
+
+​	
+
+在Spring中有三种装配的方式：
+
+1. 在xml中显示配置
+2. 在java中显示配置
+3. 隐式的自动装配bean【重要】
+
+​		
+
+## 7.1 环境搭建【自动装配准备工作】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="cat" class="com.xleixz.pojo.Cat"/>
+    <bean id="dog" class="com.xleixz.pojo.Dog"/>
+    <bean id="people" class="com.xleixz.pojo.People">
+          <property name="cat" ref="cat"/>
+          <property name="dog" ref="dog"/>
+          <property name="name" value="小雷"/>
+    </bean>
+</beans>
+```
+
+```java
+public class People {
+
+    private Cat cat;
+    private Dog dog;
+    private String name;
+
+    public Cat getCat() {
+        return cat;
+    }
+
+    public void setCat(Cat cat) {
+        this.cat = cat;
+    }
+
+    public Dog getDog() {
+        return dog;
+    }
+
+    public void setDog(Dog dog) {
+        this.dog = dog;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "People{" +
+                "cat=" + cat +
+                ", dog=" + dog +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+```java
+public class Dog {
+
+    public void shout() {
+        System.out.println("狗叫");
+    }
+}
+```
+
+```java
+public class Cat {
+    public void shout(){
+        System.out.println("猫叫");
+    }
+}
+```
+
+```java
+public class MyTest {
+
+    @Test
+    public void test1() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+        People people = context.getBean("people", People.class);
+
+        people.getCat().shout();
+        people.getDog().shout();
+        System.out.println(people.getName());
+    }
+}
+```
+
+​	 
+
+## 7.2 byName自动装配
+
+> byName：会自动在容器上下文查找，找set方法后对应的的值相对应的bean id。
+>
+> 优点：不会因为类型冲突而无法使用，一个set方法后的值对应一个id。
+>
+> 缺点：bean id的名字必须和set方法后的值一样，否则会找不到该对象。
+
+```xml
+<bean id="cat" class="com.xleixz.pojo.Cat"/>
+<bean id="dog" class="com.xleixz.pojo.Dog"/>
+
+<!--byName：会自动在容器上下文查找，和自己对象set方法后面的值对应的bean id-->
+<bean id="people" class="com.xleixz.pojo.People" autowire="byName">
+		<property name="name" value="小雷"/>
+</bean>
+```
+
+​	
+
+## 7.3 byType自动装配
+
+> byType：会自动在容器上下文查找，找和自己对象属性类型相同的bean。
+>
+> 优点：可以省略bean中的id不写，当类型不冲突时，对id的命名没有要求。
+>
+> 缺点：当类型冲突时，假如有两个dog，就会报错不能使用。
+
+```xml
+<bean id="cat" class="com.xleixz.pojo.Cat"/>
+<bean id="dog232323" class="com.xleixz.pojo.Dog"/>
+
+<!--byType：会自动在容器上下文查找，找和自己对象属性类型相同的bean。-->
+<bean id="people" class="com.xleixz.pojo.People" autowire="byType">
+    <property name="name" value="小雷"/>
+</bean>
+```
+
+​	
+
+## 7.4 使用注解进行自动装配
+
+jdk1.5支持注解，Spring2.5支持注解。
+
+使用注解注意条件：
+
+1. 导入约束（`bean标签中的网址`）；
+
+2. 配置注解支持。（`<context:annotation-config/>`）【**重要！！不能忘记**】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+	<!--开启注解的支持-->
+    <context:annotation-config/>
+
+</beans>
+```
+
+​	
+
+**@AutoWired注解**
+
+> @Autowired是按类型自动转配的，不支持id匹配。
+>
+> 直接在属性使用，也可以在set方法上使用；
+>
+> 可以省略set方法不写，但是不能省略get方法！
+
+【实体类】
+
+```java
+public class People {
+    @Autowired
+    private Cat cat;
+    @Autowired
+    private Dog dog;
+    private String name;
+
+    public Cat getCat() {
+        return cat;
+    }
+    @Autowired
+    public void setCat(Cat cat) {
+        this.cat = cat;
+    }
+}
+```
+
+【配置文件】
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--开启注解的支持-->
+    <context:annotation-config/>
+
+    <bean id="cat" class="com.xleixz.pojo.Cat"/>
+    <bean id="dog232323" class="com.xleixz.pojo.Dog"/>
+    <bean id="people" class="com.xleixz.pojo.People"/>
+</beans>
+```
+
+​	
+
+【拓展，了解】
+
+> 即使值为null，也不会报错。
+
+**@Autowired(required=false)**  说明：false，对象可以为null；true，对象必须存对象，不能为null。
+
+```java
+//如果允许对象为null，设置required = false,默认为true
+@Autowired(required = false)
+private Cat cat;
+```
+
+​	
+
+**@Qualifier注解**
+
+> @Autowired是根据类型自动装配的，加上@Qualifier则可以根据byName的方式自动装配；
+>
+> @Qualifier不能单独使用。
+
+测试实验步骤：
+
+1、配置文件中bean的id中的相同类型较多时。
+
+```xml
+<bean id="dog1" class="com.kuang.pojo.Dog"/>
+<bean id="dog2" class="com.kuang.pojo.Dog"/>
+<bean id="cat1" class="com.kuang.pojo.Cat"/>
+<bean id="cat2" class="com.kuang.pojo.Cat"/>
+```
+
+2、没有加Qualifier测试，直接报错。
+
+3、在属性上添加`@Qualifier`注解。
+
+```java
+@Autowired
+@Qualifier(value = "cat2")
+private Cat cat;
+@Autowired
+@Qualifier(value = "dog2")
+private Dog dog;
+```
+
+测试，成功输出！
+
+​	
+
+ **@Resource注解**
+
+> @Resource如有指定的name属性，先按该属性进行byName方式查找装配；
+>
+> 其次再进行默认的byName方式进行装配；
+>
+> 如果以上都不成功，则按byType的方式自动装配。
+>
+> 都不成功，则报异常。
+
+【实体类】
+
+```java
+public class User {
+   //如果允许对象为null，设置required = false,默认为true
+   @Resource(name = "cat2")
+   private Cat cat;
+   @Resource
+   private Dog dog;
+   private String str;
+}
+```
+
+【beans.xml】
+
+```xml
+<bean id="dog" class="com.kuang.pojo.Dog"/>
+<bean id="cat1" class="com.kuang.pojo.Cat"/>
+<bean id="cat2" class="com.kuang.pojo.Cat"/>
+
+<bean id="user" class="com.kuang.pojo.User"/>
+```
+
+测试：结果OK
+
+配置文件2：beans.xml ， 删掉cat2
+
+```xml
+<bean id="dog" class="com.kuang.pojo.Dog"/>
+<bean id="cat1" class="com.kuang.pojo.Cat"/>
+```
+
+实体类上只保留注解
+
+```java
+@Resource
+private Cat cat;
+@Resource
+private Dog dog;
+```
+
+结果：OK
+
+结论：先进行byName查找，失败；再进行byType查找，成功。
+
+​	
+
+**小结**：@Autowired与@Resource异同：
+
+> - @Autowired与@Resource都可以用来装配bean。都可以写在字段上，或写在setter方法上。
+>
+> - @Autowired通过**byType**的方式实现；【常用】
+> - @Resource默认通过**byName**的方式实现，如果名字找不到，则通过byType实现，如果两个都找不到，会报错。【常用】
 

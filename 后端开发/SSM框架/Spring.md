@@ -1351,3 +1351,246 @@ private Dog dog;
 > - @Autowired通过**byType**的方式实现；【常用】
 > - @Resource默认通过**byName**的方式实现，如果名字找不到，则通过byType实现，如果两个都找不到，会报错。【常用】
 
+---
+
+​	
+
+# 8、使用注解开发
+
+在Spring4之后，要使用注解开发，必须要保证AOP包导入了。
+
+![image-20220601213317282](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220601213317282.png)
+
+使用注解需要导入context约束，增加注解的支持。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--开启注解的支持-->
+    <context:annotation-config/>
+
+</beans>
+```
+
+​	
+
+> bean的实现
+
+1. 扫描指定包：【applicationContext.xml】配置文件
+
+```xml
+<!--指定要扫描的包，这个包下的注解就会生效-->
+<context:component-scan base-package="com.xleixz"/>
+```
+
+2. 在指定包下添加注解@Component 【User.java】
+
+```java
+//等价于 <bean id="user" class="com.xleixz.pojo.User"/>
+@Component
+public class User {
+    public String name = "小雷";
+}
+```
+
+3. 测试
+
+```java
+@Test
+    public void test1() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+        User user = context.getBean("user", User.class);
+        System.out.println(user.name);
+    }
+```
+
+​	
+
+> 属性注入
+
+1. 可以不用提供set方法，直接在直接名上添加@value("值")。
+
+```java
+//等价于 <bean id="user" class="com.xleixz.pojo.User"/>
+@Component
+public class User {
+
+    //等价于 <property name="name" value="xleixz"/>
+    @Value("小雷")
+    public String name;
+}
+```
+
+2. 如果提供了set方法，在set方法上添加@value("值");
+
+```java
+//等价于 <bean id="user" class="com.xleixz.pojo.User"/>
+@Component
+public class User {
+    
+    public String name;
+    
+    //等价于 <property name="name" value="xleixz"/>
+    @Value("小雷")
+    public void setName(String name) {
+       this.name = name;
+	}
+}
+```
+
+​	
+
+> 衍生注解
+
+@Component有几个衍生注解，在web开发中，会按照MVC三层架构分层！
+
+- dao【@Repository】
+- service【@Service】
+- controller【@Controller】
+
+这四个注解功能都是一样的，都是代表将某个类注册到Spring中，装配Bean
+
+​	
+
+> 自动装配
+
+- @AutoWired：自动装配通过类型，名字；
+- @Nullable：字段标记了这个注解，说明这个字段可以为null；
+- @Resource：自动装配通过名字，类型。
+
+详情见[自动装配](# 7、Bean的自动装配 "点击查看自动装配")
+
+​	
+
+> 作用域
+
+- singleton：默认的，Spring会采用单例模式创建这个对象。关闭工厂 ，所有的对象都会销毁。
+- prototype：多例模式。关闭工厂 ，所有的对象不会销毁。内部的垃圾回收机制会回收。
+
+```java
+//作用域
+@Scope("singleton")
+public class User {
+}
+```
+
+​		
+
+> 小结
+
+**xml 与 注解**
+
+- xml  ：更加万能，适用于任何场合！维护简单方便；
+- 注解：不是自己类实现不了，维护相对复杂，开发简单方便。
+
+**xml与注解整合开发** 
+
+- xml管理bean；
+- 注解只负责完成属性注入；
+- 开发过程中，只需要注意一个问题：必须让注解生效，就需要开启注解的支持。
+
+```xml
+<!--开启注解的支持-->
+<context:annotation-config/>
+
+<!--指定要扫描的包，这个包下的注解就会生效-->
+<context:component-scan base-package="com.xleixz"/>
+```
+
+---
+
+​	
+
+# 9、使用Java的方式配置Spring
+
+这章节完全不使用Spring的xml配置，全权交给Java来做！
+
+JavaConfig是Spring的一个子项目，在Spring4之后它成为了一个全新的功能。
+
+​	
+
+【实体类】
+
+```java
+//这个注解的意思就是说明这个类被Spring接管了，注册到了容器中
+@Component
+public class User {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+    //属性注入值
+    @Value("小雷")
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
+【配置文件】
+
+```java
+//这个也会被Spring容器托管，注册到容器中，因为它本来就是一个Component
+//@Configuration 就是一个配置类，等价于beans.xml或者applicationContext.xml
+@Configuration
+@ComponentScan("com.xleixz")
+
+//导入其他配置类
+@Import(MyConfig2.class)
+public class MyConfig {
+
+    //注册一个bean，等价于<bean id="user" class="com.xleixz.pojo.User"/>
+    //这个方法的名字就相当于这个bean的id
+    //这个方法的返回值就相当于这个bean的class
+    @Bean
+    public User getUser() {
+        //return就是返回要注入到bean中的对象
+        return new User();
+    }
+}
+```
+
+```java
+@Configuration
+public class MyConfig2 {
+}
+```
+
+【测试类】
+
+```java
+public class MyTest {
+
+    @Test
+    public void test1() {
+        //如果完全使用了配置方式去做，只能通过AnnotationConfigApplicationContext来获取容器
+        //通过配置类的class被加载到容器中
+        ApplicationContext context = new AnnotationConfigApplicationContext(MyConfig.class);
+        User getUser = context.getBean("getUser", User.class);
+        System.out.println(getUser.getName());
+    }
+}
+```
+
+---
+
+​		
+
+# 10、AOP
+
+
+

@@ -23,7 +23,6 @@
     <artifactId>mybatis</artifactId>
     <version>3.5.7</version>
 </dependency>
-
 ```
 
 ​	
@@ -167,7 +166,6 @@ public class MybatisUtils {
 
     static {
 
-
         try {
             //使用Mybatis第一步，必须要做！！！
             //获取SqlSessionFactory对象
@@ -219,11 +217,14 @@ Mybatis-config.xml（注意这里[测试常见报错）](#abN9C)
         </environment>
     </environments>
   
-  <!--这里需要配置文件，见5.1-->
+  <!--每一个Mapper.xml都需要在Mybatis核心配置文件中注册！！-->
+    <mappers>
+        <mapper resource="xleixz/dao/UserMapper.xml"/>
+    </mappers>
 </configuration>
 ```
 
-​	
+​		
 
 ## 2.4 IDEA连接数据库（可选）
 
@@ -502,6 +503,7 @@ value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;
 ## 3.1 namespace
 
 ==namespace==中的包名要和Mapper接口的包名一致
+
 <img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134307.png" alt="20220424134307" style="zoom:50%;" />
 
 ​	

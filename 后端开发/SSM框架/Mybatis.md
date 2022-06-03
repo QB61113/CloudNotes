@@ -6,7 +6,7 @@
 
 ## 1.1 什么是Mybatis
 
-**什么是Mybatis：**Mybatis是一款优秀的**持久层框架**，它支持定制化SQL，存储过程以及高级映射（方面写SQL）。
+**什么是Mybatis：**Mybatis是一款优秀的**持久层框架**，它支持定制化SQL，存储过程以及高级映射（方便写SQL）。
 **Mybatis**避免了几乎所有的JDBC代码和手动设置参数以及获取结果集。
 **Mybatis**可以使用简单的xml或注解来配置和映射原生类型、接口和Java的POJO（Plain Old Objects，普通老式Java对象）为数据库中的记录。
 

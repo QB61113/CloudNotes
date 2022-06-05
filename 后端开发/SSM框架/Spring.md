@@ -1590,7 +1590,325 @@ public class MyTest {
 
 ​		
 
-# 10、AOP
+# 10、代理模式
+
+为什么要学习代理模式？因为这就是SpringAOP的底层！【面试：SpringAOP 和 SpringMVC 】
+
+代理模式的分类：
+
+- 静态代理
+- 动态代理
+
+ 	
+
+理解：
+
+![image-20220605091252574](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220605091252574.png)
+
+​	
+
+## 10.1 静态代理
+
+角色分析：
+
+- 抽象角色：一般会使用接口或抽象类来解决
+- 真实角色：被代理的角色
+- 代理角色：代理真实角色，代理真实角色后，一般会做一些附属操作
+- 客户：访问代理对象的人
+
+​	
+
+1. 接口
+
+```java
+//房屋接口
+public interface Rent {
+
+    //要出租的房屋
+    public void rent();
+
+}
+```
+
+2. 真实角色
+
+```java
+//房东
+public class Host implements Rent {
+
+    @Override
+    public void rent() {
+        System.out.println("房东出租房子");
+    }
+
+}
+```
+
+3. 代理角色
+
+```java
+//代理角色
+public class Proxy implements Rent {
+
+    private Host host;
+
+    public Proxy(Host host) {
+        this.host = host;
+    }
+
+    public Proxy() {
+    }
+
+    @Override
+    public void rent() {
+        host.rent();
+        seeHouse();
+        free();
+        hetong();
+    }
+
+    //看房
+    public void seeHouse() {
+        System.out.println("中介带你看房");
+    }
+
+    //收中介费
+    public void free() {
+        System.out.println("收中介费");
+    }
+
+    //签租赁合同
+    public void hetong() {
+        System.out.println("签租赁合同");
+    }
+
+}
+```
+
+4. 客户端访问这个代理角色
+
+```java
+public class Client {
+
+    public static void main(String[] args) {
+
+        //房东租房子
+        Host host = new Host();
+
+        //代理，中介帮房东租房子，但是代理角色一般会有一些附属操作
+        Proxy proxy = new Proxy(host);
+
+        //租房的人无需面对房东，直接找代理（中介）租房即可
+        proxy.rent();
+    }
+}
+```
+
+​	
+
+**代理模式的好处：**
+
+- 可以使真实角色的操作更加纯粹！不用去关注一些公共的业务；
+- 公共业务就交给了代理角色，实现了业务的分工；
+- 公共业务拓展时，方便集中管理。
+
+**代理模式的缺点：**
+
+- 一个真实角色就会产生一个代理角色；代码量翻倍，开发效率会变低。
+
+​	
+
+## 10.2 静态代理加深理解
+
+1. 接口
+
+```java
+public interface UserService {
+    public void add();
+
+    public void delete();
+
+    public void update();
+
+    public void query();
+}
+```
+
+2. 真实角色
+
+```java
+//真实对象
+public class UserServiceImpl implements UserService {
+
+    @Override
+    public void add() {
+        System.out.println("增加一个用户");
+    }
+
+    @Override
+    public void delete() {
+        System.out.println("删除一个用户");
+    }
+
+    @Override
+    public void query() {
+        System.out.println("查询一个用户");
+    }
+
+    @Override
+    public void update() {
+        System.out.println("修改一个用户");
+    }
+}
+```
+
+3. 代理角色
+
+```java
+public class UserServiceProxy implements UserService {
+
+    private UserServiceImpl userService;
+
+    public void setUserService(UserServiceImpl userService) {
+        this.userService = userService;
+    }
+
+    @Override
+    public void add() {
+        log("add");
+        userService.add();
+    }
+
+    @Override
+    public void delete() {
+        log("delete");
+        userService.delete();
+    }
+
+    @Override
+    public void update() {
+        log("update");
+
+        userService.update();
+    }
+
+    @Override
+    public void query() {
+        log("query");
+
+        userService.query();
+    }
+
+    //日志方法
+    public void log(String msg) {
+        System.out.println("[Debug] 使用了" + msg + "方法");
+    }
+}
+```
+
+4. 客户端访问
+
+```java
+public class Client {
+    public static void main(String[] args) {
+
+        UserServiceImpl userService = new UserServiceImpl();
+
+        UserServiceProxy userServiceProxy = new UserServiceProxy();
+        userServiceProxy.setUserService(userService);
+
+        userServiceProxy.add();
+    }
+}
+```
+
+​	
+
+**所谓的代理模式就是一个业务程序从dao层，开发到Service层，到Control层，到前端开发。如果需要拓展应用，修改底层代码的风险是巨大的，这时候就可以通过代理模式横切编程。这也是AOP的实现机制！**
+
+​	
+
+## 10.3 动态代理
+
+- 动态代理和静态代理角色一样；
+- 动态代理的代理类是动态生成的，不是直接写好的。
+- 动态代理分为两大类：
+  - 基于接口的动态代理：JDK动态代理【使用】
+  - 基于类的动态代理：cglib
+  - java字节码实现：Javassist
+
+​	
+
+需要了解两个类：Proxy：代理，InvocationHandler：调用处理程序
+
+​	
+
+编写一个通用的动态代理实现的类！所有的代理对象设置为Object即可！
+
+```java
+//自动生成代理类
+public class ProxyInvocationHandler implements InvocationHandler {
+
+
+    private Object target;
+
+    public void setTarget(Object target) {
+        this.target = target;
+    }
+
+    //生成代理类
+    public Object getProxy() {
+        return Proxy.newProxyInstance(this.getClass().getClassLoader(),
+                target.getClass().getInterfaces(), this);
+    }
+
+    // proxy : 代理类
+    // method : 代理类的调用处理程序的方法对象.
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        log(method.getName());
+        Object result = method.invoke(target, args);
+        return result;
+    }
+
+    public void log(String methodName) {
+        System.out.println("执行了" + methodName + "方法");
+    }
+
+}
+```
+
+测试
+
+```java
+public class Test {
+   public static void main(String[] args) {
+       //真实对象
+       UserServiceImpl userService = new UserServiceImpl();
+       //代理对象的调用处理程序
+       ProxyInvocationHandler pih = new ProxyInvocationHandler();
+       pih.setTarget(userService); //设置要代理的对象
+       UserService proxy = (UserService)pih.getProxy(); //动态生成代理类！
+       proxy.delete();
+  }
+}
+```
+
+​	
+
+**动态代理的优点**
+
+静态代理有的它都有，静态代理没有的，它也有！
+
+- 可以使得真实角色更加纯粹 . 不再去关注一些公共的事情 .
+- 公共的业务由代理来完成 . 实现了业务的分工 ,
+- 公共业务发生扩展时变得更加集中和方便 .
+- 一个动态代理 , 一般代理某一类业务
+- 一个动态代理可以代理多个类，代理的是接口！
+
+
+
+
 
 
 

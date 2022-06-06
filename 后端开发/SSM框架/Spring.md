@@ -2061,15 +2061,583 @@ public class MyTest {
 }
 ```
 
+​	
 
+Spring的Aop就是将公共的业务 (日志 , 安全等) 和领域业务结合起来 , 当执行领域业务时 , 将会把公共业务加进来，实现公共业务的重复利用 . 领域业务更纯粹 , 程序猿专注领域业务 , 其本质还是动态代理。
 
+​	
 
+【建议使用】**方式二：自定义类来实现AOP**
 
+编写一个切入类
 
+```java
+public class DIYPointCut {
 
+    public void before() {
+        System.out.println("===========方法执行前===========");
+    }
 
+    public void after() {
+        System.out.println("===========方法执行后===========");
+    }
+}
+```
 
+Spring配置文件
 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
 
+    <!--注册bean-->
+    <bean id="userService" class="com.xleixz.service.UserServiceImpl"/>
+    <bean id="log" class="com.xleixz.log.Log"/>
+    <bean id="afterLog" class="com.xleixz.log.AfterLog"/>
 
+    <!--方式二：自定义类-->
+    <bean id="diy" class="com.xleixz.DIY.DIYPointCut"/>
+
+    <aop:config>
+        <!--自定义切面，ref要引用类-->
+        <aop:aspect ref="diy">
+            <!--切入点-->
+            <aop:pointcut id="pointcut" expression="execution(* com.xleixz.service.UserServiceImpl.*(..))"/>
+
+            <!--前置通知-->
+            <aop:before pointcut-ref="pointcut" method="before"/>
+
+            <!--后置通知-->
+            <aop:after pointcut-ref="pointcut" method="after"/>
+
+        </aop:aspect>
+    </aop:config>
+
+</beans>
+```
+
+测试类
+
+```java
+public class MyTest {
+    @Test
+    public void test() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
+        //动态代理，代理的是接口
+        UserService userService = context.getBean("userService", UserService.class);
+        userService.add();
+
+    }
+}
+```
+
+​	
+
+**方式三：使用注解实现**
+
+编写一个增强类
+
+```java
+//标注这个类是一个切面类
+@Aspect
+public class AnnotationPointcut {
+
+    @Before("execution(* com.xleixz.service.UserServiceImpl.*(..))")
+    public void before() {
+        System.out.println("===========方法执行前===========");
+    }
+
+    @After("execution(* com.xleixz.service.UserServiceImpl.*(..))")
+    public void after() {
+        System.out.println("===========方法执行后===========");
+    }
+
+    //在环绕增强中，可以给定一个参数，代表要获取处理切入的点
+    @Around("execution(* com.xleixz.service.UserServiceImpl.*(..))")
+    public void around(ProceedingJoinPoint jp) throws Throwable {
+
+        System.out.println("环绕前");
+        System.out.println("签名:" + jp.getSignature());
+
+        //执行目标方法proceed
+        Object proceed = jp.proceed();
+
+        System.out.println("环绕后");
+        System.out.println(proceed);
+    }
+}
+```
+
+在Spring配置文件中，注册bean并增加支持注解的配置
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--注册bean-->
+    <bean id="userService" class="com.xleixz.service.UserServiceImpl"/>
+    <bean id="log" class="com.xleixz.log.Log"/>
+    <bean id="afterLog" class="com.xleixz.log.AfterLog"/>
+
+    <!--方式三：使用注解实现-->
+    <bean id="annotationPointcut" class="com.xleixz.DIY.AnnotationPointcut"/>
+
+    <!--开启注解支持-->
+    <aop:aspectj-autoproxy/>
+
+</beans>
+```
+
+测试
+
+```java
+public class MyTest {
+    @Test
+    public void test() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
+        //动态代理，代理的是接口
+        UserService userService = context.getBean("userService", UserService.class);
+        userService.add();
+
+    }
+}
+```
+
+---
+
+​	
+
+# 12、Mybatis-Spring（整合Mybatis）
+
+## 12.1 整合前环境搭建
+
+1. 导入相关jar包和配置Maven静态资源过滤
+
+   junit
+
+   ```xml
+   <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+   </dependency>
+   ```
+
+   mybatis
+
+   ```xml
+   <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis</artifactId>
+      <version>3.5.2</version>
+   </dependency>
+   ```
+
+   mysql-connector-java
+
+   ```xml
+   <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.47</version>
+   </dependency>
+   ```
+
+   spring相关
+
+   ```xml
+   <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>5.1.10.RELEASE</version>
+   </dependency>
+   <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <version>5.1.10.RELEASE</version>
+   </dependency>
+   ```
+
+   aspectJ AOP 织入器
+
+   ```xml
+   <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+   <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <version>1.9.4</version>
+   </dependency>
+   ```
+
+   mybatis-spring整合包 【重点】
+
+   ```xml
+   <dependency>
+      <groupId>org.mybatis</groupId>
+      <artifactId>mybatis-spring</artifactId>
+      <version>2.0.2</version>
+   </dependency>
+   ```
+
+   配置Maven静态资源过滤问题！
+
+   ```xml
+   <build>
+      <resources>
+          <resource>
+              <directory>src/main/java</directory>
+              <includes>
+                  <include>**/*.properties</include>
+                  <include>**/*.xml</include>
+              </includes>
+              <filtering>true</filtering>
+          </resource>
+      </resources>
+   </build>
+   ```
+
+2. 准备SQL工具类和属性文件
+
+   ```xml
+   //工具类
+   //sqlSessionFactory  工厂模式
+   
+   public class MybatisUtils {
+   
+       private static SqlSessionFactory sqlSessionFactory;
+   
+       static {
+   
+   
+           try {
+               //使用Mybatis第一步，必须要做！！！
+               //获取SqlSessionFactory对象
+               String resource = "mybatis-config.xml";
+               InputStream inputStream = Resources.getResourceAsStream(resource);
+               sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+   
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+   
+       }
+   
+       public static SqlSession getSqlSession() {
+           //openSession方法的自动提交设置为true就会自动提交了
+           return sqlSessionFactory.openSession(true);
+       }
+   }
+   ```
+
+   ```properties
+   driver=com.mysql.jdbc.Driver
+   url=jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8
+   username=root
+   password=123456
+   ```
+
+3. 准备核心配置文件
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE configuration
+           PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-config.dtd">
+   <configuration>
+   
+       <properties resource="db.properties">
+       </properties>
+   
+       <typeAliases>
+           <typeAlias type="com.xleixz.pojo.User" alias="User"/><!--alias起别名-->
+       </typeAliases>
+   
+       <environments default="development">
+           <environment id="development">
+               <!--transactionManager事务管理-->
+               <transactionManager type="JDBC"/>
+               <dataSource type="POOLED">
+                   <property name="driver" value="${driver}"/>
+                   <!--防止出现问号-->
+                   <property name="url" value="${url}"/>
+                   <property name="username" value="${username}"/>
+                   <property name="password" value="${password}"/>
+               </dataSource>
+           </environment>
+       </environments>
+   
+       <mappers>
+           <mapper class="com.xleixz.mapper.UserMapper"/>
+       </mappers>
+   </configuration>
+   ```
+
+4. 实体类
+
+   ```java
+   @Data
+   public class User {
+       private int id;
+       private String name;
+       private String pwd;
+   }
+   ```
+
+5. Mapper接口和接口对应的Mapper映射文件【每一个Mapper.xml都需要在Mybatis核心配置文件中注册】
+
+   ```java
+   public interface UserMapper {
+   
+       public List<User> selectUser();
+   }
+   ```
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE mapper
+           PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+   <mapper namespace="com.xleixz.mapper.UserMapper">
+   
+       <select id="selectUser" resultType="User">
+           select * from user
+       </select>
+   </mapper>
+   ```
+
+6. 测试类
+
+   ```java
+   public class MyTest {
+   
+       @Test
+       public void select() {
+   
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+   
+           //底层主要应用反射
+           UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+   
+           List<User> userList = mapper.selectUser();
+           for (User user : userList) {
+               System.out.println(user);
+           }
+   
+           sqlSession.close();
+       }
+   }
+   ```
+
+​	目录结构：
+
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220606105129824.png" alt="image-20220606105129824" style="zoom:50%;" />
+
+​		
+
+## 12.2 Mybatis-Spring - 方式一
+
+> 传送门：[mybatis-spring中文文档](https://mybatis.org/spring/zh/ "点击查看mybatis-Spring帮助文档")
+
+在开始使用 MyBatis-Spring 之前，你需要先熟悉 Spring 和 MyBatis 这两个框架和有关它们的术语。这很重要——因为本手册中不会提供二者的基本内容，安装和配置教程。
+
+MyBatis-Spring 需要以下版本：
+
+| MyBatis-Spring | MyBatis | Spring Framework | Spring Batch | Java    |
+| :------------- | :------ | :--------------- | :----------- | :------ |
+| **2.0**        | 3.5+    | 5.0+             | 4.0+         | Java 8+ |
+| **1.3**        | 3.4+    | 3.2.2+           | 2.1+         | Java 6+ |
+
+如果使用 Maven 作为构建工具，仅需要在 pom.xml 中加入以下代码即可：
+
+```xml
+<dependency>
+   <groupId>org.mybatis</groupId>
+   <artifactId>mybatis-spring</artifactId>
+   <version>2.0.2</version>
+</dependency>
+```
+
+1. 引入Spring配置文件
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:aop="http://www.springframework.org/schema/aop"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop
+          http://www.springframework.org/schema/aop/spring-aop.xsd">
+   ```
+
+2. 配置数据源替换mybaits的数据源
+
+   ```xml
+    <!--DataSource:使用Spring的数据源替换mybatis的配置    c3p0  dbcp
+       这里使用Spring提供的jdbc-->
+       <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+           <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+           <property name="url"
+                     value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8"/>
+           <property name="username" value="root"/>
+           <property name="password" value="123456"/>
+       </bean>
+   ```
+
+3. SqlSessionFactory，关联MyBatis
+
+   ```xml
+   <!--sqlSessionFactory-->
+       <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+           <property name="dataSource" ref="datasource"/>
+   
+           <!--绑定mybatis配置文件-->
+           <property name="configLocation" value="classpath:Mybatis-config.xml"/>
+           <property name="mapperLocations" value="classpath:com/xleixz/mapper/*.xml"/>
+       </bean>
+   ```
+
+4. SqlSessionTemplate，关联sqlSessionFactory；
+
+   ```xml
+   <!--SqlSessionTemplate就是我们使用的SqlSession-->
+       <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+           <!--只能使用构造器注入SqlSessionFactory，因为它没有set方法-->
+           <constructor-arg index="0" ref="sqlSessionFactory"/>
+       </bean>
+   ```
+
+5. 需要给接口加实现类
+
+   ```java
+   public class UserMapperImpl implements UserMapper {
+   
+       //我们以前的所有操作都使用SqlSession来执行，
+       //我们现在都是用SqlSessionTemplate来执行
+       private SqlSessionTemplate sqlSession;
+   
+       public void setSqlSession(SqlSessionTemplate sqlSession) {
+           this.sqlSession = sqlSession;
+       }
+   
+       @Override
+       public List<User> selectUser() {
+           UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+           return mapper.selectUser();
+       }
+   }
+   ```
+
+6. 注册bean实现
+
+   ```xml
+   <!--实现类注册-->
+       <bean id="userMapper" class="com.xleixz.mapper.UserMapperImpl">
+           <property name="sqlSession" ref="sqlSession"/>
+       </bean>
+   ```
+
+7. 测试类
+
+   ```java
+   public class MyTest {
+   
+       @Test
+       public void test() {
+   
+           ApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+   
+           UserMapper userMapper = context.getBean("userMapper", UserMapper.class);
+   
+           for (User user : userMapper.selectUser()) {
+               System.out.println(user);
+           }
+       }
+   }
+   ```
+
+目录结构：
+
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220606150849294.png" alt="image-20220606150849294" style="zoom: 50%;" />
+
+​	
+
+## 12.3 Mybatis-Spring - 方式二【了解】
+
+1. 将上面写的UserDaoImpl修改一下，继承`SqlSessionDaoSupport`即可
+
+   ```java
+   public class UserMapperImpl2 extends SqlSessionDaoSupport implements UserMapper {
+   
+       @Override
+       public List<User> selectUser() {
+           SqlSession sqlSession = getSqlSession();
+           UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+           return getSqlSession().getMapper(UserMapper.class).selectUser();
+       }
+   }
+   ```
+
+2. 注册bean
+
+   ```xml
+   <bean id="userMapper2" class="com.xleixz.mapper.UserMapperImpl2">
+          <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+   </bean>
+   ```
+
+3. 测试
+
+   ```java
+   public class MyTest {
+   
+       @Test
+       public void test() {
+   
+           ApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+   
+           UserMapperImpl userMapper = context.getBean("userMapper", UserMapperImpl.class);
+   
+           for (User user : userMapper.selectUser()) {
+               System.out.println(user);
+           }
+       }
+   }
+   ```
+
+这种方式简洁了很多操作，了解即可。
+
+---
+
+​	
+
+# 13、声明式事务
+
+- 把一组业务当成一个业务来做，要么都成功，要么都失败！
+- 事务在项目开发中，十分的重要，涉及到数据的一致性问题！
+- 确保完整性和一致性
+
+​	
+
+事务的ACID原则：
+
+- 原子性：一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。
+- 一致性：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。
+- 隔离性：数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable），防止数据损坏。
+- 持久性：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。
+
+​	
 

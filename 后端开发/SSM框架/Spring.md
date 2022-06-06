@@ -1906,6 +1906,167 @@ public class Test {
 - 一个动态代理 , 一般代理某一类业务
 - 一个动态代理可以代理多个类，代理的是接口！
 
+---
+
+​	
+
+# 11、AOP
+
+## 11.1 什么是AOP
+
+AOP（Aspect Oriented Programming）意为：面向切面编程，通过预编译方式和运行期动态代理实现程序功能的统一维护的一种技术。AOP是OOP的延续，是软件开发中的一个热点，也是Spring框架中的一个重要内容，是函数式编程的一种衍生范型。利用AOP可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。
+
+​	
+
+## 11.2 AOP在Spring中的作用
+
+**提供声明式事务；允许用户自定义切面。**
+
+以下名词需要了解下：
+
+- 横切关注点：跨越应用程序多个模块的方法或功能。即是，与我们业务逻辑无关的，但是我们需要关注的部分，就是横切关注点。如日志 , 安全 , 缓存 , 事务等等 ....
+- 切面（ASPECT）：横切关注点 被模块化 的特殊对象。即，它是一个类。
+- 通知（Advice）：切面必须要完成的工作。即，它是类中的一个方法。
+- 目标（Target）：被通知对象。
+- 代理（Proxy）：向目标对象应用通知之后创建的对象。
+- 切入点（PointCut）：切面通知 执行的 “地点”的定义。
+- 连接点（JointPoint）：与切入点匹配的执行点。
+
+​	
+
+## 11.3 使用Spring实现AOP
+
+【重点】导入依赖包：[https://mvnrepository.com/artifact/org.aspectj/aspectjweaver](https://mvnrepository.com/artifact/org.aspectj/aspectjweaver "点击到官网查看")
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+<dependency>
+   <groupId>org.aspectj</groupId>
+   <artifactId>aspectjweaver</artifactId>
+   <version>1.9.4</version>
+</dependency>
+```
+
+​	
+
+**方式一：使用Spring的API接口**
+
+首先编写我们的业务接口和实现类
+
+```java
+public interface UserService {
+    public void add();
+
+    public void delete();
+
+    public void update();
+
+    public void select();
+}
+```
+
+```java
+public class UserServiceImpl implements UserService {
+    @Override
+    public void add() {
+        System.out.println("增加了一个用户");
+    }
+
+    @Override
+    public void delete() {
+        System.out.println("删除了一个用户");
+    }
+
+    @Override
+    public void update() {
+        System.out.println("更新了一个用户");
+    }
+
+    @Override
+    public void select() {
+        System.out.println("查询了一个用户");
+    }
+}
+```
+
+然后写增强类 , 编写两个 , 一个前置增强 一个后置增强
+
+```java
+public class Log implements MethodBeforeAdvice {
+
+    //method:目标对象的方法
+    //objects:目标对象的参数
+    //target:目标对象
+    @Override
+    public void before(Method method, Object[] args, Object target) throws Throwable {
+
+        System.out.println(target.getClass().getName() + "的" + method.getName() + "()" + "方法开始执行");
+    }
+}
+```
+
+```java
+public class AfterLog implements AfterReturningAdvice {
+
+    @Override
+    public void afterReturning(Object returnValue, Method method, Object[] args, Object target) throws Throwable {
+        System.out.println(target.getClass().getName() + "的" + method.getName() + "()" + "方法执行完毕，返回值为：" + returnValue);
+    }
+}
+```
+
+在Spring中注册并实现aop切入实现 , 注意导入约束
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--注册bean-->
+    <bean id="userService" class="com.xleixz.service.UserServiceImpl"/>
+    <bean id="log" class="com.xleixz.log.Log"/>
+    <bean id="afterLog" class="com.xleixz.log.AfterLog"/>
+
+    <!--方式一：使用原生Spring API接口-->
+    <!--aop的配置-->
+    <aop:config>
+        <!--切入点 expression:表达式匹配要执行的方法, execution:要执行的位置-->
+        <aop:pointcut id="pointcut" expression="execution(* com.xleixz.service.UserServiceImpl.*(..))"/>
+
+        <!--执行环绕; advice-ref执行方法 . pointcut-ref切入点-->
+        <aop:advisor advice-ref="log" pointcut-ref="pointcut"/>
+        <aop:advisor advice-ref="afterLog" pointcut-ref="pointcut"/>
+    </aop:config>
+
+</beans>
+```
+
+测试类
+
+```java
+public class MyTest {
+    @Test
+    public void test() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
+        //动态代理，代理的是接口
+        UserService userService = context.getBean("userService", UserService.class);
+        userService.add();
+
+    }
+}
+```
+
+
+
+
+
+
+
 
 
 

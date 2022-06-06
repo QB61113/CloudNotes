@@ -2634,10 +2634,148 @@ MyBatis-Spring 需要以下版本：
 
 事务的ACID原则：
 
-- 原子性：一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过一样。
-- 一致性：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。
-- 隔离性：数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable），防止数据损坏。
+- 原子性：一个事务（transaction）中的所有操作，要么全部完成，要么全部不完成，不会结束在中间某个环
+
+  节。事务在执行过程中发生错误，会被回滚（Rollback）到事务开始前的状态，就像这个事务从来没有执行过
+
+  一样。
+
+- 一致性：在事务开始之前和事务结束以后，数据库的完整性没有被破坏。这表示写入的资料必须完全符合所有
+
+  的预设规则，这包含资料的精确度、串联性以及后续数据库可以自发性地完成预定的工作。
+
+- 隔离性：数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时
+
+  由于交叉执行而导致数据的不一致。事务隔离分为不同级别，包括读未提交（Read uncommitted）、读提交（read committed）、可重复读（repeatable read）和串行化（Serializable），防止数据损坏。
+
 - 持久性：事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。
+
+​		
+
+## 13.1 Spring中的事务管理
+
+Spring在不同的事务管理API之上定义了一个抽象层，使得开发人员不必了解底层的事务管理API就可以使用Spring
+
+的事务管理机制。Spring支持编程式事务管理和声明式的事务管理。
+
+**编程式事务管理**
+
+- 将事务管理代码嵌到业务方法中来控制事务的提交和回滚
+- 缺点：必须在每个事务操作业务逻辑中包含额外的事务管理代码
+
+**声明式事务管理**【交由容器管理事务】
+
+- 一般情况下比编程式事务好用。
+- 将事务管理代码从业务方法中分离出来，以声明的方式来实现事务管理。
+- 将事务管理作为横切关注点，通过aop方法模块化。Spring中通过Spring AOP框架支持声明式事务管理。
 
 ​	
 
+**使用Spring管理事务，注意头文件的约束导入 : tx**
+
+```xml
+xmlns:tx="http://www.springframework.org/schema/tx"
+
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd">
+```
+
+**事务管理器**
+
+- 无论使用Spring的哪种事务管理策略（编程式或者声明式）事务管理器都是必须的。
+- 就是 Spring的核心事务管理抽象，管理封装了一组独立于技术的方法。
+
+**JDBC事务**
+
+```xml
+<!--配置声明式事务-->
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+       <property name="dataSource" ref="dataSource" />
+</bean>
+```
+
+**配置好事务管理器后需要配置事务的通知**
+
+```xml
+<!--配置事务通知-->
+<tx:advice id="txAdvice" transaction-manager="transactionManager">
+   <tx:attributes>
+       <!--配置哪些方法使用什么样的事务,配置事务的传播特性-->
+       <tx:method name="add" propagation="REQUIRED"/>
+       <tx:method name="delete" propagation="REQUIRED"/>
+       <tx:method name="update" propagation="REQUIRED"/>
+       <tx:method name="search*" propagation="REQUIRED"/>
+       <tx:method name="get" read-only="true"/>
+       <tx:method name="*" propagation="REQUIRED"/>
+   </tx:attributes>
+</tx:advice>
+```
+
+**spring事务传播特性：**
+
+事务传播行为就是多个事务方法相互调用时，事务如何在这些方法间传播。spring支持7种事务传播行为：
+
+- propagation_requierd：如果当前没有事务，就新建一个事务，如果已存在一个事务中，加入到这个事务中，这是最常见的选择。
+
+- propagation_supports：支持当前事务，如果没有当前事务，就以非事务方法执行。
+
+- propagation_mandatory：使用当前事务，如果没有当前事务，就抛出异常。
+
+- propagation_required_new：新建事务，如果当前存在事务，把当前事务挂起。
+
+- propagation_not_supported：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
+
+- propagation_never：以非事务方式执行操作，如果当前事务存在则抛出异常。
+
+- propagation_nested：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与
+
+  propagation_required类似的操作
+
+Spring 默认的事务传播行为是 PROPAGATION_REQUIRED，它适合于绝大多数的情况。
+
+假设 `ServiveX#methodX()` 都工作在事务环境下（即都被 Spring 事务增强了），假设程序中存在如下的调用链：
+
+`Service1#method1()->Service2#method2()->Service3#method3()`，那么这 3 个服务类的 3 个方法通过 Spring 的事务
+
+传播机制都工作在同一个事务中。
+
+就好比，我们刚才的几个方法存在调用，所以会被放在一组事务当中！
+
+**配置AOP**
+
+导入aop的头文件！
+
+```xml
+<!--配置aop织入事务-->
+<aop:config>
+   <aop:pointcut id="txPointcut" expression="execution(* com.kuang.dao.*.*(..))"/>
+   <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+</aop:config>
+```
+
+**进行测试**
+
+删掉刚才插入的数据，再次测试！
+
+```java
+@Test
+public void test2(){
+   ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+   UserMapper mapper = (UserMapper) context.getBean("userDao");
+   List<User> user = mapper.selectUser();
+   System.out.println(user);
+}
+```
+
+​	
+
+> 为什么需要配置事务？
+
+- 如果不配置，就需要手动提交控制事务；
+- 事务在项目开发过程非常重要，涉及到数据的一致性的问题！
+
+​		
+
+​	
+
+**完结！  2022/06/06**

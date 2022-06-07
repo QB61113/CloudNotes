@@ -594,6 +594,23 @@ public interface UserMapper {
   </mapper>
 ```
 
+```java
+ @Test
+    public void add() {
+
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+
+        userMapper.addUser(new User("xz","123456","张三","260","13888888888"));
+        userMapper.addUser(new User("zxy","123456","张晓云","260","13888888888"));
+
+        sqlSession.commit();
+
+        sqlSession.close();
+    }
+```
+
 ​	
 
 ## 3.4 update
@@ -795,6 +812,7 @@ public interface UserMapper {
 Mybatis的配置文件包含了会深深影响Mybatis行为的设置和属性信息。
 
 [**XML配置**](https://mybatis.org/mybatis-3/zh/configuration.html)**（官网帮助文档）**
+
  configuration（配置） 
 
 - [properties（属性）](https://mybatis.org/mybatis-3/zh/configuration.html#properties)
@@ -879,6 +897,7 @@ dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象
 在 properties 元素的子元素中设置。  
 
 编写一个配置文件
+
 db.properties
 
 ```properties
@@ -889,6 +908,7 @@ password=123456
 ```
 
 在**核心配置文件**mybatis-config.xml中引入**properties**
+
 注意：在xml中，所有的标签都可以规定其顺序，**properties**只能放在最上面
 
 ```xml
@@ -1287,6 +1307,7 @@ id  name  password
 ​	
 
 **STDOUT_LOGGING标准日志输出**
+
 在Mybatis核心配置中，配置日志！
 
 ```xml
@@ -1372,11 +1393,13 @@ log4j.logger.java.sql.PreparedStatement=DEBUG
 ### 10.2.3 log4j简单测试使用
 
 1. 在要使用Log4j的类中，导入包`import org.apache.log4j.Logger;`，注意：包不能导错，要导Apache的。
-1. 日志对象，参数为当前类的class：
+1. 日志对象，参数为当前类的class：【MyTest.java】
 
 ```java
 static Logger logger = Logger.getLogger(UserMapperTest.class);
 ```
+
+![image-20220607165931393](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220607165931393.png)
 
 3. 日志级别。
 
@@ -1545,9 +1568,17 @@ List<User> getUserByLimit(Map<String, Integer> map);
 
 **面向接口编程含义**
 
-在一个面向对象的系统中，系统的各种功能是由许许多多的不同对象协作完成的。在这种情况下，各个对象内部是如何实现自己的,对系统设计人员来讲就不那么重要了；而各个对象之间的协作关系则成为系统设计的关键。小到不同类之间的通信，大到各模块之间的交互，在系统设计之初都是要着重考虑的，这也是系统设计的主要工作内容。面向接口编程就是指按照这种思想来编程。
+在一个面向对象的系统中，系统的各种功能是由许许多多的不同对象协作完成的。在这种情况下，各个对象内部是
 
-**根本原因**：**==解耦==，可拓展，提高复用，分层开发中，上层不用管具体的实现，都遵守共同的标准，使得开发变得容易，规范性好。**
+如何实现自己的，对系统设计人员来讲就不那么重要了；而各个对象之间的协作关系则成为系统设计的关键。小到
+
+不同类之间的通信，大到各模块之间的交互，在系统设计之初都是要着重考虑的，这也是系统设计的主要工作内
+
+容。面向接口编程就是指按照这种思想来编程。
+
+**根本原因**：**==解耦==，可拓展，提高复用，分层开发中，上层不用管具体的实现，都遵守共同的标准，使得开**
+
+**发变得容易，规范性好。**
 
 ​	
 
@@ -2029,7 +2060,7 @@ password=123456
 
 ​		
 
-#### 16.1.2环境搭建
+#### 16.1.2 环境搭建
 
 1. 在pomxml文件中导入Lombok依赖
    - 安装lombok插件

@@ -7,8 +7,12 @@
 ## 1.1 什么是Mybatis
 
 **什么是Mybatis：**Mybatis是一款优秀的**持久层框架**，它支持定制化SQL，存储过程以及高级映射（方便写SQL）。
+
 **Mybatis**避免了几乎所有的JDBC代码和手动设置参数以及获取结果集。
-**Mybatis**可以使用简单的xml或注解来配置和映射原生类型、接口和Java的POJO（Plain Old Objects，普通老式Java对象）为数据库中的记录。
+
+**Mybatis**可以使用简单的xml或注解来配置和映射原生类型、接口和Java的POJO（Plain Old Objects，普通老式
+
+Java对象）为数据库中的记录。
 
 **Mybatis**本是Apache的一个开源项目，2013年迁移到GitHub。
 
@@ -48,17 +52,20 @@
 ## 1.3 持久化与持久层
 
 数据持久化
+
 **持久化**就是将程序的数据在持久状态和瞬时状态转化的过程。
+
 内存的特性：**断电即失。**
 
-​	
-
 **为什么需要持久化？**
+
 有一些对象，不能让他丢掉。内存太贵。
 
 ​	
 
 **持久层**：完成持久化工作的代码块。**层**是界限十分明显的。
+
+​	
 
 ## 1.4 为什么需要Mybatis？
 
@@ -75,6 +82,8 @@
 思路：搭建环境---->导入Mybatis---->编写代码---->测试
 
 > 帮助文档传送门：[Mybatis帮助文档](https://mybatis.org/mybatis-3/zh/index.html)
+
+​	
 
 ## 2.1 搭建环境
 
@@ -151,12 +160,17 @@ new---->Module---->Maven，在resources里新建一个xml配置文件
 
 理解：
 `String resource = "org/mybatis/example/mybatis-config.xml";`读取配置文件
+
 然后封装成一个工具类。
+
 `InputStream inputStream = Resources.getResourceAsStream(resource); `
+
 `SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);`
+
 ![20220424133916](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133916.png)
 
 Mybatis工具类：
+
 <img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424133925.png" alt="20220424133925" style="zoom:50%;" />
 
 ```java
@@ -249,12 +263,13 @@ Mybatis-config.xml（注意这里[测试常见报错）](#abN9C)
 1. **实体类**
 
 文件：User
+
 位置：
+
 ![20220424134002](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134002.png)
 
 ```java
 //实体类
-
 public class User {
     private int id;
     private String name;
@@ -302,21 +317,20 @@ public class User {
                 '}';
     }
 }
-
-
 ```
 
 ​	
 
 2. **Mapper接口**
 
-文件：UserDao（Dao等价于Mapper。）
+文件：UserDao（Dao等价于Mapper）
+
 位置：
+
 ![20220430002239](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220430002239.png)
 
 ```java
 //Dao等价于Mapper
-
 public interface UserDao {
     List<User> getUserList();
 }
@@ -327,8 +341,11 @@ public interface UserDao {
 3. **接口实现类**
 
 由原来的UserDaoImpl转变为一个Mapper配置文件
+
 文件：UserMapper.xml
+
 位置：
+
 ![20220424134044](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134044.png)
 
 ```xml
@@ -377,7 +394,6 @@ public class UserDaoTest<userList> {
         sqlSession.close();
     }
 }
-
 ```
 
 ![20220424134107](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134107.png)
@@ -387,21 +403,6 @@ public class UserDaoTest<userList> {
 > 方式二（较老，不推荐，了解）
 
 ```java
-package xleixz.dao;
-
-import org.apache.ibatis.session.SqlSession;
-import org.junit.Test;
-import xleixz.pojo.User;
-import xleixz.utils.MybatisUtils;
-
-import java.util.List;
-
-/**
- * @Author: 小雷学长
- * @Date: 2022/4/17 - 16:36
- * @Version: 1.8
- */
-
 public class UserDaoTest<userList> {
 
     @Test
@@ -417,7 +418,6 @@ public class UserDaoTest<userList> {
         //方式二：
         List<User> userList =  sqlSession.selectList("xleixz.dao.UserDao.getUserList");
 
-
         for (User user : userList) {
             System.out.println(user);
         }
@@ -426,7 +426,6 @@ public class UserDaoTest<userList> {
         sqlSession.close();
     }
 }
-
 ```
 
 ​	
@@ -452,7 +451,9 @@ public class UserDaoTest<userList> {
 2. **常见报错类型二**
 
 `The error may exist in xleixz/dao/UserMapper.xml`
+
 <img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220424134130.png" alt="20220424134130" style="zoom:50%;" />
+
 原因是Test中没有**UserMapper.xml**文件，可以通过手动复制到Test中，但是这样**太多！太麻烦！**
 
 > ---->解决：手动配置资源过滤，将Build配置信息导入到**pop**文件中。
@@ -494,11 +495,13 @@ value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;
 
 ​	
 
-​	
-
 # 3、Mybatis增删改查实现
 
 ==重点：==**增删改**需要***提交事务***
+
+Mybatis的Mapper文件中的select、insert、update、delete元素中有一个parameterType属性，用于对应的mapper接
+
+口方法接受的参数类型。
 
 ## 3.1 namespace
 
@@ -511,8 +514,11 @@ value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;
 ## 3.2 select
 
 选择，查询语句。
+
 **id**：就是对应的namespace中的方法名；
+
 **resultType**：SQL语句执行的返回值；
+
 **parameterType**：参数类型；
 
 ### 3.2.1 步骤详解
@@ -665,6 +671,14 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 # 4、Map的使用
 
 > 假设，实体类或数据库中的表，字段或者参数过多，应当考虑使用**Map**！
+>
+> 使用MyBatis查询数据库记录时，返回类型常用的有两种：resultType和resultMap。那么两者之间有什么区别呢？
+>
+> - 如果只是返回一个值，比如说String或者int，那直接用resultType就行了；
+> - 如果sql查询结果返回的列名和实体类中的字段名一致，可以使用resultType，MyBatis会自动把查询结果赋值给和字段名一致的字段。
+>
+> - 如果不一致，sql语句中可以使用别名的方式使其一致。
+> - 当sql的列名和实体类的列名不一致，这时就可以使用resultMap了。
 
 ```java
    //万能的Map
@@ -703,7 +717,9 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 ```
 
 **Map**传递参数，直接在SQL中取出key即可！`parameterType="map"`
+
 **对象**传递参数，直接在SQL中取出对象的属性即可！`parameterType="Object"`
+
 只有 **一个基本类型**参数的情况，直接在SQL中取到！  **省略不写**
 
 **多个参数用Map！，或注解！**
@@ -715,7 +731,9 @@ resources文件夹下的xml中，`mappers`标签中的**resource**值中的不�
 # 5、模糊查询拓展
 
 **模糊查询怎么写？**
+
 传送门：[MySQL的模糊查询](https://www.yuque.com/go/doc/60949063)
+
 在Java代码查询执行的时候，传递通配符`% %`
 
 接口类

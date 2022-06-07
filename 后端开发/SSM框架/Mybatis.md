@@ -577,6 +577,15 @@ public interface UserMapper {
 
 注意：**增删改需要提交事务**
 
+接口：这里返回值是int，int对应的是resultType的返回值类型，因为增加不需要返回值
+
+```java
+public interface UserMapper {
+    //增加
+    int addUser(User user);
+}
+```
+
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
@@ -603,7 +612,6 @@ public interface UserMapper {
         UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
 
         userMapper.addUser(new User("xz","123456","张三","260","13888888888"));
-        userMapper.addUser(new User("zxy","123456","张晓云","260","13888888888"));
 
         sqlSession.commit();
 
@@ -616,6 +624,15 @@ public interface UserMapper {
 ## 3.4 update
 
 注意：**增删改需要提交事务**
+
+接口
+
+```java
+public interface UserMapper {
+    //修改
+    int updateUser(User user);
+}
+```
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -635,11 +652,32 @@ public interface UserMapper {
   </mapper>
 ```
 
+```java
+ @Test
+    public void update() {
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        userMapper.updateUser(new User("xl", "123", "小雷学长", "8888", "18913926233"));
+
+        sqlSession.commit();
+        sqlSession.close();
+    }
+```
+
 ​	
 
 ## 3.5 delete
 
 注意：**增删改需要提交事务**
+
+接口
+
+```java
+public interface UserMapper {
+    //删除
+    User deleteUser(@Param("username") String username);
+}
+```
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -655,6 +693,18 @@ public interface UserMapper {
         where id = #{id}
     </delete>
   </mapper>
+```
+
+```java
+@Test
+    public void delete(){
+        SqlSession sqlSession = MybatisUtils.getSqlSession();
+        UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+        User user = userMapper.deleteUser("xl");
+
+        sqlSession.commit();
+        sqlSession.close();
+    }
 ```
 
 ​	

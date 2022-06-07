@@ -791,6 +791,7 @@ public interface UserMapper {
 ### 6.1.1 核心配置文件
 
 核心配置文件为：**mybatis.config.xml**
+
 Mybatis的配置文件包含了会深深影响Mybatis行为的设置和属性信息。
 
 [**XML配置**](https://mybatis.org/mybatis-3/zh/configuration.html)**（官网帮助文档）**
@@ -873,7 +874,9 @@ dataSource 元素使用标准的 JDBC 数据源接口来配置 JDBC 连接对象
 
 我们可以通过properties属性来实现引用配置文件。
 
-这些属性可以在外部进行配置，并可以进行动态替换。你既可以在典型的 Java 属性文件中配置这些属性，也可以在 properties 元素的子元素中设置。  
+这些属性可以在外部进行配置，并可以进行动态替换。你既可以在典型的 Java 属性文件中配置这些属性，也可以
+
+在 properties 元素的子元素中设置。  
 
 编写一个配置文件
 db.properties

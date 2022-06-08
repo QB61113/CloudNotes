@@ -304,7 +304,7 @@ public class Hello {
    >
    > ​												` <property name="" value=""/>`
    >
-   >  ​									`</bean>`
+   > ​									`</bean>`
    >
    > id：变量名（相当于Hello `hello` = new Hello()的hello）
    >
@@ -313,6 +313,10 @@ public class Hello {
    > name：set后面的那部分，**首字母小写**（相当于`setStr`中的`str`）
    >
    > property：相当于给对象中的属性设置一个值
+   >
+   > ref：引用Spring容器中创建好的对象
+   >
+   > value：具体的值，基本数据类型！
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -818,7 +822,7 @@ public class MyTest {
 
 ```xml
 <bean id="student" class="com.xleixz.pojo.Student">  
-<!--第三种，数组注入，ref-->
+<!--第三种，数组注入，array-->
         <property name="books">
             <array>
                 <value>红楼梦</value>
@@ -1190,7 +1194,7 @@ jdk1.5支持注解，Spring2.5支持注解。
 
 **@AutoWired注解**
 
-> @Autowired是按类型自动转配的，不支持id匹配。
+> @Autowired是按类型自动装配的，不支持id匹配。
 >
 > 直接在属性使用，也可以在set方法上使用；
 >
@@ -1361,7 +1365,9 @@ private Dog dog;
 
 ![image-20220601213317282](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220601213317282.png)
 
-使用注解需要导入context约束，增加注解的支持。
+​	
+
+使用注解需要导入`context约束`，`增加注解的支持`。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -2308,9 +2314,83 @@ public class MyTest {
    </build>
    ```
 
-2. 准备SQL工具类和属性文件
+   ​	
+
+   **整合**【pom.xml】
 
    ```xml
+   <dependencies>
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+           </dependency>
+           <dependency>
+               <groupId>mysql</groupId>
+               <artifactId>mysql-connector-java</artifactId>
+               <version>5.1.46</version>
+           </dependency>
+           <dependency>
+               <groupId>org.mybatis</groupId>
+               <artifactId>mybatis</artifactId>
+               <version>3.5.2</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-beans</artifactId>
+               <version>5.3.19</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-webmvc</artifactId>
+               <version>5.1.10.RELEASE</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-jdbc</artifactId>
+               <version>5.1.10.RELEASE</version>
+           </dependency>
+   
+           <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+           <dependency>
+               <groupId>org.aspectj</groupId>
+               <artifactId>aspectjweaver</artifactId>
+               <version>1.9.4</version>
+           </dependency>
+           <dependency>
+               <groupId>org.mybatis</groupId>
+               <artifactId>mybatis-spring</artifactId>
+               <version>2.0.2</version>
+           </dependency>
+           <dependency>
+               <groupId>log4j</groupId>
+               <artifactId>log4j</artifactId>
+               <version>1.2.17</version>
+           </dependency>
+           <dependency>
+               <groupId>org.projectlombok</groupId>
+               <artifactId>lombok</artifactId>
+               <version>1.18.22</version>
+           </dependency>
+       </dependencies>
+   
+       <build>
+           <resources>
+               <resource>
+                   <directory>src/main/java</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>true</filtering>
+               </resource>
+           </resources>
+       </build>
+   ```
+
+2. 准备SQL工具类和属性文件
+
+   ```java
    //工具类
    //sqlSessionFactory  工厂模式
    
@@ -2348,7 +2428,7 @@ public class MyTest {
    password=123456
    ```
 
-3. 准备核心配置文件
+3. 准备【mybatis-config.xml】核心配置文件
 
    ```xml
    <?xml version="1.0" encoding="UTF-8" ?>
@@ -2470,6 +2550,80 @@ MyBatis-Spring 需要以下版本：
 </dependency>
 ```
 
+**整合**【pom.xml】（<font color="green">**模板使用**</font>）
+
+```xml
+<dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.46</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>5.3.19</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.1.10.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.1.10.RELEASE</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>2.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+```
+
+​	
+
 1. 引入Spring配置文件
 
    ```xml
@@ -2518,6 +2672,48 @@ MyBatis-Spring 需要以下版本：
            <!--只能使用构造器注入SqlSessionFactory，因为它没有set方法-->
            <constructor-arg index="0" ref="sqlSessionFactory"/>
        </bean>
+   ```
+
+   ​	
+
+   **整合Spring-dao（Spring配置mybatis）配置文件**【Spring-dao】（<font color="green">**模板使用**</font>）
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:aop="http://www.springframework.org/schema/aop"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop
+          http://www.springframework.org/schema/aop/spring-aop.xsd">
+       
+        <!--DataSource:使用Spring的数据源替换mybatis的配置    c3p0  dbcp
+       这里使用Spring提供的jdbc-->
+       <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+           <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+           <property name="url"
+                     value="jdbc:mysql://localhost:3306/mybatis?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8"/>
+           <property name="username" value="root"/>
+           <property name="password" value="123456"/>
+       </bean>
+       
+       <!--sqlSessionFactory-->
+       <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+           <property name="dataSource" ref="datasource"/>
+   
+           <!--绑定mybatis配置文件-->
+           <property name="configLocation" value="classpath:Mybatis-config.xml"/>
+           <property name="mapperLocations" value="classpath:com/xleixz/mapper/*.xml"/>
+       </bean>
+       
+       <!--SqlSessionTemplate就是mybatis使用的SqlSession-->
+       <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+           <!--只能使用构造器注入SqlSessionFactory，因为它没有set方法-->
+           <constructor-arg index="0" ref="sqlSessionFactory"/>
+       </bean>
+     
+   </beans>
    ```
 
 5. 需要给接口加实现类

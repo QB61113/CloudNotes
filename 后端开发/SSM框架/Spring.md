@@ -2324,6 +2324,7 @@ public class MyTest {
                <groupId>junit</groupId>
                <artifactId>junit</artifactId>
                <version>4.12</version>
+               <scope>test</scope>
            </dependency>
            <dependency>
                <groupId>mysql</groupId>
@@ -2558,6 +2559,7 @@ MyBatis-Spring 需要以下版本：
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>

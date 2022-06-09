@@ -2978,7 +2978,7 @@ public void test2(){
 
 ​	
 
-	# 14、项目：Mybatis-Spring【模板】
+# 14、项目：Mybatis-Spring【模板】
 
 1. 在【pom.xml】文件中**导入依赖jar包**和**配置Maven静态资源过滤**
 

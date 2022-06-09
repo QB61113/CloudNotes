@@ -1,5 +1,7 @@
 # Mybatis
 
+固定配置文件或复习Mybatis见[第21章项目：Mybatis【模板】](#21、项目：Mybatis【模板】 "点击查看项目：Mybatis【模板】")
+
 <hr>
 
 # 1、Mybatis简介
@@ -3470,9 +3472,357 @@ Ehcache是一种广泛使用的java分布式缓存，用于通用缓存；
 </ehcache>
 ```
 
-​	
+---
 
 ​	
+
+# 21、项目：Mybatis【模板】
+
+1. 在【pom.xml】文件中**导入依赖jar包**和**配置Maven静态资源过滤**
+
+   ```xml
+   <!--导入依赖-->
+   <dependencies>
+           <!--mysql驱动-->
+           <dependency>
+               <groupId>mysql</groupId>
+               <artifactId>mysql-connector-java</artifactId>
+               <version>5.1.46</version>
+           </dependency>
+           <!--mybatis-->
+           <dependency>
+               <groupId>org.mybatis</groupId>
+               <artifactId>mybatis</artifactId>
+               <version>3.5.2</version>
+           </dependency>
+           <!--junit-->
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+           </dependency>
+           <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+           <dependency>
+               <groupId>org.projectlombok</groupId>
+               <artifactId>lombok</artifactId>
+               <version>1.18.22</version>
+           </dependency>
+   </dependencies>
+       
+   <build>
+           <resources>
+               <resource>
+                   <directory>src/main/resources</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>false</filtering>
+               </resource>
+               <resource>
+                   <directory>src/main/java</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>false</filtering>
+               </resource>
+           </resources>
+   </build>
+   ```
+
+2. 在**resources文件夹中**创建数据库驱动属性【db.properties】
+
+   ```properties
+   driver=com.mysql.jdbc.Driver
+   url=jdbc:mysql://localhost:3306/tingcc?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8
+   username=root
+   password=123456
+   ```
+
+3. 在**utils文件夹**中创建工具类【MybatisUtils.java】
+
+   ```java
+   //工具类
+   //sqlSessionFactory  工厂模式
+   
+   public class MybatisUtils {
+   
+       private static SqlSessionFactory sqlSessionFactory;
+   
+       static {
+   
+   
+           try {
+               //使用Mybatis第一步，必须要做！！！
+               //获取SqlSessionFactory对象
+               String resource = "mybatis-config.xml";
+               InputStream inputStream = Resources.getResourceAsStream(resource);
+               sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+           } catch (IOException e) {
+               e.printStackTrace();
+           }
+   
+       }
+   
+       public static SqlSession getSqlSession() {
+   
+           return sqlSessionFactory.openSession(true);
+       }
+   }
+   ```
+
+4. 在**resources文件夹**中创建**mybatis核心配置文件**【Mybatis-config.xml】
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE configuration
+           PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-config.dtd">
+   
+   <!--configuration核心配置文件-->
+   <configuration>
+   
+       <!--引入外部配置文件-->
+       <properties resource="db.properties">
+       </properties>
+   
+       <typeAliases>
+           <package name="com.xleixz.pojo"/>
+       </typeAliases>
+   
+       <environments default="development">
+           <environment id="development">
+               <!--transactionManager事务管理-->
+               <transactionManager type="JDBC"/>
+               <dataSource type="POOLED">
+                   <property name="driver" value="${driver}"/>
+                   <!--防止出现问号-->
+                   <property name="url" value="${url}"/>
+                   <property name="username" value="${username}"/>
+                   <property name="password" value="${password}"/>
+               </dataSource>
+           </environment>
+       </environments>
+   
+       <!--每一个Mapper.xml都需要在Mybatis核心配置文件中注册！！-->
+       <mappers>
+           <mapper resource="com/xleixz/mapper/UserMapper.xml"/>
+       </mappers>
+   
+   </configuration>
+   ```
+
+5. 在**pojo文件夹**中创建一个**实体类**【User.java】
+
+   ```java
+   public class User {
+   
+       private String username;
+       private String pwd;
+       private String realname;
+       private String blance;
+       private String MobilePhone;
+   
+       public User() {
+       }
+   
+       public User(String username, String password, String realname, String blance, String mobilePhone) {
+           this.username = username;
+           this.pwd = password;
+           this.realname = realname;
+           this.blance = blance;
+           MobilePhone = mobilePhone;
+       }
+   
+   
+       public String getUsername() {
+           return username;
+       }
+   
+       public void setUsername(String username) {
+           this.username = username;
+       }
+   
+       public String getPassword() {
+           return pwd;
+       }
+   
+       public void setPassword(String password) {
+           this.pwd = password;
+       }
+   
+       public String getRealname() {
+           return realname;
+       }
+   
+       public void setRealname(String realname) {
+           this.realname = realname;
+       }
+   
+       public String getBlance() {
+           return blance;
+       }
+   
+       public void setBlance(String blance) {
+           this.blance = blance;
+       }
+   
+       public String getMobilePhone() {
+           return MobilePhone;
+       }
+   
+       public void setMobilePhone(String mobilePhone) {
+           MobilePhone = mobilePhone;
+       }
+   
+       @Override
+       public String toString() {
+           return "User{" +
+                   "username='" + username + '\'' +
+                   ", password='" + pwd + '\'' +
+                   ", realname='" + realname + '\'' +
+                   ", blance='" + blance + '\'' +
+                   ", MobilePhone='" + MobilePhone + '\'' +
+                   '}';
+       }
+   }
+   ```
+
+6. 在**mapper文件夹**中创建**实体类接口**【UserMapper.java】
+
+   ```java
+   public interface UserMapper {
+   
+       //查询
+       User getUser(@Param("username") String username);
+   
+       //增加
+       int addUser(User user);
+   
+       //修改
+       int updateUser(User user);
+   
+       //删除
+       int deleteUser(@Param("username") String username);
+   }
+   ```
+
+7. 在**mapper文件夹**中创建**实体类接口配置文件**【UserMapper.xml】
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE mapper
+           PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+   <mapper namespace="com.xleixz.mapper.UserMapper">
+   
+   
+       <resultMap id="u" type="user">
+           <result column="password" property="pwd"/>
+       </resultMap>
+   
+       <select id="getUser" parameterType="String" resultMap="u">
+           select *
+           from t_user
+           where username = #{username}
+       </select>
+   
+   
+       <insert id="addUser" parameterType="user">
+           insert into t_user(username, password, realname, blance, MobilePhone)
+           values (#{username}, #{password}, #{realname}, #{blance}, #{MobilePhone})
+       </insert>
+   
+       <update id="updateUser" parameterType="user">
+           update t_user
+           set password=#{password},
+               realname=#{realname},
+               blance=#{blance},
+               MobilePhone=#{MobilePhone}
+           where username = #{username}
+       </update>
+   
+       <delete id="deleteUser" parameterType="String">
+           delete
+           from t_user
+           where username = #{username}
+       </delete>
+   
+   </mapper>
+   ```
+
+8. 在**核心配置文件**【Mybatis-config.xml】中**绑定接口配置文件**【UserMapper.xml】
+
+   ```xml
+   <!--每一个Mapper.xml都需要在Mybatis核心配置文件中注册！！-->
+       <mappers>
+           <mapper resource="com/xleixz/mapper/UserMapper.xml"/>
+   </mappers>
+   ```
+
+   ![image-20220609105249751](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220609105249751.png)
+
+9. 在**test文件夹**中创建**测试类**【MyTest.java】
+
+   ```java
+   public class MyTest {
+   
+       @Test
+       public void select() {
+   
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+           UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+           User user = userMapper.getUser("xl");
+           System.out.println(user);
+           sqlSession.close();
+       }
+   
+       @Test
+       public void add() {
+   
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+           UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+   
+           User user = new User("zs", "123456", "张三", "260", "13888888888");
+           userMapper.addUser(user);
+   
+           sqlSession.commit();
+           sqlSession.close();
+       }
+   
+       @Test
+       public void update() {
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+           UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+           userMapper.updateUser(new User("zs", "zs123", "张三（2）", "8888", "18913926233"));
+   
+           sqlSession.commit();
+           sqlSession.close();
+       }
+   
+       @Test
+       public void delete() {
+           SqlSession sqlSession = MybatisUtils.getSqlSession();
+           UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
+           userMapper.deleteUser("zs");
+   
+           sqlSession.commit();
+           sqlSession.close();
+       }
+   }
+   ```
+
+​	
+
+结构：
+
+![image-20220609105449801](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220609105449801.png)
+
+​		
+
+​		
 
 **完结！  2022/04/23**
 

@@ -1,5 +1,7 @@
 # Spring
 
+固定配置文件或复习Mybatis-Spring见[第14章项目：Mybatis-Spring【模板】](#14、项目：Mybatis-Spring【模板】 "点击查看项目：Mybatis-Spring【模板】")
+
 ---
 
 # 1、Spring简介
@@ -2972,8 +2974,410 @@ public void test2(){
 - 如果不配置，就需要手动提交控制事务；
 - 事务在项目开发过程非常重要，涉及到数据的一致性的问题！
 
-​		
+---
 
 ​	
+
+	# 14、项目：Mybatis-Spring【模板】
+
+1. 在【pom.xml】文件中**导入依赖jar包**和**配置Maven静态资源过滤**
+
+   ```xml
+   <dependencies>
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+               <scope>test</scope>
+           </dependency>
+           <dependency>
+               <groupId>mysql</groupId>
+               <artifactId>mysql-connector-java</artifactId>
+               <version>5.1.46</version>
+           </dependency>
+           <dependency>
+               <groupId>org.mybatis</groupId>
+               <artifactId>mybatis</artifactId>
+               <version>3.5.2</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-beans</artifactId>
+               <version>5.3.19</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-webmvc</artifactId>
+               <version>5.1.10.RELEASE</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-jdbc</artifactId>
+               <version>5.1.10.RELEASE</version>
+           </dependency>
+   
+           <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+           <dependency>
+               <groupId>org.aspectj</groupId>
+               <artifactId>aspectjweaver</artifactId>
+               <version>1.9.4</version>
+           </dependency>
+           <dependency>
+               <groupId>org.mybatis</groupId>
+               <artifactId>mybatis-spring</artifactId>
+               <version>2.0.2</version>
+           </dependency>
+           <dependency>
+               <groupId>log4j</groupId>
+               <artifactId>log4j</artifactId>
+               <version>1.2.17</version>
+           </dependency>
+           <dependency>
+               <groupId>org.projectlombok</groupId>
+               <artifactId>lombok</artifactId>
+               <version>1.18.22</version>
+           </dependency>
+   </dependencies>
+   
+   <build>
+           <resources>
+               <resource>
+                   <directory>src/main/java</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>true</filtering>
+               </resource>
+           </resources>
+   </build>
+   ```
+
+2. 在**pojo文件夹**中创建**实体类**【Family.java】
+
+   ```java
+   //实体类
+   public class Family {
+   
+       private String name;
+       private String sex;
+       private int age;
+   
+       public Family(String name, String sex, int age) {
+           this.name = name;
+           this.sex = sex;
+           this.age = age;
+       }
+   
+       public Family() {
+       }
+   
+       public String getName() {
+           return name;
+       }
+   
+       public void setName(String name) {
+           this.name = name;
+       }
+   
+       public String getSex() {
+           return sex;
+       }
+   
+       public void setSex(String sex) {
+           this.sex = sex;
+       }
+   
+       public int getAge() {
+           return age;
+       }
+   
+       public void setAge(int age) {
+           this.age = age;
+       }
+   
+       @Override
+       public String toString() {
+           return "Family{" +
+                   ", name='" + name + '\'' +
+                   ", sex='" + sex + '\'' +
+                   ", age=" + age +
+                   '}';
+       }
+   }
+   ```
+
+3. 在**resources文件夹中**创建**spring配置mybatis文件**【Spring-dao.xml】，为了连接数据库等操作
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:aop="http://www.springframework.org/schema/aop"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop
+          http://www.springframework.org/schema/aop/spring-aop.xsd">
+   
+       <!--DataSource:使用Spring的数据源替换mybatis的配置    c3p0  dbcp
+      这里使用Spring提供的jdbc-->
+       <bean id="datasource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+           <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+           <property name="url"
+                     value="jdbc:mysql://localhost:3306/family_spring_mybatis?useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF8"/>
+           <property name="username" value="root"/>
+           <property name="password" value="123456"/>
+       </bean>
+   
+       <!--sqlSessionFactory-->
+       <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+           <property name="dataSource" ref="datasource"/>
+   
+           <!--绑定mybatis配置文件-->
+           <property name="configLocation" value="classpath:Mybatis-config.xml"/>
+           <property name="mapperLocations" value="classpath:com/xleixz/mapper/*.xml"/>
+       </bean>
+   
+       <!--SqlSessionTemplate就是mybatis使用的SqlSession-->
+       <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+           <!--只能使用构造器注入SqlSessionFactory，因为它没有set方法-->
+           <constructor-arg index="0" ref="sqlSessionFactory"/>
+       </bean>
+   
+   </beans>
+   ```
+
+4. 在**resources文件夹中**创建**mybatis核心配置文件**【Mybatis-config.xml】，为了表示mybatis的存在，可以在这里设置起别名和设置等一些配置
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE configuration
+           PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-config.dtd">
+   <configuration>
+   
+       <!--alias起别名-->
+       <typeAliases>
+           <package name="com.xleixz.pojo"/>
+       </typeAliases>
+   
+   </configuration>
+   ```
+
+5. 在**resources文件夹**中创建**spring配置文件**【ApplicationContext.xml】，用于注册代理，接口实现类bean
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:aop="http://www.springframework.org/schema/aop"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/aop
+          http://www.springframework.org/schema/aop/spring-aop.xsd">
+       
+   </beans>
+   ```
+
+6. 在**mapper文件夹**中创建**实体类接口**【FamilyMapper.java】
+
+   ```java
+   //实体类接口
+   public interface FamilyMapper {
+   
+       //查询用户
+       public Family selectFamily(int id);
+   
+       //增加用户
+       public int addFamily(Family family);
+   
+       //修改用户
+       public int updateFamily(Family family);
+   
+       //删除用户
+       public int deleteFamily(int id);
+   }
+   ```
+
+7. 在**mapper文件夹中**创建**实体类接口对应的SQL方法**mybatis配置文件【FamilyMapper.xml】（<font color="red">**注意**</font>：这里尽量不要有中文注释，会报`UTF-8 序列的字节无效`错误）
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <!DOCTYPE mapper
+           PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+           "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+   <!--mybatis实现SQL语句-->
+   
+   <!--namespace绑定接口FamilyMapper-->
+   <mapper namespace="com.xleixz.mapper.FamilyMapper">
+   
+   
+       <select id="selectFamily" parameterType="int" resultType="family">
+           select *
+           from family
+           where id = #{id}
+       </select>
+   
+       <!--parameterType: 传参类型,接口中的方法为引用数据类型Family,这里就是传入的参数类型就是Family,
+           在Mybatis-config.xml中配置了typeAliases起别名,所以为family,增改查不需要查看所以无需返回值-->
+       <insert id="addFamily" parameterType="family">
+           insert into family(name, sex, age)
+           values (#{name}, #{sex}, #{age});
+       </insert>
+   
+       <!--parameterType: 传参类型,接口中的方法为引用数据类型Family,这里就是传入的参数类型就是Family,
+           在Mybatis-config.xml中配置了typeAliases起别名,所以为family,增改查不需要查看所以无需返回值-->
+       <update id="updateFamily" parameterType="family">
+           update family
+           set sex=#{sex},age=#{age}
+           where name= #{name}
+       </update>
+   
+       <!--parameterType: 传参类型,接口中的方法引用的为int类型,这里就是传入的参数类型就是int;增改查不需要查看所以无需返回值-->
+       <delete id="deleteFamily" parameterType="int">
+           delete
+           from family
+           where id = #{id}
+       </delete>
+   
+   </mapper>
+   ```
+
+8. 在**mapper文件夹**中创建**接口实现类**【FamilyImpl】，代理模式中的代理角色（中介）
+
+   ```java
+   //接口实现类，代理模式中的代理角色（中介）
+   public class FamilyImpl implements FamilyMapper {
+       //注入SqlSessionTemplate对象
+       private SqlSessionTemplate sqlSessionTemplate;
+   
+       //set方法注入
+       public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
+           this.sqlSessionTemplate = sqlSessionTemplate;
+       }
+   
+       //实现查询
+       @Override
+       public Family selectFamily(int id) {
+           //调用sqlSessionTemplate对象的getMapper方法,获取mapper接口的实现类对象
+           FamilyMapper familyMapper = sqlSessionTemplate.getMapper(FamilyMapper.class);
+           //调用mapper接口的方法,传递参数,获取返回值
+           return familyMapper.selectFamily(id);
+       }
+   
+       //实现添加用户
+       @Override
+       public int addFamily(Family family) {
+           //调用sqlSessionTemplate对象的getMapper方法,获取mapper接口的实现类对象
+           FamilyMapper familyMapper = sqlSessionTemplate.getMapper(FamilyMapper.class);
+           //调用mapper接口的方法,传递参数,获取返回值
+           return familyMapper.addFamily(family);
+       }
+   
+       //实现修改用户
+       @Override
+       public int updateFamily(Family family) {
+           //调用sqlSessionTemplate对象的getMapper方法,获取mapper接口的实现类对象
+           FamilyMapper familyMapper = sqlSessionTemplate.getMapper(FamilyMapper.class);
+           //调用mapper接口的方法,传递参数,获取返回值
+           return familyMapper.updateFamily(family);
+       }
+   
+       //实现删除用户
+       @Override
+       public int deleteFamily(int id){
+           //调用sqlSessionTemplate对象的getMapper方法,获取mapper接口的实现类对象
+           FamilyMapper familyMapper = sqlSessionTemplate.getMapper(FamilyMapper.class);
+           //调用mapper接口的方法,传递参数,获取返回值
+           return familyMapper.deleteFamily(id);
+       }
+   }
+   ```
+
+9. 在第5步中的**spring配置文件**【ApplicationContext.xml】中**注册bean绑定接口实现类**
+
+   ```xml
+   <!--注册代理，接口实现类bean-->
+   <import resource="spring-dao.xml"/>
+   
+       <bean id="FamilyImpl" class="com.xleixz.mapper.FamilyImpl">
+           <!--这里的name对应的是FamilyImpl接口中的set方法后的值,ref对应的是Spring-dao配置文件中创建的id:SqlSessionTemplate-->
+           <property name="sqlSessionTemplate" ref="sqlSession"/>
+   </bean>
+   ```
+
+   ![image-20220609101700666](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220609101700666.png)
+
+10. 在**Test文件夹**中创建**测试类**【MyTest.java】
+
+    ```java
+    //测试类
+    public class MyTest {
+    
+        //查询用户
+        @Test
+        public void select() {
+            //创建spring容器(ApplicationContext(上下文)对象),加载spring配置文件
+            ApplicationContext applicationContext = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+            //获取对象,注意这里是实现类的名称,UserMapperImpl,这里的名称要与spring配置文件中的bean id一致
+            FamilyImpl familyImpl = applicationContext.getBean("FamilyImpl", FamilyImpl.class);
+            //调用方法,传入参数
+            Family family = familyImpl.selectFamily(1);
+    
+            System.out.println(family);
+    
+        }
+    
+        //添加用户
+        @Test
+        public void add() {
+            //创建spring容器(ApplicationContext(上下文)对象),加载spring配置文件
+            ApplicationContext applicationContext = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+            //获取对象,注意这里是实现类的名称,UserMapperImpl,这里的名称要与spring配置文件中的bean id一致
+            FamilyImpl familyImpl = applicationContext.getBean("FamilyImpl", FamilyImpl.class);
+            //创建Family对象
+            Family family = new Family("小张", "女", 22);
+            Family family2 = new Family("小江", "男", 22);
+            //调用方法,传递参数,这里的参数是实体类
+            familyImpl.addFamily(family);
+        }
+    
+        //修改用户
+        @Test
+        public void update() {
+            //创建spring容器(ApplicationContext(上下文)对象),加载spring配置文件
+            ApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+            //获取对象,注意这里是实现类的名称,UserMapperImpl,这里的名称要与spring配置文件中的bean id一致
+            FamilyImpl familyImpl = context.getBean("FamilyImpl", FamilyImpl.class);
+            //创建Family对象,这里的参数是实体类
+            Family family = new Family("小雷","男",25);
+    
+            familyImpl.updateFamily(family);
+        }
+    
+        //删除用户
+        @Test
+        public void delete(){
+            //创建spring容器(ApplicationContext(上下文)对象),加载spring配置文件
+            ApplicationContext context = new ClassPathXmlApplicationContext("ApplicationContext.xml");
+            //获取对象,注意这里是实现类的名称,UserMapperImpl,这里的名称要与spring配置文件中的bean id一致
+            FamilyImpl familyImpl = context.getBean("FamilyImpl",FamilyImpl.class);
+            //调用方法,传递参数
+            familyImpl.deleteFamily(3);
+    
+        }
+    }
+    ```
+
+​	
+
+结构：
+
+![image-20220609102323011](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220609102323011.png)
+
+​		
+
+​		
 
 **完结！  2022/06/06**

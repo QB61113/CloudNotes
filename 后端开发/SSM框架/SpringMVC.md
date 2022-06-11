@@ -162,13 +162,57 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
 
 ## 2.2 SpringMVC执行原理
 
+**简要分析执行流程**
 
+![image-20220611145922253](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220611145922253.png)
+
+1. DispatcherServlet表示前置控制器，是整个SpringMVC的控制中心。用户发出请求，DispatcherServlet接收请求
+
+   并拦截请求。
+
+   - 我们假设请求的url为 : http://localhost:8080/SpringMVC/hello
+
+   - **如上url拆分成三部分：**
+
+   - http://localhost:8080服务器域名
+
+   - SpringMVC部署在服务器上的web站点
+
+   - hello表示控制器
+
+   - 通过分析，如上url表示为：请求位于服务器localhost:8080上的SpringMVC站点的hello控制器。
+
+2. HandlerMapping为处理器映射。DispatcherServlet调用HandlerMapping,HandlerMapping根据请求url查找
+
+   Handler。
+
+3. HandlerExecution表示具体的Handler,其主要作用是根据url查找控制器，如上url被查找控制器为：hello。
+
+4. HandlerExecution将解析后的信息传递给DispatcherServlet,如解析控制器映射等。
+
+5. HandlerAdapter表示处理器适配器，其按照特定的规则去执行Handler。
+
+6. Handler让具体的Controller执行。
+
+7. Controller将具体的执行信息返回给HandlerAdapter,如ModelAndView。
+
+8. HandlerAdapter将视图逻辑名或模型传递给DispatcherServlet。
+
+9. DispatcherServlet调用视图解析器(ViewResolver)来解析HandlerAdapter传递的逻辑视图名。
+
+10. 视图解析器将解析的逻辑视图名传给DispatcherServlet。
+
+11. DispatcherServlet根据视图解析器解析的视图结果，调用具体的视图。
+
+12. 最终视图呈现给用户。
 
 ---
 
 ​	
 
-# 3、HelloSpringMVC程序
+# 3、HelloSpringMVC程序（配置版）
+
+> 配置版SpringMVC较为繁琐，**注解版**才是SpringMVC的精髓。
 
 1. 新建一个Maven项目，**添加Web支持**；
 
@@ -204,7 +248,7 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
        </dependencies>
    ```
 
-3. 在**web.xml**配置文件中， **注册DispatcherServlet**；
+3. 在**web.xml**配置文件中， **注册DispatcherServlet**；**这是一个SpringMVC的核心: 请求分发器，前端控制器**；
 
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
@@ -213,11 +257,11 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
             xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
             version="5.0">
    
-       <!--1.注册DispatcherServlet-->
+      <!--1.注册配置DispatcherServlet  这是一个SpringMVC的核心: 请求分发器，前端控制器-->
        <servlet>
            <servlet-name>springmvc</servlet-name>
            <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-           <!--关联一个springmvc的配置文件:【servlet-name】-servlet.xml-->
+           <!--绑定一个springmvc的配置文件:【servlet-name】-servlet.xml-->
            <init-param>
                <param-name>contextConfigLocation</param-name>
                <param-value>classpath:springmvc-servlet.xml</param-value>
@@ -236,7 +280,7 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
    </web-app>
    ```
 
-4. 编写**SpringMVC 的 配置文件**【springmvc-servlet.xml】，这里的名称要求是按照官方来的；
+4. 编写**SpringMVC 的 配置文件**【springmvc-servlet.xml】，这里的名称要求尽量按照官方来【(servletname)-servlet.xml】；
 
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
@@ -245,7 +289,7 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
           xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans.xsd">
    
-       <!--添加 处理映射器-->
+       <!--添加 处理器映射器-->
        <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
        <!--添加 处理器适配器-->
        <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
@@ -262,13 +306,13 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
    </beans>
    ```
 
-   > 处理映射器
+   > 处理器映射器
 
    ```xml
    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
    ```
 
-   > 处理适配器
+   > 处理器适配器
 
    ```xml
    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
@@ -347,6 +391,14 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
 3. 重启Tomcat 即可解决！
 
 <font color = "green">**原因：**</font>Maven无法扫描Webapp下的jar包！
+
+---
+
+​	
+
+# 4、注解开发SpringMVC
+
+
 
 
 

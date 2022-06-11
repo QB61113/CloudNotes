@@ -1032,6 +1032,165 @@ Spring MVC 的 @RequestMapping 注解能够处理 HTTP 请求的方法, 比如 G
 
 ​	
 
+## 5.4 扩展：小黄鸭调试法
+
+> 场景一：我们都有过向别人（甚至可能向完全不会编程的人）提问及解释编程问题的经历，但是很多时候就
+>
+> 在我们解释的过程中自己却想到了问题的解决方案，然后对方却一脸茫然。
+>
+> 场景二：你的同行跑来问你一个问题，但是当他自己把问题说完，或说到一半的时候就想出答案走了，留下
+>
+> 一脸茫然的你。
+
+其实上面两种场景现象就是所谓的小黄鸭调试法（Rubber Duck Debuging），又称橡皮鸭调试法，它是我们软件工
+
+程中最常使用调试方法之一。
+
+![image-20220611233412547](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220611233412547.png)
+
+此概念据说来自《程序员修炼之道》书中的一个故事，传说程序大师随身携带一只小黄鸭，在调试代码的时候会在
+
+桌上放上这只小黄鸭，然后详细地向鸭子解释每行代码，然后很快就将问题定位修复了。
+
+---
+
+​	
+
+# 6、数据处理及跳转
+
+## 6.1 结果跳转方式
+
+设置ModelAndView对象 , 根据view的名称 , 和视图解析器跳到指定的页面。
+
+> 页面 : {视图解析器前缀} + viewName +{视图解析器后缀}
+
+```xml
+<!-- 视图解析器 -->
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+     id="internalResourceViewResolver">
+   <!-- 前缀 -->
+   <property name="prefix" value="/" />
+   <!-- 后缀 -->
+   <property name="suffix" value=".jsp" />
+</bean>
+```
+
+​	
+
+> **ServletAPI**
+
+通过设置ServletAPI , 不需要视图解析器：
+
+1. 通过HttpServletResponse进行输出
+
+2. 通过HttpServletResponse实现重定向
+
+3. 通过HttpServletRequest实现转发
+
+```java
+@Controller
+public class ModelTest1 {
+
+    @RequestMapping("/m1/t1")
+    public String test1(HttpServletRequest request, HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+        System.out.println(session.getId());
+        return "test";
+    }
+
+}
+```
+
+​	
+
+> **SpringMVC**
+
+**方式一：通过SpringMVC来实现转发和重定向 - 无需视图解析器；**
+
+1. **注释掉视图解析器**：
+
+![image-20220612002310664](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612002310664.png)
+
+2. **Controller类**
+
+   ```java
+   @Controller
+   public class ModelTest1 {
+   
+       @RequestMapping("/m1/t2")
+       public String test2(Model model) {
+           model.addAttribute("msg", "无视图解析器转发   /test.jsp");
+           // 转发
+           return "/test.jsp";
+       }
+   
+       @RequestMapping("/m1/t3")
+       public String test3(Model model) {
+           model.addAttribute("msg", "无视图解析器转发2  forward:/index.jsp");
+           // 转发2
+           return "forward:/test.jsp";
+       }
+   
+       @RequestMapping("/m1/t4")
+       public String test4(Model model) {
+           model.addAttribute("msg", "无视图解析器重定向  redirect:/index.jsp");
+           // 重定向
+           return "redirect:/index.jsp";
+       }
+   }
+   ```
+
+​	
+
+**方式二：通过SpringMVC来实现转发和重定向 - 有视图解析器；**
+
+有视图解析器默认是转发，重定向需要特写！
+
+转发会拼接，重定向不拼接
+
+1. **增加视图解析器**
+
+   ```xml
+   <!-- 视图解析器 -->
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+             id="internalResourceViewResolver">
+           <!-- 前缀 -->
+           <property name="prefix" value="/" />
+           <!-- 后缀 -->
+           <property name="suffix" value=".jsp" />
+       </bean>
+   ```
+
+2. **Controller类**
+
+   ```java
+   @Controller
+   public class ModelTest1 {
+   
+       @RequestMapping("/m1/t1")
+       public String test1(HttpServletRequest request, HttpServletResponse response) {
+   
+           HttpSession session = request.getSession();
+           System.out.println(session.getId());
+           return "test";
+       }
+       
+       @RequestMapping("/m2/t1")
+       public String test5(Model model) {
+           model.addAttribute("msg", "有视图解析器重定向   redirect:/index.jsp");
+           //重定向
+           return "redirect:/test.jsp";
+           //return "redirect:hello.do"; //hello.do为另一个请求/
+       }
+   ```
+
+​	
+
+## 6.2 数据处理
+
+
+
 
 
 ​	

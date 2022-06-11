@@ -24,7 +24,7 @@
       - Servlet接口（Servlet.class文件）是Oracle提供的
       - Servlet接口是JavaEE的规范中的一员
       - Tomcat服务器实现了Servlet规范，所以Tomcat服务器也需要使用Servlet接口，Tomcat服务器中应该有这个接口，Tomcat服务器的CATALINA_HOME\lib目录下有一个servlet-api.jar，解压后会得到一个Servlet.class文件
-      - 从JakartaEE9开始，Servlet接口的全名变了：jakarta.servlrt.Servlet
+      - 从JakartaEE10开始之后，Servlet接口的全名变了：jakarta.servlrt.Servlet
    - 注意：
       - 编写这个Java程序的时候，java源码在哪就在哪，位置无所谓，只需要将Java源代码编译之后的class文件放到classes目录下即可
 7. 编译编写的HelloServlet

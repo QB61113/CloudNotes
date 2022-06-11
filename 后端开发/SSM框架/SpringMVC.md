@@ -398,9 +398,448 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
 
 # 4、注解开发SpringMVC
 
+1. 新建一个Maven项目，**添加Web支持**，导入依赖；<font color="red">（**记住配置静态资源过滤**）、（**记住要在Project Structure中的Artifacts中导入除了3个Servlet包以外的其他jar包 **）</font>
 
+   ```xml
+   <dependencies>
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-webmvc</artifactId>
+               <version>5.1.9.RELEASE</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet</groupId>
+               <artifactId>servlet-api</artifactId>
+               <version>2.5</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet.jsp</groupId>
+               <artifactId>jsp-api</artifactId>
+               <version>2.2</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet</groupId>
+               <artifactId>jstl</artifactId>
+               <version>1.2</version>
+           </dependency>
+       </dependencies>
+   
+   
+       <build>
+           <resources>
+               <resource>
+                   <directory>src/main/java</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>false</filtering>
+               </resource>
+               <resource>
+                   <directory>src/main/resources</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>false</filtering>
+               </resource>
+           </resources>
+       </build>
+   ```
 
+2. 配置**web.xml**文件，**注册DispatchServlet前置控制器**
 
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+            version="5.0">
+   
+       <!--1.注册DispatchServlet-->
+       <servlet>
+           <servlet-name>SpringMVC</servlet-name>
+           <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+           <!--通过初始化参数指定SpringMVC配置文件的位置，进行关联-->
+           <init-param>
+               <param-name>contextConfigLocation</param-name>
+               <param-value>classpath:springmvc-servlet.xml</param-value>
+           </init-param>
+           <!-- 启动顺序，数字越小，启动越早 -->
+           <load-on-startup>1</load-on-startup>
+       </servlet>
+   
+       <!--所有请求都会被springmvc拦截 -->
+       <servlet-mapping>
+           <servlet-name>SpringMVC</servlet-name>
+           <url-pattern>/</url-pattern>
+       </servlet-mapping>
+   
+   </web-app>
+   ```
 
+3. **添加Spring MVC配置文件**【springmvc-servlet.xml】
 
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:context="http://www.springframework.org/schema/context"
+          xmlns:mvc="http://www.springframework.org/schema/mvc"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/context
+          https://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/mvc
+          https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+   
+       <!-- 自动扫描包，让指定包下的注解生效,由IOC容器统一管理 -->
+       <context:component-scan base-package="com.xleixz.controller"/>
+       <!-- 让Spring MVC不处理静态资源 .css  .html  .js -->
+       <mvc:default-servlet-handler />
+       <!--
+       支持mvc注解驱动
+           在spring中一般采用@RequestMapping注解来完成映射关系
+           要想使@RequestMapping注解生效
+           必须向上下文中注册DefaultAnnotationHandlerMapping
+           和一个AnnotationMethodHandlerAdapter实例
+           这两个实例分别在类级别和方法级别处理。
+           而annotation-driven配置帮助我们自动完成上述两个实例的注入。
+        -->
+       <mvc:annotation-driven />
+   
+       <!-- 视图解析器 -->
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+             id="internalResourceViewResolver">
+           <!-- 前缀 -->
+           <property name="prefix" value="/" />
+           <!-- 后缀 -->
+           <property name="suffix" value=".jsp" />
+       </bean>
+   
+   </beans>
+   ```
+
+   > 自动扫描包
+
+   ```xml
+   <context:component-scan base-package="com.xleixz.controller"/>
+   ```
+
+   > 过滤静态资源，让Spring MVC不处理静态资源，例如：.css  .html  .js
+
+   ```xml
+   <mvc:default-servlet-handler />
+   ```
+
+   > 注册DefaultAnnotationHandlerMapping（处理器映射器），和一个AnnotationMethodHandlerAdapter（处理器适配器）实例
+
+   ```xml
+   <mvc:annotation-driven />
+   ```
+
+   > 视图解析器
+
+   ```xml
+   <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+             id="internalResourceViewResolver">
+           <!-- 前缀 -->
+           <property name="prefix" value="/" />
+           <!-- 后缀 -->
+           <property name="suffix" value=".jsp" />
+       </bean>
+   ```
+
+4. **创建Controller业务层**
+
+   ```java
+   import org.springframework.stereotype.Controller;
+   import org.springframework.ui.Model;
+   import org.springframework.web.bind.annotation.RequestMapping;
+   
+   //实现了Controller注解，表示这是一个控制器
+   @Controller
+   public class HelloController {
+       //实现了RequestMapping注解，表示这是一个请求映射，这是一个映射地址
+       @RequestMapping("/hello")
+       public String hello(Model model) {
+           //封装数据
+           model.addAttribute("hello", "你好");
+           return "hello";//会被视图解析器解析处理到hello.jsp
+       }
+   }
+   ```
+
+   > 实现Controller注解，表示一个控制器
+
+   ```xml
+   @Controller
+   ```
+
+   > 实现RequestMapping注解，表示这是一个请求映射，这是一个映射地址
+
+   ```xml
+   @RequestMapping("")
+   ```
+
+   > 方法中声明Model类型的参数是为了把Action中的数据带到视图中
+
+   ```xml
+   model.addAttribute("hello", "你好");
+   ```
+
+   > 方法返回的结果是视图的名称hello，加上配置文件中的前后缀变成/**hello**.jsp
+
+   ```xml
+   return "hello"
+   ```
+
+5. 创建**视图层**【hello.jsp】
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>Title</title>
+   </head>
+   <body>
+   <hr>
+   <h1>测试成功！</h1>
+   </hr>
+   </body>
+   </html>
+   ```
+
+​	
+
+使用springMVC必须配置的三大件：
+
+<font color="green">**处理器映射器、处理器适配器、视图解析器**</font>
+
+通常，只需要**手动配置视图解析器**，而**处理器映射器**和**处理器适配器**只需要开启**注解驱动**即可，而省去了大
+
+段的xml配置。
+
+---
+
+​	
+
+# 5、Controller控制器和RestFul风格
+
+## 5.1 Controller控制器
+
+**环境准备：**
+
+1. 新建一个Maven项目，**添加Web支持**，导入依赖；<font color="red">（**记住配置静态资源过滤**）、（**记住要在Project Structure中的Artifacts中导入除了3个Servlet包以外的其他jar包 **）</font>
+
+   ```xml
+   <dependencies>
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-webmvc</artifactId>
+               <version>5.1.9.RELEASE</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet</groupId>
+               <artifactId>servlet-api</artifactId>
+               <version>2.5</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet.jsp</groupId>
+               <artifactId>jsp-api</artifactId>
+               <version>2.2</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet</groupId>
+               <artifactId>jstl</artifactId>
+               <version>1.2</version>
+           </dependency>
+       </dependencies>
+   
+   
+       <build>
+           <resources>
+               <resource>
+                   <directory>src/main/java</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>false</filtering>
+               </resource>
+               <resource>
+                   <directory>src/main/resources</directory>
+                   <includes>
+                       <include>**/*.properties</include>
+                       <include>**/*.xml</include>
+                   </includes>
+                   <filtering>false</filtering>
+               </resource>
+           </resources>
+       </build>
+   ```
+
+2. 配置**web.xml**文件，**注册DispatchServlet前置控制器**
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+            version="5.0">
+   
+       <!--1.注册DispatchServlet-->
+       <servlet>
+           <servlet-name>SpringMVC</servlet-name>
+           <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+           <!--通过初始化参数指定SpringMVC配置文件的位置，进行关联-->
+           <init-param>
+               <param-name>contextConfigLocation</param-name>
+               <param-value>classpath:springmvc-servlet.xml</param-value>
+           </init-param>
+           <!-- 启动顺序，数字越小，启动越早 -->
+           <load-on-startup>1</load-on-startup>
+       </servlet>
+   
+       <!--所有请求都会被springmvc拦截 -->
+       <servlet-mapping>
+           <servlet-name>SpringMVC</servlet-name>
+           <url-pattern>/</url-pattern>
+       </servlet-mapping>
+   
+   </web-app>
+   ```
+
+3. **添加Spring MVC配置文件**【springmvc-servlet.xml】
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:context="http://www.springframework.org/schema/context"
+          xmlns:mvc="http://www.springframework.org/schema/mvc"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/context
+          https://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/mvc
+          https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+   
+       <!-- 视图解析器 -->
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+             id="internalResourceViewResolver">
+           <!-- 前缀 -->
+           <property name="prefix" value="/" />
+           <!-- 后缀 -->
+           <property name="suffix" value=".jsp" />
+       </bean>
+   
+   </beans>
+   ```
+
+4. 视图类【hello.jsp】
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+      <title>Kuangshen</title>
+   </head>
+   <body>
+   测试Controller接口，成功！
+   </body>
+   </html>
+   ```
+
+​			
+
+搭建好环境后，开始对比**实现Controller接口**和**使用注解@Controller**的区别。
+
+​	
+
+### 5.1.1 方式一：实现Controller接口
+
+```java
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+//只要实现了Controller接口，说明这就是一个控制器
+public class ControllerTest1 implements Controller {
+    @Override
+    public ModelAndView handleRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+        ModelAndView mv = new ModelAndView();
+        mv.addObject("msg","Hello World! - ControllerTest1");
+        mv.setViewName("test1");
+        return mv;
+    }
+}
+```
+
+![image-20220611175901169](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220611175901169.png)
+
+​	
+
+<font color="red">**Spring4.0 开始，不配置处理器映射器，不配置处理器适配器，Spring会使用默认配置来完成工作！**</font>
+
+这种实现接口Controller定义控制器是较老的办法，缺点是：**一个控制器中只有一个方法，如果要多个方法则需**
+
+**要定义多个Controller；定义的方式比较麻烦；**
+
+​	
+
+### 5.1.2 方式二：使用注解@Controller
+
+- `@Controller`注解类型用于声明Spring类的实例是一个控制器
+
+- Spring可以使用扫描机制来找到应用程序中所有基于注解的控制器类，为了保证Spring能找到你的控制器，需
+
+  要在配置文件中声明组件扫描。
+
+  ```xml
+  <!-- 自动扫描指定的包，下面所有注解类交给IOC容器管理 -->
+  <context:component-scan base-package="com.kuang.controller"/>
+  ```
+
+- 增加一个`ControllerTest2`类，使用注解实现；
+
+  ```java
+  //@Controller注解的类会自动添加到Spring上下文中，会被Spring接管
+  @Controller
+  public class ControllerTest2{
+  
+     //映射访问路径
+     @RequestMapping("/t2")
+     public String index(Model model){
+         //Spring MVC会自动实例化一个Model对象用于向视图中传值
+         model.addAttribute("msg", "ControllerTest2");
+         //返回视图位置
+         return "test";
+    }
+  }
+  ```
+
+​	
+
+**可以发现，两个请求都可以指向一个视图，但是页面结果的结果是不一样的，从这里可以看出视图是被复**
+
+**用的，而控制器与视图之间是弱偶合关系。**
+
+<font color="red">**注解方式是平时使用的最多的方式**</font>
+
+​	
+
+## 5.2 RestFul风格
 

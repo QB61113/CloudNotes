@@ -162,3 +162,193 @@ Spring MVC框架像许多其他MVC框架一样, **以请求为驱动** , **围�
 
 ## 2.2 SpringMVC执行原理
 
+
+
+---
+
+​	
+
+# 3、HelloSpringMVC程序
+
+1. 新建一个Maven项目，**添加Web支持**；
+
+2. 导入**SpringMVC依赖**；
+
+   ```xml
+   <dependencies>
+           <dependency>
+               <groupId>junit</groupId>
+               <artifactId>junit</artifactId>
+               <version>4.12</version>
+           </dependency>
+           <dependency>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-webmvc</artifactId>
+               <version>5.1.9.RELEASE</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet</groupId>
+               <artifactId>servlet-api</artifactId>
+               <version>2.5</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet.jsp</groupId>
+               <artifactId>jsp-api</artifactId>
+               <version>2.2</version>
+           </dependency>
+           <dependency>
+               <groupId>javax.servlet</groupId>
+               <artifactId>jstl</artifactId>
+               <version>1.2</version>
+           </dependency>
+       </dependencies>
+   ```
+
+3. 在**web.xml**配置文件中， **注册DispatcherServlet**；
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+            version="5.0">
+   
+       <!--1.注册DispatcherServlet-->
+       <servlet>
+           <servlet-name>springmvc</servlet-name>
+           <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+           <!--关联一个springmvc的配置文件:【servlet-name】-servlet.xml-->
+           <init-param>
+               <param-name>contextConfigLocation</param-name>
+               <param-value>classpath:springmvc-servlet.xml</param-value>
+           </init-param>
+           <!--启动级别-1-->
+           <load-on-startup>1</load-on-startup>
+       </servlet>
+   
+       <!--/ 匹配所有的请求；（不包括.jsp）-->
+       <!--/* 匹配所有的请求；（包括.jsp）-->
+       <servlet-mapping>
+           <servlet-name>springmvc</servlet-name>
+           <url-pattern>/</url-pattern>
+       </servlet-mapping>
+   
+   </web-app>
+   ```
+
+4. 编写**SpringMVC 的 配置文件**【springmvc-servlet.xml】，这里的名称要求是按照官方来的；
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd">
+   
+       <!--添加 处理映射器-->
+       <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+       <!--添加 处理器适配器-->
+       <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+       <!--添加 视图解析器 DispatcherServlet提供的ModelAndView-->
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="InternalResourceViewResolver">
+           <!--前缀-->
+           <property name="prefix" value="/WEB-INF/jsp/"/>
+           <!--后缀-->
+           <property name="suffix" value=".jsp"/>
+       </bean>
+   
+       <!--将类交给SpringIOC容器，注册bean-->
+       <bean id="/hello" class="com.xleixz.controller.HelloController"/>
+   </beans>
+   ```
+
+   > 处理映射器
+
+   ```xml
+   <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+   ```
+
+   > 处理适配器
+
+   ```xml
+   <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+   ```
+
+   > 视图解析器
+
+   ```xml
+   <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="InternalResourceViewResolver">
+         <!--前缀-->
+         <property name="prefix" value="/WEB-INF/jsp/"/>
+         <!--后缀-->
+         <property name="suffix" value=".jsp"/>
+   </bean>
+   ```
+
+5. 编写我们要操作业务Controller ，要么实现Controller接口，要么增加注解；需要返回一个ModelAndView，装数据，封视图；
+
+   ```java
+   import org.springframework.web.servlet.ModelAndView;
+   import org.springframework.web.servlet.mvc.Controller;
+   
+   import javax.servlet.http.HttpServletRequest;
+   import javax.servlet.http.HttpServletResponse;
+   
+   //注意：这里我们先导入Controller接口
+   public class HelloController implements Controller {
+   
+       @Override
+       public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+           //ModelAndView 模型和视图
+           ModelAndView mv = new ModelAndView();
+   
+           //封装对象，放在ModelAndView中。Model
+           mv.addObject("msg", "HelloSpringMVC!");
+           //封装要跳转的视图，放在ModelAndView中
+           mv.setViewName("hello"); //: /WEB-INF/jsp/hello.jsp
+           return mv;
+       }
+   }
+   ```
+
+6. 将类交给SpringIOC容器【springmvc-servlet.xml】，注册bean；
+
+   ```xml
+   <!--Handler-->
+   <bean id="/hello" class="com.kuang.controller.HelloController"/>
+   ```
+
+7. 写要跳转的jsp页面，显示ModelandView存放的数据，以及我们的正常页面；
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>Hello</title>
+   </head>
+   <body>
+   测试成功！
+   </body>
+   </html>
+   ```
+
+​		
+
+<font color = "red">**可能遇到的问题：访问出现404，排查步骤：**</font>
+
+1. 查看控制台输出，看一下是不是缺少了什么jar包。
+
+2. 如果jar包存在，显示无法输出，就在IDEA的项目发布中，添加lib依赖！
+
+   - 点击FIle - Project Structure - Artifacts - 选择对应的项目 - 在**WEB-INF文件夹**下新建**lib** - 点击添加**Library Files** - 将**除了（servlet，jstl，jsp）其他的所有jar包**导入 - OK
+
+     ![image-20220611112808532](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220611112808532.png)
+
+3. 重启Tomcat 即可解决！
+
+<font color = "green">**原因：**</font>Maven无法扫描Webapp下的jar包！
+
+
+
+
+

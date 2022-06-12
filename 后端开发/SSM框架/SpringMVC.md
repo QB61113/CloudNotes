@@ -1474,9 +1474,13 @@ public String hello(@RequestParam("username") String name, Model model){
 
 ​	
 
-以前乱码问题通过过滤器解决，而SpringMVC给我们提供了一个过滤器 , 可以在【web.xml】中配置。
-
-修改了xml文件需要重启服务器！
+> **处理办法一**
+>
+> 以前乱码问题通过过滤器解决，而SpringMVC给我们提供了一个过滤器 , 可以在【web.xml】中配置。
+>
+> 修改了xml文件需要重启服务器！
+>
+> <font color="red">**注意：<filter-mapping>中的 <url-pattern>，"\\"后面带\*号**</font>
 
 ```xml
 <filter>
@@ -1493,11 +1497,19 @@ public String hello(@RequestParam("username") String name, Model model){
 </filter-mapping>
 ```
 
-但是发现，有些极端情况下，这个过滤器对get的支持很不友好。
+解决：
+
+![image-20220612151517474](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612151517474.png)
+
+如果使用注解`@RequestMapping("")`，它都能接收**GET**或**POST**方法，不影响；
+
+但是发现，有些极端情况下，这个过滤器对**GET方法**的支持很不友好，建议在使用注解`@GETMapping("")`时不要
+
+用这个过滤器。
 
 ​	
 
-> **处理办法**
+> **处理办法二**
 
 1. 修改Tomcat配置文件，设置编码！
 
@@ -1507,5 +1519,734 @@ public String hello(@RequestParam("username") String name, Model model){
              redirectPort="8443" />
    ```
 
+2. 在**filter文件夹**下自定义过滤器【GenericEncodingFilter.java】
+
+   ```java
+   import javax.servlet.*;
+   import javax.servlet.http.HttpServletRequest;
+   import javax.servlet.http.HttpServletRequestWrapper;
+   import javax.servlet.http.HttpServletResponse;
+   import java.io.IOException;
+   import java.io.UnsupportedEncodingException;
+   import java.util.Map;
    
+   /**
+   * 解决get和post请求 全部乱码的过滤器
+   */
+   public class GenericEncodingFilter implements Filter {
+   
+      @Override
+      public void destroy() {
+     }
+   
+      @Override
+      public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+          //处理response的字符编码
+          HttpServletResponse myResponse=(HttpServletResponse) response;
+          myResponse.setContentType("text/html;charset=UTF-8");
+   
+          // 转型为与协议相关对象
+          HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+          // 对request包装增强
+          HttpServletRequest myrequest = new MyRequest(httpServletRequest);
+          chain.doFilter(myrequest, response);
+     }
+   
+      @Override
+      public void init(FilterConfig filterConfig) throws ServletException {
+     }
+   
+   }
+   
+   //自定义request对象，HttpServletRequest的包装类
+   class MyRequest extends HttpServletRequestWrapper {
+   
+      private HttpServletRequest request;
+      //是否编码的标记
+      private boolean hasEncode;
+      //定义一个可以传入HttpServletRequest对象的构造函数，以便对其进行装饰
+      public MyRequest(HttpServletRequest request) {
+          super(request);// super必须写
+          this.request = request;
+     }
+   
+      // 对需要增强方法 进行覆盖
+      @Override
+      public Map getParameterMap() {
+          // 先获得请求方式
+          String method = request.getMethod();
+          if (method.equalsIgnoreCase("post")) {
+              // post请求
+              try {
+                  // 处理post乱码
+                  request.setCharacterEncoding("utf-8");
+                  return request.getParameterMap();
+             } catch (UnsupportedEncodingException e) {
+                  e.printStackTrace();
+             }
+         } else if (method.equalsIgnoreCase("get")) {
+              // get请求
+              Map<String, String[]> parameterMap = request.getParameterMap();
+              if (!hasEncode) { // 确保get手动编码逻辑只运行一次
+                  for (String parameterName : parameterMap.keySet()) {
+                      String[] values = parameterMap.get(parameterName);
+                      if (values != null) {
+                          for (int i = 0; i < values.length; i++) {
+                              try {
+                                  // 处理get乱码
+                                  values[i] = new String(values[i]
+                                         .getBytes("ISO-8859-1"), "utf-8");
+                             } catch (UnsupportedEncodingException e) {
+                                  e.printStackTrace();
+                             }
+                         }
+                     }
+                 }
+                  hasEncode = true;
+             }
+              return parameterMap;
+         }
+          return super.getParameterMap();
+     }
+   
+      //取一个值
+      @Override
+      public String getParameter(String name) {
+          Map<String, String[]> parameterMap = getParameterMap();
+          String[] values = parameterMap.get(name);
+          if (values == null) {
+              return null;
+         }
+          return values[0]; // 取回参数的第一个值
+     }
+   
+      //取所有值
+      @Override
+      public String[] getParameterValues(String name) {
+          Map<String, String[]> parameterMap = getParameterMap();
+          String[] values = parameterMap.get(name);
+          return values;
+     }
+   }
+   ```
+
+3. 在【web.xml】中配置过滤器
+
+   ```xml
+   <filter>
+           <filter-name>encoding</filter-name>
+           <filter-class>com.xleixz.filter.GenericEncodingFilter</filter-class>
+       </filter>
+       <filter-mapping>
+           <filter-name>encoding</filter-name>
+           <url-pattern>/</url-pattern>
+       </filter-mapping>
+   ```
+
+---
+
+​	
+
+# 7、JSON交互处理
+
+> **前后端分离时代**
+
+- 后端部署后端，提供接口，提供数据；
+
+  ​                            ↓
+
+     JSON（数据交换格式，他不是语言）
+
+  ​                            ↓
+
+- 前端独立部署，负责渲染后端的数据。
+
+​	
+
+> **什么是JSON？**
+
+- JSON(JavaScript Object Notation, JS 对象标记) 是一种轻量级的数据交换格式，目前使用特别广泛。
+- 采用完全独立于编程语言的**文本格式**来存储和表示数据。
+- 简洁和清晰的层次结构使得 JSON 成为理想的数据交换语言。
+- 易于人阅读和编写，同时也易于机器解析和生成，并有效地提升网络传输效率。
+
+在 JavaScript 语言中，一切都是对象。因此，任何JavaScript 支持的类型都可以通过 JSON 来表示，例如字符串、
+
+数字、对象、数组等。看看他的要求和语法格式：
+
+- 对象表示为键值对，数据由逗号分隔
+- 花括号保存对象
+- 方括号保存数组
+
+​	
+
+**JSON 键值对**是用来保存 JavaScript 对象的一种方式，和 JavaScript 对象的写法也大同小异，键/值对组合中的键名
+
+写在前面并用双引号 "" 包裹，使用冒号 `: `分隔，然后紧接着值：
+
+```json
+{"name": "QinJiang"}
+{"age": "3"}
+{"sex": "男"}
+```
+
+可以这么理解：
+
+**JSON 是 JavaScript 对象的字符串表示法，它使用文本表示一个 JS 对象的信息，本质是一个字符串。**
+
+```json
+var obj = {a: 'Hello', b: 'World'}; //这是一个对象，注意键名也是可以使用引号包裹的
+var json = '{"a": "Hello", "b": "World"}'; //这是一个 JSON 字符串，本质是一个字符串
+```
+
+​	
+
+**JSON 和 JavaScript 对象互转**
+
+要实现从JSON字符串转换为JavaScript 对象，使用 JSON.parse() 方法：
+
+```java
+var obj = JSON.parse('{"a": "Hello", "b": "World"}');
+//结果是 {a: 'Hello', b: 'World'}
+```
+
+要实现从JavaScript 对象转换为JSON字符串，使用 JSON.stringify() 方法：
+
+```java
+var json = JSON.stringify({a: 'Hello', b: 'World'});
+//结果是 '{"a": "Hello", "b": "World"}'
+```
+
+​	
+
+**测试**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Title</title>
+    <script type="text/javascript">
+        //编写一个JavaScript对象
+        var user = {
+            name: "张三",
+            age: 18,
+            sex: "男"
+        };
+        //将js对象转换为JSON对象
+        var json = JSON.stringify(user);
+        //输出信息
+        console.log(json);
+
+        //将JSON对象转换为JavaScript对象
+        var obj = JSON.parse(json);
+        console.log(obj);
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
+```
+
+​	
+
+## 7.1 Controller返回JSON数据
+
+Jackson应该是目前比较好的json解析工具了
+
+当然工具不止这一个，比如还有阿里巴巴的 fastjson 等等。
+
+这里使用Jackson，使用它需要导入它的jar包；
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+<dependency>
+   <groupId>com.fasterxml.jackson.core</groupId>
+   <artifactId>jackson-databind</artifactId>
+   <version>2.9.8</version>
+</dependency>
+```
+
+**导jar包**
+
+```xml
+<dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>5.1.9.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.22</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+		<dependency>
+   			<groupId>com.fasterxml.jackson.core</groupId>
+  			 <artifactId>jackson-databind</artifactId>
+  			 <version>2.9.8</version>
+		</dependency>
+</dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+```
+
+**【web.xml】配置文件**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <!--1.注册DispatchServlet-->
+    <servlet>
+        <servlet-name>SpringMVC</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!--通过初始化参数指定SpringMVC配置文件的位置，进行关联-->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath:springmvc-servlet.xml</param-value>
+        </init-param>
+        <!-- 启动顺序，数字越小，启动越早 -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!--所有请求都会被springmvc拦截 -->
+    <servlet-mapping>
+        <servlet-name>SpringMVC</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+```
+
+**【springmvc-servlet.xml】Spring配置文件**
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- 自动扫描包，让指定包下的注解生效,由IOC容器统一管理 -->
+    <context:component-scan base-package="com.xleixz.controller"/>
+    <mvc:default-servlet-handler />
+    <mvc:annotation-driven />
+
+    <!-- 视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+          id="internalResourceViewResolver">
+        <!-- 前缀 -->
+        <property name="prefix" value="/" />
+        <!-- 后缀 -->
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+</beans>
+```
+
+**实体类【User.java】，导入`lombok`依赖可使用注解添加有参构造、无参构造、get、set方法**
+
+```java
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+    private String name;
+    private int age;
+    private String sex;
+
+}
+```
+
+**这里需要两个新东西，一个是`@ResponseBody`，一个是`ObjectMapper`对象；**
+
+> **编写一个Controller**
+
+```java
+@Controller
+public class UserController {
+
+    @RequestMapping("/j1")
+    //添加了ResponseBody注解，就不会走视图解析器，不去找页面，直接返回一个字符串
+    @ResponseBody
+    public String json1() throws JsonProcessingException {
+        //jackson  ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
+        //创建一个对象
+        User user = new User("小雷", 22, "男");
+        String str = objectMapper.writeValueAsString(user);
+        return str;
+    }
+}
+```
+
+**启动测试**成功，但是发现有乱码
+
+![image-20220612164114510](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612164114510.png)
+
+
+
+需要设置一下他的编码格式为utf-8，以及它返回的类型；通过`@RequestMaping`的`produces`属性来实现，
+
+修改下代码
+
+```java
+@RequestMapping(value = "/j1",produces = "application/json;charset=utf-8")
+```
+
+**启动测试，乱码解决**。<font color="red">**但是这种方式过于繁琐，每个都需要写，所以SpringMVC给了解决方法，见下文。**</font>
+
+![image-20220612164309007](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612164309007.png)
+
+​		
+
+## 7.2 代码优化
+
+### 7.2.1 乱码统一解决
+
+上一种方法比较麻烦，如果项目中有许多请求则每一个都要添加，可以通过Spring配置统一指定，这样就不
+
+用每次都去处理了！
+
+另一种方法可以在spr**ingmvc的配置文件**【springmvc-servlet.xml】上添加一段
+
+`StringHttpMessageConverter`转换配置！
+
+```xml
+<mvc:annotation-driven>
+   <mvc:message-converters register-defaults="true">
+       <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+           <constructor-arg value="UTF-8"/>
+       </bean>
+       <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+           <property name="objectMapper">
+               <bean class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
+                   <property name="failOnEmptyBeans" value="false"/>
+               </bean>
+           </property>
+       </bean>
+   </mvc:message-converters>
+</mvc:annotation-driven>
+```
+
+**Controller**
+
+```java
+@Controller
+public class UserController {
+
+    @RequestMapping("/j1")
+    //添加了ResponseBody注解，就不会走视图解析器，不去找页面，直接返回一个字符串
+    @ResponseBody
+    public String json1() throws JsonProcessingException {
+        //jackson  ObjectMapper
+        ObjectMapper objectMapper = new ObjectMapper();
+        //创建一个对象
+        User user = new User("小雷", 22, "男");
+
+        String str = objectMapper.writeValueAsString(user);
+        return str;
+    }
+}
+```
+
+![image-20220612165530978](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612165530978.png)
+
+​	
+
+### 7.2.2 返回json字符串统一解决
+
+在类上直接使用`@RestController `，这样子，**里面所有的方法都只会返回 json 字符串了**，不用再每一个都添加
+
+@ResponseBody ！我们在前后端分离开发中，一般都使用 `@RestController` ，十分便捷！
+
+```java
+@RestController
+public class UserController {
+
+   @RequestMapping("/json1")
+   public String json1() throws JsonProcessingException {
+       //创建一个jackson的对象映射器，用来解析数据
+       ObjectMapper mapper = new ObjectMapper();
+       //创建一个对象
+       User user = new User("小雷",23, "男");
+       //将我们的对象解析成为json格式
+       String str = mapper.writeValueAsString(user);
+       //由于@ResponseBody注解，这里会将str转成json格式返回；十分方便
+       return str;
+  }
+}
+```
+
+​	
+
+### 7.2.3 测试集合输出
+
+> 增加一个新的方法
+
+```java
+@RequestMapping("/json2")
+public String json2() throws JsonProcessingException {
+
+   //创建一个jackson的对象映射器，用来解析数据
+   ObjectMapper mapper = new ObjectMapper();
+   //创建一个对象
+   User user1 = new User("小雷1", 3, "男");
+   User user2 = new User("小雷2", 3, "男");
+   User user3 = new User("小雷3", 3, "男");
+   User user4 = new User("小雷4", 3, "男");
+   List<User> list = new ArrayList<User>();
+   list.add(user1);
+   list.add(user2);
+   list.add(user3);
+   list.add(user4);
+
+   //将对象解析成为json格式
+   String str = mapper.writeValueAsString(list);
+   return str;
+}
+```
+
+​	
+
+### 7.2.4 输出时间对象
+
+> 增加一个新的方法
+
+```java
+@RequestMapping("/json3")
+public String json3() throws JsonProcessingException {
+
+   ObjectMapper mapper = new ObjectMapper();
+
+   //创建时间一个对象，java.util.Date
+   Date date = new Date();
+   //将对象解析成为json格式
+   String str = mapper.writeValueAsString(date);
+   return str;
+}
+```
+
+![image-20220612171855320](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612171855320.png)
+
+默认日期格式会变成一个数字，是1970年1月1日到当前日期的毫秒数！
+
+Jackson 默认是会把时间转成timestamps形式
+
+**解决方案：取消timestamps形式 ， 自定义时间格式**
+
+```java
+@RequestMapping("/json4")
+public String json4() throws JsonProcessingException {
+
+   ObjectMapper mapper = new ObjectMapper();
+
+   //不使用时间戳的方式
+   mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+   //自定义日期格式对象
+   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+   //指定日期格式
+   mapper.setDateFormat(sdf);
+
+   Date date = new Date();
+   String str = mapper.writeValueAsString(date);
+
+   return str;
+}
+```
+
+​	
+
+### 7.2.5 抽取为工具类
+
+**如果要经常使用的话，这样是比较麻烦的，可以将这些代码封装到一个工具类中；**
+
+```java
+package com.kuang.utils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.text.SimpleDateFormat;
+
+public class JsonUtils {
+   
+   public static String getJson(Object object) {
+       return getJson(object,"yyyy-MM-dd HH:mm:ss");
+  }
+
+   public static String getJson(Object object,String dateFormat) {
+       ObjectMapper mapper = new ObjectMapper();
+       //不使用时间差的方式
+       mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+       //自定义日期格式对象
+       SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+       //指定日期格式
+       mapper.setDateFormat(sdf);
+       try {
+           return mapper.writeValueAsString(object);
+      } catch (JsonProcessingException e) {
+           e.printStackTrace();
+      }
+       return null;
+  }
+}
+```
+
+使用工具类，代码会更加简洁！
+
+```java
+@RequestMapping("/json5")
+public String json5() throws JsonProcessingException {
+   Date date = new Date();
+   String json = JsonUtils.getJson(date);
+   return json;
+}
+```
+
+​	
+
+## 7.3 FastJSON
+
+fastjson.jar是阿里开发的一款专门用于Java开发的包，可以方便的实现json对象与JavaBean对象的转换，实现
+
+JavaBean对象与json字符串的转换，实现json对象与json字符串的转换。实现json的转换方法很多，最后的实现结
+
+果都是一样的。
+
+**fastjson 的 pom依赖！**
+
+```xml
+<dependency>
+   <groupId>com.alibaba</groupId>
+   <artifactId>fastjson</artifactId>
+   <version>1.2.60</version>
+</dependency>
+```
+
+ fastjson 三个主要的类：
+
+**JSONObject  代表 json 对象** 
+
+- JSONObject实现了Map接口, 猜想 JSONObject底层操作是由Map实现的。
+
+- JSONObject对应json对象，通过各种形式的get()方法可以获取json对象中的数据，也可利用诸如size()，
+
+  isEmpty()等方法获取"键：值"对的个数和判断是否为空。其本质是通过实现Map接口并调用接口中的方法完成的。
+
+**JSONArray  代表 json 对象数组**
+
+- 内部是有List接口中的方法来完成操作的。
+
+**JSON代表 JSONObject和JSONArray的转化**
+
+- JSON类源码分析与使用
+- 仔细观察这些方法，主要是实现json对象，json对象数组，javabean对象，json字符串之间的相互转化。
+
+**新建一个FastJsonDemo 类**
+
+```java
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.kuang.pojo.User;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FastJsonDemo {
+   public static void main(String[] args) {
+       //创建一个对象
+       User user1 = new User("小雷1", 3, "男");
+       User user2 = new User("小雷2", 3, "男");
+       User user3 = new User("小雷3", 3, "男");
+       User user4 = new User("小雷4", 3, "男");
+       List<User> list = new ArrayList<User>();
+       list.add(user1);
+       list.add(user2);
+       list.add(user3);
+       list.add(user4);
+
+       System.out.println("*******Java对象 转 JSON字符串*******");
+       String str1 = JSON.toJSONString(list);
+       System.out.println("JSON.toJSONString(list)==>"+str1);
+       String str2 = JSON.toJSONString(user1);
+       System.out.println("JSON.toJSONString(user1)==>"+str2);
+
+       System.out.println("\n****** JSON字符串 转 Java对象*******");
+       User jp_user1=JSON.parseObject(str2,User.class);
+       System.out.println("JSON.parseObject(str2,User.class)==>"+jp_user1);
+
+       System.out.println("\n****** Java对象 转 JSON对象 ******");
+       JSONObject jsonObject1 = (JSONObject) JSON.toJSON(user2);
+       System.out.println("(JSONObject) JSON.toJSON(user2)==>"+jsonObject1.getString("name"));
+
+       System.out.println("\n****** JSON对象 转 Java对象 ******");
+       User to_java_user = JSON.toJavaObject(jsonObject1, User.class);
+       System.out.println("JSON.toJavaObject(jsonObject1, User.class)==>"+to_java_user);
+  }
+}
+```
+
+---
+
+​	
+
+# 8、整合SSM框架
 

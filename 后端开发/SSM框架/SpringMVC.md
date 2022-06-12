@@ -1185,13 +1185,327 @@ public class ModelTest1 {
        }
    ```
 
-​	
+​		
 
 ## 6.2 数据处理
 
+> **提交的域名称和处理方法的参数名一致**，http://locaohost:8080/user/t1?name=xxxx
 
+【User.java】
 
+```java
+public class User {
+    private int id;
+    private String name;
+    private int age;
 
+    public User() {
+    }
+
+    public User(int id, String name, int age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+```
+
+【UserController.java】
+
+```java
+@Controller
+@RequestMapping("/user")
+public class UserController {
+	//提交的域名称和处理方法的参数名一致
+    //http://localhost:8080/user/t1?name=XXX
+    @RequestMapping("/t1")
+    public String test1(String name, Model model) {
+        //1. 接收前端参数
+        System.out.println("接收到前端的参数为：" + name);
+        //2.将返回的结果传递给前端
+        model.addAttribute("msg", "接收到前端的参数为：" + name);
+        //3. 跳转视图
+        return "test";
+    }
+}
+```
+
+![image-20220612102407759](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612102407759.png)
 
 ​	
+
+> **提交的域名称和处理方法的参数名不一致**，http://locaohost:8080/user/t1?username=xxxx
+>
+> 需要添加注解`@(@RequestParam("")`
+
+```java
+    //提交的域名称和处理方法的参数名不一致
+    //http://localhost:8080/user/t1?username=XXX
+    @RequestMapping("/t2")
+    public String test2(@RequestParam("username") String name, Model model) {
+        //1. 接收前端参数
+        System.out.println("接收到前端的参数为：" + name);
+        //2.将返回的结果传递给前端
+        model.addAttribute("msg", "接收到前端的参数为：" + name);
+        //3. 跳转视图
+        return "test";
+    }
+```
+
+![image-20220612103043624](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612103043624.png)
+
+​	
+
+> **提交的是一个对象**
+
+实体类【User.java】
+
+```java
+public class User {
+    private int id;
+    private String name;
+    private int age;
+
+    public User() {
+    }
+
+    public User(int id, String name, int age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+```
+
+Controller类【UserController.java】
+
+```java
+//前端接收的为一个对象
+    @RequestMapping("/t3")
+    public String test3(User user) {
+        System.out.println(user);
+        return "test";
+    }
+```
+
+![image-20220612103918790](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612103918790.png)
+
+<font color="red">**说明：如果使用对象的话，前端传递的参数名和对象名必须一致，否则就是null。**</font>
+
+​	
+
+## 6.3 数据显示到前端
+
+> **方式一 : 通过ModelAndView**
+
+【配置版】
+
+```java
+public class ControllerTest1 implements Controller {
+
+   public ModelAndView handleRequest(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Exception {
+       //返回一个模型视图对象
+       ModelAndView mv = new ModelAndView();
+       mv.addObject("msg","ControllerTest1");
+       mv.setViewName("test");
+       return mv;
+  }
+}
+```
+
+​		
+
+> **方式二 : 通过ModelMap**
+
+```java
+@RequestMapping("/hello")
+public String hello(@RequestParam("username") String name, ModelMap model){
+   //封装要显示到视图中的数据
+   //相当于req.setAttribute("name",name);
+   model.addAttribute("name",name);
+   System.out.println(name);
+   return "hello";
+}
+```
+
+​	
+
+> **方式三：通过Model**【最常用】
+
+```java
+@RequestMapping("/hello")
+public String hello(@RequestParam("username") String name, Model model){
+   //封装要显示到视图中的数据
+   //相当于req.setAttribute("name",name);
+   model.addAttribute("msg",name);
+   System.out.println(name);
+   return "test";
+}
+```
+
+​	
+
+**对比**
+
+> **Model** 只有寥寥几个方法只适合用于储存数据，简化了新手对于Model对象的操作和理解；
+>
+> **ModelMap** 继承了 LinkedMap ，除了实现了自身的一些方法，同样的继承 LinkedMap 的方法和特性；
+>
+> **ModelAndView** 可以在储存数据的同时，可以进行设置返回的逻辑视图，进行控制展示层的跳转。
+
+​	
+
+## 6.4 乱码问题
+
+1. 新建一个表单【form.jsp】
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>Title</title>
+   </head>
+   <body>
+   <form action="<%=request.getContextPath()%>/e/t1" method="post">
+       <input type="text" name="name">
+       <input type="submit">
+   </form>
+   </body>
+   </html>
+   ```
+
+2. 处理类【EncodingController.java】
+
+   ```java
+   @Controller
+   public class EncodingController {
+   
+       @RequestMapping("/e/t1")
+       public String test1(String name, Model model) {
+           model.addAttribute("msg", name);
+           return "test";
+       }
+   }
+   ```
+
+3. 编写一个跳转接收页面【test.jsp】
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>Title</title>
+   </head>
+   <body>
+   ${msg}
+   </body>
+   </html>
+   ```
+
+4. 启动测试，输入中文出现乱码
+
+   ![image-20220612111634228](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220612111634228.png)
+
+​	
+
+以前乱码问题通过过滤器解决，而SpringMVC给我们提供了一个过滤器 , 可以在【web.xml】中配置。
+
+修改了xml文件需要重启服务器！
+
+```xml
+<filter>
+   <filter-name>encoding</filter-name>
+   <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+   <init-param>
+       <param-name>encoding</param-name>
+       <param-value>utf-8</param-value>
+   </init-param>
+</filter>
+<filter-mapping>
+   <filter-name>encoding</filter-name>
+   <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+但是发现，有些极端情况下，这个过滤器对get的支持很不友好。
+
+​	
+
+> **处理办法**
+
+1. 修改Tomcat配置文件，设置编码！
+
+   ```xml
+   <Connector URIEncoding="utf-8" port="8080" protocol="HTTP/1.1"
+             connectionTimeout="20000"
+             redirectPort="8443" />
+   ```
+
+   
 

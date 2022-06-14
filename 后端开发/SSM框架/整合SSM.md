@@ -39,7 +39,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 1. 新建一个Maven项目，**添加Web支持**
 
-2. 导入相关的pom依赖
+2. 导入相关的**pom依赖，Maven静态资源过滤设置**
 
    ```xml
    <!--依赖: junit,数据库驱动,连接池,servlet,jsp,mybatis,mybaits-spring,spring相关-->
@@ -125,31 +125,8 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
                </resource>
            </resources>
        </build>
-   ```
-
-3. Maven静态资源过滤设置
-
-   ```xml
-   <build>
-      <resources>
-          <resource>
-              <directory>src/main/java</directory>
-              <includes>
-                  <include>**/*.properties</include>
-                  <include>**/*.xml</include>
-              </includes>
-              <filtering>false</filtering>
-          </resource>
-          <resource>
-              <directory>src/main/resources</directory>
-              <includes>
-                  <include>**/*.properties</include>
-                  <include>**/*.xml</include>
-              </includes>
-              <filtering>false</filtering>
-          </resource>
-      </resources>
-   </build>
+   
+   </project>
    ```
 
 4. 可以在IDEA中连接数据库
@@ -160,13 +137,13 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
    :mag:**java文件夹下**
 
-   - com.xleixz.pojo（实体）
+   - com.xleixz.pojo（model模型）
 
-   - com.xleixz.mapper
+   - com.xleixz.mapper（数据持久层）
 
-   - com.xleixz.service（业务层）
+   - com.xleixz.service（业务逻辑层）
 
-   - com.xleixz.controller
+   - com.xleixz.controller（控制层）
 
    :mag:**resources文件夹下**
 
@@ -206,12 +183,12 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
            PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
            "http://mybatis.org/dtd/mybatis-3-config.dtd">
    <configuration>
-   	
+   
        <!--类起别名-->
        <typeAliases>
            <package name="com.xleixz.pojo"/>
        </typeAliases>
-       <!--绑定接口映射器-->
+       <!--绑定接口映射文件-->
        <mappers>
            <mapper resource="com/xleixz/mapper/BookMapper.xml"/>
        </mappers>
@@ -241,7 +218,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
    }
    ```
 
-3. 编写mapper层的 Mapper接口
+3. 编写**mapper（dao）**层的 **Mapper接口**
 
    ```java
    import com.xleixz.pojo.Books;
@@ -266,7 +243,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
    }
    ```
 
-4. 编写接口对应的Mapper.xml 文件
+4. 编写接口对应的**Mapper.xml** 文件
 
    ```xml
    <?xml version="1.0" encoding="UTF-8" ?>
@@ -316,7 +293,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
        </mappers>
    ```
 
-5. 编写Service层的接口和实现类
+5. 编写**Service层的接口和实现类**
 
    <font color="red">**业务层（Service）接口和mapper层接口本质上没有区别！！**</font>
 
@@ -493,7 +470,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 > **SpringMVC层**
 
-1. 增加Web支持，配置web.xml
+1. **配置web.xml**
 
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>
@@ -502,13 +479,13 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
             xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
             version="5.0">
    
-       <!--DispatcherServlet-->
+       <!--DispatcherServlet: 前置控制器,请求分发-->
        <servlet>
            <servlet-name>DispatcherServlet</servlet-name>
            <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
            <init-param>
                <param-name>contextConfigLocation</param-name>
-               <!--一定要注意:我们这里加载的是总的配置文件，之前被这里坑了！-->
+               <!--一定要注意:这里加载的是总的配置文件，这里有坑！-->
                <param-value>classpath:ApplicationContext.xml</param-value>
            </init-param>
            <load-on-startup>1</load-on-startup>
@@ -518,6 +495,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
            <url-pattern>/</url-pattern>
        </servlet-mapping>
    
+       <!--防止乱码-->
        <!--encodingFilter-->
        <filter>
            <filter-name>encodingFilter</filter-name>
@@ -557,7 +535,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
       https://www.springframework.org/schema/mvc/spring-mvc.xsd">
    
        <!-- 配置SpringMVC -->
-       <!-- 1.开启SpringMVC注解驱动 -->
+       <!-- 1.开启SpringMVC注解驱动,处理器映射器,处理器适配器-->
        <mvc:annotation-driven />
        <!-- 2.静态资源默认servlet配置-->
        <mvc:default-servlet-handler/>
@@ -591,9 +569,11 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 ​	
 
-1. BookController 类编写
+1. **BookController 类编写**
 
    ```java
+   package com.xleixz.controller;
+   
    import com.xleixz.pojo.Books;
    import com.xleixz.service.BookService;
    import org.springframework.beans.factory.annotation.Autowired;
@@ -604,62 +584,84 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
    import org.springframework.web.bind.annotation.RequestMapping;
    import org.springframework.web.bind.annotation.RestController;
    
+   import java.awt.print.Book;
+   import java.util.ArrayList;
    import java.util.List;
    
+   /**
+    * @Author: 小雷学长
+    * @Date: 2022/6/13 - 17:50
+    * @Version: 1.8
+    */
+   //添加@Controller注解，表示这是一个控制器
    @Controller
+   //添加@RequestMapping("/book")注解，表示这是一个请求映射器
    @RequestMapping("/book")
    public class BookController {
    
+       //添加@Autowired注解，表示这是一个自动装配的注解
        @Autowired
+       //添加@Qualifier注解，表示这是一个注入的注解
        @Qualifier("BookServiceImpl")
        private BookService bookService;
    
        @RequestMapping("/allBook")
        public String list(Model model) {
+           //调用service方法，查询所有图书
            List<Books> list = bookService.queryAllBook();
+           //将查询到的图书添加到model中
            model.addAttribute("list", list);
+           //转发
            return "allBook";
        }
    
        @RequestMapping("/toAddBook")
        public String toAddPaper() {
+           //返回book/add.jsp
            return "addBook";
        }
    
        @RequestMapping("/addBook")
        public String addPaper(Books books) {
-           System.out.println(books);
+           //调用service方法，添加图书
            bookService.addBook(books);
+           //重定向
            return "redirect:/book/allBook";
        }
    
        @RequestMapping("/toUpdateBook")
        public String toUpdateBook(Model model, int id) {
+           //调用service方法，根据id查询图书
            Books books = bookService.queryBookById(id);
-           System.out.println(books);
-           model.addAttribute("book",books );
+           //将查询到的图书添加到model中
+           model.addAttribute("book", books);
+           //转发
            return "updateBook";
        }
    
        @RequestMapping("/updateBook")
        public String updateBook(Model model, Books book) {
-           System.out.println(book);
+           //调用service方法，修改图书
            bookService.updateBook(book);
+           //调用service方法，根据id查询图书
            Books books = bookService.queryBookById(book.getBookID());
+           //将查询到的图书添加到model中
            model.addAttribute("books", books);
+           //重定向
            return "redirect:/book/allBook";
        }
    
        @RequestMapping("/del/{bookId}")
        public String deleteBook(@PathVariable("bookId") int id) {
+           //调用service方法，根据id删除图书
            bookService.deleteBookById(id);
+           //重定向
            return "redirect:/book/allBook";
        }
-   
    }
    ```
 
-2. 补充index.jsp页面
+2. 补充**index.jsp**页面
 
    ```jsp
    <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -833,7 +835,79 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 > **拓展：新增一个查询功能**
 
+1. 到**mapper**层写接口，实现根据书籍名称查询数据信息的功能【BookMapper.java】
 
+   ```java
+   //根据name查询,返回一个Book
+   Books queryBookByName(@Param("bookName") String bookName);
+   ```
+
+2. 根据接口编写**映射文件**【BookMapper.xml】
+
+   ```xml
+   <!--查询全部Book-->
+   <select id="queryBookByName" resultType="Books">
+           SELECT * from ssmbuild.books
+           where bookName = #{bookName}
+   </select>
+   ```
+
+3. 在**service**层编写接口，<font color="red">**业务层（Service）接口和mapper层接口本质上没有区别！！**</font>【BookService.java】
+
+   ```java
+   //根据name查询,返回一个Book
+   Books queryBookByName(@Param("bookName") String bookName);
+   ```
+
+4. 在**service**层编写接口实现类【BookServiceImpl.java】
+
+   ```java
+   @Override
+       public Books queryBookByName(String bookName) {
+           return bookMapper.queryBookByName(bookName);
+       }
+   ```
+
+5. 在**书籍列表allBook.jsp**中添加连接跳转
+
+   ```jsp
+   <div class="col-md-8 column">
+               <%--查询书籍--%>
+               <form class="form-inline" action="${pageContext.request.contextPath}/book/queryBook" method="post" style="float: right">
+                   <span style="color: red;font-weight: bold">
+                       ${error}
+                   </span>
+                   <input type="text" name="queryBookName" class="form-control" placeholder="请输入要查询数据的名称">
+                   <input type="submit" value="查询" class="btn btn-primary">
+               </form>
+           </div>
+   ```
+
+   
+
+6. 编写**controller**层，控制请求和响应【BookController.java】
+
+   ```java
+   @RequestMapping("/queryBook")
+       public String queryBook(String queryBookName, Model model) {
+           //调用service方法，根据图书名称查询图书
+           Books books = bookService.queryBookByName(queryBookName);
+           //遍历Books集合
+           List<Books> list = new ArrayList<>();
+           //将遍历的图书添加到list中
+           list.add(books);
+           /*查询优化*/
+           //如果查询到的结果为空,则返回所有的书籍
+           if(books==null){
+              list = bookService.queryAllBook();
+              model.addAttribute("error","没有查询到相关书籍");
+           }
+           //将查询到的图书添加到model中
+           model.addAttribute("list", list);
+           //转发
+           return "allBook";
+       }
+   ```
 
 ​	
 
@@ -841,9 +915,11 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 ![image-20220614112019556](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220614112019556.png)
 
+![image-20220614174009400](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220614174009400.png)
+
 ---
 
-​	
+​	 
 
 # 2 报错问题
 

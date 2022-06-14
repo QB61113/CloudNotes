@@ -1,5 +1,13 @@
 # 整合SSM框架
 
+页面访问流程：前端 ----> controller层 ----> service 层----> mapper层 ----> 数据库
+
+前端访问，controller层到service层，service调mapper层，mapper连数据库
+
+开发流程：数据库 ----> mapper层 ---> service业务层 ----> controller层 ----> 前端页面
+
+# 1 开发
+
 > **数据库环境**
 
 创建一个数据库
@@ -583,9 +591,21 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 ​	
 
-1. BookController 类编写 ， 方法一：查询全部书籍
+1. BookController 类编写
 
    ```java
+   import com.xleixz.pojo.Books;
+   import com.xleixz.service.BookService;
+   import org.springframework.beans.factory.annotation.Autowired;
+   import org.springframework.beans.factory.annotation.Qualifier;
+   import org.springframework.stereotype.Controller;
+   import org.springframework.ui.Model;
+   import org.springframework.web.bind.annotation.PathVariable;
+   import org.springframework.web.bind.annotation.RequestMapping;
+   import org.springframework.web.bind.annotation.RestController;
+   
+   import java.util.List;
+   
    @Controller
    @RequestMapping("/book")
    public class BookController {
@@ -600,6 +620,42 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
            model.addAttribute("list", list);
            return "allBook";
        }
+   
+       @RequestMapping("/toAddBook")
+       public String toAddPaper() {
+           return "addBook";
+       }
+   
+       @RequestMapping("/addBook")
+       public String addPaper(Books books) {
+           System.out.println(books);
+           bookService.addBook(books);
+           return "redirect:/book/allBook";
+       }
+   
+       @RequestMapping("/toUpdateBook")
+       public String toUpdateBook(Model model, int id) {
+           Books books = bookService.queryBookById(id);
+           System.out.println(books);
+           model.addAttribute("book",books );
+           return "updateBook";
+       }
+   
+       @RequestMapping("/updateBook")
+       public String updateBook(Model model, Books book) {
+           System.out.println(book);
+           bookService.updateBook(book);
+           Books books = bookService.queryBookById(book.getBookID());
+           model.addAttribute("books", books);
+           return "redirect:/book/allBook";
+       }
+   
+       @RequestMapping("/del/{bookId}")
+       public String deleteBook(@PathVariable("bookId") int id) {
+           bookService.deleteBookById(id);
+           return "redirect:/book/allBook";
+       }
+   
    }
    ```
 
@@ -701,16 +757,130 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
       </div>
    </div>
    ```
+   
+4. 添加书籍页面：**addBook.jsp**
+
+   ```jsp
+   <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   
+   <html>
+   <head>
+     <title>新增书籍</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <!-- 引入 Bootstrap -->
+     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+   </head>
+   <body>
+   <div class="container">
+   
+     <div class="row clearfix">
+       <div class="col-md-12 column">
+         <div class="page-header">
+           <h1>
+             <small>新增书籍</small>
+           </h1>
+         </div>
+       </div>
+     </div>
+     <form action="${pageContext.request.contextPath}/book/addBook" method="post">
+       书籍名称：<input type="text" name="bookName"><br><br><br>
+       书籍数量：<input type="text" name="bookCounts"><br><br><br>
+       书籍详情：<input type="text" name="detail"><br><br><br>
+       <input type="submit" value="添加">
+     </form>
+   
+   </div>
+   ```
+
+5. 修改书籍页面  **updateBook.jsp**
+
+   ```jsp
+   <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+     <title>修改信息</title>
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <!-- 引入 Bootstrap -->
+     <link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+   </head>
+   <body>
+   <div class="container">
+   
+     <div class="row clearfix">
+       <div class="col-md-12 column">
+         <div class="page-header">
+           <h1>
+             <small>修改信息</small>
+           </h1>
+         </div>
+       </div>
+     </div>
+   
+     <form action="${pageContext.request.contextPath}/book/updateBook" method="post">
+       <input type="hidden" name="bookID" value="${book.getBookID()}"/>
+       书籍名称：<input type="text" name="bookName" value="${book.getBookName()}"/>
+       书籍数量：<input type="text" name="bookCounts" value="${book.getBookCounts()}"/>
+       书籍详情：<input type="text" name="detail" value="${book.getDetail() }"/>
+       <input type="submit" value="提交"/>
+     </form>
+   
+   </div>
+   ```
 
 ​	
 
-<font color="red">**启动测试，发现报500服务器内部错误！**</font>
+> **拓展：新增一个查询功能**
+
+
+
+​	
+
+目录结构：
+
+![image-20220614112019556](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220614112019556.png)
+
+---
+
+​	
+
+# 2 报错问题
+
+> <font color="red">**启动测试，发现报500服务器内部错误！**</font>
 
 ![image-20220613183340511](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220613183340511.png)
 
 <font color="green">**解决：在web.xml配置文件中，classpath：对应的文件中没有绑定ApplicationContext.xml配置文件，修改一下。**</font>
 
 ![image-20220613183557168](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220613183557168.png)
+
+​	
+
+> <font color="red">**新增书籍出现问题：数据库无法正常添加数据**</font>
+
+<font color="orange">**分析：**</font>
+
+1. 首先判断事务是否提交，若没有则配置事务；若还有问题则下一步；
+2. 看一下SQL语句能否执行成功，SQL执行失败，修改未完成。
+
+<font color="green">**解决：**</font>
+
+<font color="green">**SQL语句中没有传入id，service业务层的BookID没有传过来，设置前端传递隐藏域**</font>
+
+```java
+<input type="hidden" name="bookID" value="${book.getBookID()}"/>
+```
+
+这里`name`要对应数据库里的**列**。
+
+**还可以通过在mybatis核心配置文件中添加日志，查看SQL语句是否正常**
+
+```xml
+<settings>
+    <setting name="logImpl" values="STDOUT_LOGGING"/>
+</settings>
+```
 
 
 

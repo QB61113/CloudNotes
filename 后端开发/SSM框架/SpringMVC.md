@@ -810,7 +810,7 @@ public class ControllerTest1 implements Controller {
 
   ```xml
   <!-- 自动扫描指定的包，下面所有注解类交给IOC容器管理 -->
-  <context:component-scan base-package="com.kuang.controller"/>
+  <context:component-scan base-package="com.xleixz.controller"/>
   ```
 
 - 增加一个`ControllerTest2`类，使用注解实现；
@@ -950,14 +950,15 @@ Restful就是一个资源定位及资源操作的风格。不是标准也不是�
 
 4. 思考：使用路径变量的好处？
 
-5. - 使路径变得更加简洁；
+   - 使路径变得更加简洁；
+
    - 获得参数更加方便，框架会自动进行类型转换。
 
-6. - 通过路径变量的类型可以约束访问参数，如果类型不一样，则访问不到对应的请求方法，如这里访问是
+   - 通过路径变量的类型可以约束访问参数，如果类型不一样，则访问不到对应的请求方法，如这里访问是
 
      的路径是/commit/1/a，则路径与方法不匹配，而不会是参数转换失败。
 
-     ![image-20220611230602363](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220611230602363.png)
+   ![image-20220611230602363](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220611230602363.png)
 
 7. 修改下对应的String参数类型，再次测试
 
@@ -1269,7 +1270,7 @@ public class UserController {
 
 > **提交的域名称和处理方法的参数名不一致**，http://locaohost:8080/user/t1?username=xxxx
 >
-> 需要添加注解`@(@RequestParam("")`
+> 需要添加注解`@RequestParam("")`
 
 ```java
     //提交的域名称和处理方法的参数名不一致
@@ -1914,7 +1915,9 @@ public class User {
 }
 ```
 
-**这里需要两个新东西，一个是`@ResponseBody`，一个是`ObjectMapper`对象；**
+**这里需要两个新东西，一个是`@ResponseBody`注解，一个是`ObjectMapper`对象；**
+
+`@ResponseBody`注解，就不会走视图解析器，不去找页面，直接返回一个字符串；
 
 > **编写一个Controller**
 
@@ -1958,13 +1961,13 @@ public class UserController {
 
 ## 7.2 代码优化
 
-### 7.2.1 乱码统一解决
+### 7.2.1 JSON乱码统一解决
 
 上一种方法比较麻烦，如果项目中有许多请求则每一个都要添加，可以通过Spring配置统一指定，这样就不
 
 用每次都去处理了！
 
-另一种方法可以在spr**ingmvc的配置文件**【springmvc-servlet.xml】上添加一段
+另一种方法可以在spr**ingmvc的配置文件**【springmvc-servlet.xml】（【Spring-mvc.xml】）上添加一段
 
 `StringHttpMessageConverter`转换配置！
 
@@ -2010,7 +2013,7 @@ public class UserController {
 
 ​	
 
-### 7.2.2 返回json字符串统一解决
+### 7.2.2 返回json字符串统一解决前后端分离开发
 
 在类上直接使用`@RestController `，这样子，**里面所有的方法都只会返回 json 字符串了**，不用再每一个都添加
 
@@ -2244,9 +2247,9 @@ public class FastJsonDemo {
 }
 ```
 
----
+​	
 
 ​	
 
-# 8、整合SSM框架
+<font color="green">**完结：2022-06-10**</font>
 

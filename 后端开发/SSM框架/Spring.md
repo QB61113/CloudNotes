@@ -1597,7 +1597,7 @@ public class User {
 
 ​	
 
-## 8.1 Spring 注解context:annotation-config和 context:component-scan的作用与区别
+## 【特别注意】：Spring 注解context:annotation-config和 context:component-scan的作用与区别
 
 - `context:annotation-config`是用于激活那些已经在spring容器里注册过的bean（无论是通过xml的方式还
 
@@ -3480,4 +3480,4 @@ public void test2(){
 
 ​		
 
-**完结！  2022/06/06**
+<font color="green>">**完结！  2022-06-06**</font>

@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
 ​	
 
-<font color="red">**注意：在我们之前的业务中，用户的需求可能会影响我们原来的代码，我们需要根据用户的需求去修改源代码！如果程序代码量十分大，修改代码的成本十分高！**</font>
+<font color="red">**注意：在之前的业务中，用户的需求可能会影响原来的代码，需要根据用户的需求去修改源代码！如果程序代码量十分大，修改代码的成本十分高！**</font>
 
 例如：当Userdao的实现类增加一个：
 
@@ -572,7 +572,6 @@ public class UserT {
         System.out.println("UserT被创建了");
     }
 
-
     public String getName() {
         return name;
     }
@@ -758,12 +757,21 @@ public class Address {
     public void setAddress(String address) {
         this.address = address;
     }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "address='" + address + '\'' +
+                '}';
+    }
 }
 ```
 
 2. 真实测试对象【Student.java】
 
 ```java
+public class Student {
+
     private String name;
     private Address address;
     private String [] books;
@@ -772,6 +780,86 @@ public class Address {
     private Set<String> games;
     private String wife;
     private Properties info;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public String[] getBooks() {
+        return books;
+    }
+
+    public void setBooks(String[] books) {
+        this.books = books;
+    }
+
+    public List<String> getHobbies() {
+        return hobbies;
+    }
+
+    public void setHobbies(List<String> hobbies) {
+        this.hobbies = hobbies;
+    }
+
+    public Map<String, String> getCard() {
+        return card;
+    }
+
+    public void setCard(Map<String, String> card) {
+        this.card = card;
+    }
+
+    public Set<String> getGames() {
+        return games;
+    }
+
+    public void setGames(Set<String> games) {
+        this.games = games;
+    }
+
+    public String getWife() {
+        return wife;
+    }
+
+    public void setWife(String wife) {
+        this.wife = wife;
+    }
+
+    public Properties getInfo() {
+        return info;
+    }
+
+    public void setInfo(Properties info) {
+        this.info = info;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", address=" + address.toString() +
+                ", books=" + Arrays.toString(books) +
+                ", hobbies=" + hobbies +
+                ", card=" + card +
+                ", games=" + games +
+                ", wife='" + wife + '\'' +
+                ", info=" + info +
+                '}';
+    }
+}
 ```
 
 3. Spring配置文件【beans.xml】
@@ -1034,23 +1122,6 @@ Spring会在上下文中自动寻找，并自动给bean装配属性！
 
 ## 7.1 环境搭建【自动装配准备工作】
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-        https://www.springframework.org/schema/beans/spring-beans.xsd">
-
-    <bean id="cat" class="com.xleixz.pojo.Cat"/>
-    <bean id="dog" class="com.xleixz.pojo.Dog"/>
-    <bean id="people" class="com.xleixz.pojo.People">
-          <property name="cat" ref="cat"/>
-          <property name="dog" ref="dog"/>
-          <property name="name" value="小雷"/>
-    </bean>
-</beans>
-```
-
 ```java
 public class People {
 
@@ -1125,11 +1196,28 @@ public class MyTest {
 }
 ```
 
-​	 
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="cat" class="com.xleixz.pojo.Cat"/>
+    <bean id="dog" class="com.xleixz.pojo.Dog"/>
+    <bean id="people" class="com.xleixz.pojo.People">
+          <property name="cat" ref="cat"/>
+          <property name="dog" ref="dog"/>
+          <property name="name" value="小雷"/>
+    </bean>
+</beans>
+```
+
+​		
 
 ## 7.2 byName自动装配
 
-> byName：会自动在容器上下文查找，找set方法后对应的的值相对应的bean id。
+> byName：会自动在容器上下文查找，**找set方法后对应的的值相对应的bean id**。
 >
 > 优点：不会因为类型冲突而无法使用，一个set方法后的值对应一个id。
 >
@@ -1149,7 +1237,7 @@ public class MyTest {
 
 ## 7.3 byType自动装配
 
-> byType：会自动在容器上下文查找，找和自己对象属性类型相同的bean。
+> byType：会自动在容器上下文查找，**找和自己对象属性类型相同的bean**。
 >
 > 优点：可以省略bean中的id不写，当类型不冲突时，对id的命名没有要求。
 >
@@ -1196,7 +1284,7 @@ jdk1.5支持注解，Spring2.5支持注解。
 
 **@AutoWired注解**
 
-> @Autowired是按类型自动装配的，不支持id匹配。
+> @Autowired是**按类型自动装配的，不支持id匹配**。
 >
 > 直接在属性使用，也可以在set方法上使用；
 >
@@ -1261,9 +1349,9 @@ private Cat cat;
 
 **@Qualifier注解**
 
-> @Autowired是根据类型自动装配的，加上@Qualifier则可以根据byName的方式自动装配；
+> @Autowired是根据类型自动装配的，**加上@Qualifier则可以根据byName的方式自动装配；**
 >
-> @Qualifier不能单独使用。
+> **@Qualifier不能单独使用。**
 
 测试实验步骤：
 
@@ -1295,13 +1383,9 @@ private Dog dog;
 
  **@Resource注解**
 
-> @Resource如有指定的name属性，先按该属性进行byName方式查找装配；
+> @Resource如有指定的name属性，**默认通过byName的方式实现，如果名字找不到，则通过byType实现**，如果
 >
-> 其次再进行默认的byName方式进行装配；
->
-> 如果以上都不成功，则按byType的方式自动装配。
->
-> 都不成功，则报异常。
+> 两个都找不到，会报错。【常用】
 
 【实体类】
 
@@ -1510,6 +1594,22 @@ public class User {
 <!--指定要扫描的包，这个包下的注解就会生效-->
 <context:component-scan base-package="com.xleixz"/>
 ```
+
+​	
+
+## 8.1 Spring 注解context:annotation-config和 context:component-scan的作用与区别
+
+- `context:annotation-config`是用于激活那些已经在spring容器里注册过的bean（无论是通过xml的方式还
+
+  是通过packagesanning的方式）上面的注解。(激活@Resource和@Autowired注解)
+
+- `context:component-scan`除了具有context:annotation-config的功能之外，`context:component-scan`还
+
+  可以在指定的package下扫描以及注册javabean 。(激活@Resource和@Autowired注解，同时可以配置扫描的包
+
+  以激活@Service、@Controller等注解)
+
+- **开发中使用`context:component-scan`足以**
 
 ---
 
@@ -1832,7 +1932,7 @@ public class Client {
 
 ​	
 
-**所谓的代理模式就是一个业务程序从dao层，开发到Service层，到Control层，到前端开发。如果需要拓展应用，修改底层代码的风险是巨大的，这时候就可以通过代理模式横切编程。这也是AOP的实现机制！**
+**所谓的代理模式就是一个业务程序从dao层，开发到Service层，到Controller层，到前端开发。如果需要拓展应用，修改底层代码的风险是巨大的，这时候就可以通过代理模式横切编程。这也是AOP的实现机制！**
 
 ​	
 

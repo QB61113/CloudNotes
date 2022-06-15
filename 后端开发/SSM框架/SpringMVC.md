@@ -2247,9 +2247,257 @@ public class FastJsonDemo {
 }
 ```
 
-​	
+---
 
 ​	
 
-<font color="green">**完结：2022-06-10**</font>
+# 8、Ajax异步加载技术
+
+AJAX = Asynchronous JavaScript and XML（异步的 JavaScript 和 XML）。
+
+AJAX 不是新的编程语言，而是一种使用现有标准的新方法。
+
+AJAX 最大的优点是**在不重新加载整个页面的情况下，可以与服务器交换数据并更新部分网页内容。**
+
+AJAX 不需要任何浏览器插件，但需要用户允许JavaScript在浏览器上执行。
+
+​	
+
+> **伪造一个Ajax页面**
+
+新建一个HTML，伪造一个Ajax页面
+
+```html
+<!DOCTYPE html>
+<html>
+<head lang="en">
+   <meta charset="UTF-8">
+   <title>kuangshen</title>
+</head>
+<body>
+
+<script type="text/javascript">
+   window.onload = function(){
+       var myDate = new Date();
+       document.getElementById('currentTime').innerText = myDate.getTime();
+  };
+
+   function LoadPage(){
+       var targetUrl =  document.getElementById('url').value;
+       console.log(targetUrl);
+       document.getElementById("iframePosition").src = targetUrl;
+  }
+
+</script>
+
+<div>
+   <p>请输入要加载的地址：<span id="currentTime"></span></p>
+   <p>
+       <input id="url" type="text" value="https://www.baidu.com/"/>
+       <input type="button" value="提交" onclick="LoadPage()">
+   </p>
+</div>
+
+<div>
+   <h3>加载页面位置：</h3>
+   <iframe id="iframePosition" style="width: 100%;height: 500px;"></iframe>
+</div>
+
+</body>
+</html>
+```
+
+![image-20220615184811888](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220615184811888.png)
+
+​			
+
+## 8.1 jQuery.Ajax
+
+> **什么是jQuery？**
+
+Ajax的核心是XMLHttpRequest对象(XHR)。XHR为向服务器发送请求和解析服务器响应提供了接口。能够以异步方式
+
+从服务器获取新数据。
+
+jQuery 提供多个与 AJAX 有关的方法。
+
+通过 jQuery AJAX 方法，能够使用 HTTP Get 和 HTTP Post 从远程服务器上请求文本、HTML、XML 或 JSON – 同时
+
+您能够把这些外部数据直接载入网页的被选元素中。
+
+jQuery 不是生产者，而是大自然搬运工。
+
+jQuery Ajax本质就是 XMLHttpRequest，对他进行了封装，方便调用！
+
+**jQuery是一个库，库里有js的大量函数（方法）**
+
+​	
+
+> **jQuery的下载**
+
+jQuery 3.6.0 传送门：[jQuery官网（3.6.0）](https://jquery.com/ "点击下载查看jQuery 3.6.0")<font color="red">**3.6.0版本偶尔有问题，建议降级使用**</font>
+
+jQuery 3.5.1 传送门：[jQuery 3.5.1](https://blog.jquery.com/2020/05/04/jquery-3-5-1-released-fixing-a-regression/ "点击下载jQuery 3.5.1版本")
+
+![image-20220615185503612](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220615185503612.png)
+
+![image-20220615185718008](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220615185718008.png)
+
+![image-20220615194029980](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220615194029980.png)
+
+​	
+
+```markdown
+jQuery.ajax(...)
+      部分参数：
+            url：请求地址
+            type：请求方式，GET、POST（1.9.0之后用method）
+        headers：请求头
+            data：要发送的数据
+    contentType：即将发送信息至服务器的内容编码类型(默认: "application/x-www-form-urlencoded; charset=UTF-8")
+          async：是否异步
+        timeout：设置请求超时时间（毫秒）
+      beforeSend：发送请求前执行的函数(全局)
+        complete：完成之后执行的回调函数(全局)
+        success：成功之后执行的回调函数(全局)
+          error：失败之后执行的回调函数(全局)
+        accepts：通过请求头发送给服务器，告诉服务器当前客户端可接受的数据类型
+        dataType：将服务器端返回的数据转换成指定类型
+          "xml": 将服务器端返回的内容转换成xml格式
+          "text": 将服务器端返回的内容转换成普通文本格式
+          "html": 将服务器端返回的内容转换成普通文本格式，在插入DOM中时，如果包含JavaScript标签，则会尝试去执行。
+        "script": 尝试将返回值当作JavaScript去执行，然后再将服务器端返回的内容转换成普通文本格式
+          "json": 将服务器端返回的内容转换成相应的JavaScript对象
+        "jsonp": JSONP 格式使用 JSONP 形式调用函数时，如 "myurl?callback=?" jQuery 将自动替换 ? 为正确的函数名，以执行回调函数
+```
+
+> **使用最原始的HttpServletResponse处理 , .最简单 , 最通用**
+
+1. 配置【web.xml】和【ApplicationContext.xml】（Spring-mvc.xml）
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+            version="5.0">
+   
+       <servlet>
+           <servlet-name>springmvc</servlet-name>
+           <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+           <init-param>
+               <param-name>contextConfigLocation</param-name>
+               <param-value>classpath:ApplicationContext.xml</param-value>
+           </init-param>
+           <load-on-startup>1</load-on-startup>
+       </servlet>
+       <servlet-mapping>
+           <servlet-name>springmvc</servlet-name>
+           <url-pattern>/</url-pattern>
+       </servlet-mapping>
+   
+       <filter>
+           <filter-name>encoding</filter-name>
+           <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+           <init-param>
+               <param-name>encoding</param-name>
+               <param-value>utf-8</param-value>
+           </init-param>
+       </filter>
+       <filter-mapping>
+           <filter-name>encoding</filter-name>
+           <url-pattern>/*</url-pattern>
+       </filter-mapping>
+   
+   </web-app>
+   ```
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <beans xmlns="http://www.springframework.org/schema/beans"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:context="http://www.springframework.org/schema/context"
+          xmlns:mvc="http://www.springframework.org/schema/mvc"
+          xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/context
+          https://www.springframework.org/schema/context/spring-context.xsd
+          http://www.springframework.org/schema/mvc
+          https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+   
+       <!-- 自动扫描包，让指定包下的注解生效,由IOC容器统一管理 -->
+       <context:component-scan base-package="com.xleixz.controller"/>
+       <mvc:default-servlet-handler />
+       <mvc:annotation-driven />
+   
+   
+       <!-- 视图解析器 -->
+       <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+             id="internalResourceViewResolver">
+           <!-- 前缀 -->
+           <property name="prefix" value="/" />
+           <!-- 后缀 -->
+           <property name="suffix" value=".jsp" />
+       </bean>
+   
+   </beans>
+   ```
+
+2. 编写一个jsp测试页面
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+     <title>$Title$</title>
+     <%--<script src="https://code.jquery.com/jquery-3.5.1.js"></script>--%>
+     <script src="${pageContext.request.contextPath}/statics/js/jquery-3.5.1.js"></script>
+     <script>
+       function a1(){
+         //$符号=jquery 相当于jquery.post
+         $.post({
+           url:"${pageContext.request.contextPath}/a1",
+           data:{'name':$("#txtName").val()},
+           success:function (data,status) {
+             alert(data);
+             alert(status);
+           }
+         });
+       }
+     </script>
+   </head>
+   <body>
+   
+   <%--onblur：失去焦点触发事件--%>
+   用户名:<input type="text" id="txtName" onblur="a1()"/>
+   
+   </body>
+   </html>
+   ```
+
+3. 在**jsp中**导入**jQuery** ， 可以使用在线的CDN ， 也可以下载导入
+
+   ```jsp
+   <%--<script src="https://code.jquery.com/jquery-3.5.1.js"></script>--%>
+     <script src="${pageContext.request.contextPath}/statics/js/jquery-3.5.1.js"></script>
+   ```
+
+4. 控制层【AjaxController.java】
+
+   ```java
+   @Controller
+   public class AjaxController {
+   
+      @RequestMapping("/a1")
+      public void ajax1(String name , HttpServletResponse response) throws IOException {
+          if ("admin".equals(name)){
+              response.getWriter().print("true");
+         }else{
+              response.getWriter().print("false");
+         }
+     }
+   }
+   ```
+
+   
 

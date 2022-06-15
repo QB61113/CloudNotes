@@ -535,7 +535,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
       https://www.springframework.org/schema/mvc/spring-mvc.xsd">
    
        <!-- 配置SpringMVC -->
-       <!-- 1.开启SpringMVC注解驱动,处理器映射器,处理器适配器-->
+       <!-- 1.开启SpringMVC处理器映射器,处理器适配器-->
        <mvc:annotation-driven />
        <!-- 2.静态资源默认servlet配置-->
        <mvc:default-servlet-handler/>

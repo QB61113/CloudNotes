@@ -2311,7 +2311,7 @@ AJAX 不需要任何浏览器插件，但需要用户允许JavaScript在浏览�
 
 ​			
 
-## 8.1 jQuery.Ajax
+## 8.1 了解jQuery.Ajax
 
 > **什么是jQuery？**
 
@@ -2370,6 +2370,8 @@ jQuery.ajax(...)
           "json": 将服务器端返回的内容转换成相应的JavaScript对象
         "jsonp": JSONP 格式使用 JSONP 形式调用函数时，如 "myurl?callback=?" jQuery 将自动替换 ? 为正确的函数名，以执行回调函数
 ```
+
+​	
 
 > **使用最原始的HttpServletResponse处理 , .最简单 , 最通用**
 
@@ -2449,28 +2451,31 @@ jQuery.ajax(...)
    <%@ page contentType="text/html;charset=UTF-8" language="java" %>
    <html>
    <head>
-     <title>$Title$</title>
-     <%--<script src="https://code.jquery.com/jquery-3.5.1.js"></script>--%>
-     <script src="${pageContext.request.contextPath}/statics/js/jquery-3.5.1.js"></script>
-     <script>
-       function a1(){
-         //$符号=jquery 相当于jquery.post
-         $.post({
-           url:"${pageContext.request.contextPath}/a1",
-           data:{'name':$("#txtName").val()},
-           success:function (data,status) {
-             alert(data);
-             alert(status);
-           }
-         });
-       }
-     </script>
+       <title>$Title$</title>
+       <%--<script src="https://code.jquery.com/jquery-3.5.1.js"></script>--%>
+   
    </head>
    <body>
    
    <%--onblur：失去焦点触发事件--%>
    用户名:<input type="text" id="txtName" onblur="a1()"/>
    
+   
+   
+   <script src="${pageContext.request.contextPath}/statics/js/jquery-3.5.1.js"></script>
+   <script>
+       function a1() {
+           //$符号=jquery 相当于jquery.post
+           $.post({
+               url: "${pageContext.request.contextPath}/ajax2",
+               data: {'name': $("#txtName").val()},
+               success: function (data, status) {
+                   alert(data);
+                   alert(status);
+               }
+           });
+       }
+   </script>
    </body>
    </html>
    ```
@@ -2485,19 +2490,212 @@ jQuery.ajax(...)
 4. 控制层【AjaxController.java】
 
    ```java
-   @Controller
+   @RestController
    public class AjaxController {
    
-      @RequestMapping("/a1")
-      public void ajax1(String name , HttpServletResponse response) throws IOException {
-          if ("admin".equals(name)){
-              response.getWriter().print("true");
-         }else{
-              response.getWriter().print("false");
-         }
-     }
+       @RequestMapping("/ajax1")
+       public String test() {
+           return "hello";
+       }
+   
+       @RequestMapping("/ajax2")
+       public void ajax1(String name, HttpServletResponse response) throws IOException {
+           if ("admin".equals(name)) {
+               response.getWriter().print("true");
+           } else {
+               response.getWriter().print("false");
+           }
+       }
+   
+   }
+   ```
+   
+   ![image-20220616092237533](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220616092237533.png)
+   
+   ​	
+   
+## 8.2 Ajax异步加载数据
+
+   1. 实体类【User.java】
+   
+      ```java
+      @Data
+      @AllArgsConstructor
+      @NoArgsConstructor
+      public class User {
+      
+          private String name;
+          private int age;
+          private String sex;
+      }
+      ```
+   
+   2. 获取一个集合展示到前端【AjaxController.java】
+   
+      ```java
+      @RestController
+      public class AjaxController {
+      @RequestMapping("/ajax3")
+          public List<User> ajax3() {
+              List<User> userArraryList = new ArrayList<User>();
+              //添加数据
+              userArraryList.add(new User("小雷", 23, "男"));
+              userArraryList.add(new User("小红", 24, "女"));
+              userArraryList.add(new User("小明", 25, "男"));
+              userArraryList.add(new User("小白", 26, "男"));
+              userArraryList.add(new User("小黑", 27, "男"));
+              userArraryList.add(new User("小紫", 28, "男"));
+              userArraryList.add(new User("小绿", 29, "男"));
+              return userArraryList;
+          }
+      }
+      ```
+   
+   3. 前端页面【ajaxtest2.jsp】
+   
+      ```jsp
+      <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+      <html>
+      <head>
+          <title>Title</title>
+      
+          <script src="${pageContext.request.contextPath}/statics/js/jquery-3.5.1.js"></script>
+          <script>
+              $(function () {
+                  $("#btn").click(function () {
+                      $.post("${pageContext.request.contextPath}/ajax3", function (data) {
+                          // console.log(data);
+                          var html = "";
+                          for (let i = 0; i < data.length; i++) {
+                              html += "<tr>" +
+                                  "<td>" + data[i].name + "</td>" +
+                                  "<td>" + data[i].age + "</td>" +
+                                  "<td>" + data[i].sex + "</td>" +
+                                  "</tr>"
+                              $("#content").html(html);
+                          }
+                      })
+      
+                  })
+              });
+      
+          </script>
+      </head>
+      <body>
+      <input type="button" value="加载数据" id="btn">
+      <%--画页面--%>
+      <table>
+          <tr>姓名</tr>
+          <tr>年龄</tr>
+          <tr>性别</tr>
+          <tbody id="content">
+          <%--数据: 在后台--%>
+      
+          </tbody>
+      </table>
+      
+      </body>
+      </html>
+      ```
+
+   ![Ajax](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/Ajax.gif)
+
+   ​		
+
+   ## 8.3 Ajax验证用户名登录
+
+1. Controller
+
+   ```java
+   @RestController
+   public class AjaxController {
+   @RequestMapping("/ajax4")
+       public String ajax3(String name,String pwd){
+           String msg = "";
+           //模拟数据库中存在数据
+           if (name!=null){
+               if ("admin".equals(name)){
+                   msg = "OK";
+               }else {
+                   msg = "用户名输入错误";
+               }
+           }
+           if (pwd!=null){
+               if ("123456".equals(pwd)){
+                   msg = "OK";
+               }else {
+                   msg = "密码输入有误";
+               }
+           }
+           return msg; //由于@RestController注解，将msg转成json格式返回
+       }
+   
    }
    ```
 
-   
+2. 前端页面【login.jsp】
 
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>ajax</title>
+       <script src="${pageContext.request.contextPath}/statics/js/jquery-3.5.1.js"></script>
+       <script>
+   
+           function a1() {
+               $.post({
+                   url: "${pageContext.request.contextPath}/ajax4",
+                   data: {'name': $("#name").val()},
+                   success: function (data) {
+                       if (data.toString() == 'OK') {
+                           $("#userInfo").css("color", "green");
+                       } else {
+                           $("#userInfo").css("color", "red");
+                       }
+                       $("#userInfo").html(data);
+                   }
+               });
+           }
+   
+           function a2() {
+               $.post({
+                   url: "${pageContext.request.contextPath}/ajax4",
+                   data: {'pwd': $("#pwd").val()},
+                   success: function (data) {
+                       if (data.toString() == 'OK') {
+                           $("#pwdInfo").css("color", "green");
+                       } else {
+                           $("#pwdInfo").css("color", "red");
+                       }
+                       $("#pwdInfo").html(data);
+                   }
+               });
+           }
+   
+       </script>
+   </head>
+   <body>
+   <p>
+       用户名:<input type="text" id="name" onblur="a1()"/>
+       <span id="userInfo"></span>
+   </p>
+   <p>
+       密码:<input type="text" id="pwd" onblur="a2()"/>
+       <span id="pwdInfo"></span>
+   </p>
+   </body>
+   </html>
+   ```
+
+![ajax用户](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/ajax用户.gif)
+
+​	
+
+## 8.4 拦截器
+
+
+
+
+
+   

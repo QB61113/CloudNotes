@@ -2571,7 +2571,7 @@ TeacherMapper.xml文件
 1. 关联 - association（多对一）
 
 2. 集合 - collection（一对多）
-3. JavaType：用来指定实体类中属性我的类型。
+3. JavaType：用来指定实体类中属性的类型。
 4. OfType：用来指定映射到List或集合中的pojo类型，泛型中的约束类型。
 
 ​	

@@ -2692,10 +2692,259 @@ jQuery.ajax(...)
 
 ​	
 
-## 8.4 拦截器
+## 8.4 SpringMVC拦截器
 
+> **什么是拦截器？**
 
+SpringMVC的处理器拦截器类似于Servlet开发中的过滤器Filter，用于对处理器进行预处理和后处理。开发者可以自
 
+己定义一些拦截器来实现特定的功能。
 
+**过滤器与拦截器的区别：**拦截器是AOP思想的具体应用。
 
+**过滤器**
+
+- servlet规范中的一部分，任何java web工程都可以使用
+- 在url-pattern中配置了`/*`之后，可以对所有要访问的资源进行拦截
+
+**拦截器** 
+
+- 拦截器是**SpringMVC框架自己的**，**只有使用了SpringMVC框架的工程才能使用**
+- <font color="red">拦截器只会拦截访问的控制器方法， 如果访问的是jsp/html/css/image/js是不会进行拦截的</font>
+
+​	
+
+> **自定义拦截器**
+
+想要自定义拦截器，必须实现 `HandlerInterceptor` 接口。
+
+1、新建一个Moudule，springmvc-07-Interceptor，添加web支持
+
+2、配置web.xml 和 springmvc-servlet.xml 文件
+
+3、编写一个拦截器
+
+```java
+public class MyInterceptor implements HandlerInterceptor {
+
+    //return true: 执行下一个拦截器
+    //return false: 不执行下一个拦截器
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("=============处理前=============");
+        return true;
+    }
+
+    //在请求处理方法执行之后执行
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        System.out.println("=============处理后=============");
+    }
+
+    //在dispatcherServlet处理后执行,做清理工作.
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        System.out.println("=============清理=============");
+    }
+}
+```
+
+4、在SpringMVC的配置文件中配置拦截器
+
+```xml
+  <!--拦截器配置-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--/** 包括这个请求下的所有请求-->
+            <mvc:mapping path="/**"/>
+            <bean class="com.xleixz.config.MyInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+```
+
+5、编写一个controller类去接收请求
+
+```java
+@RestController
+public class TestController {
+
+    @RequestMapping("/t1")
+    public String test1(){
+        System.out.println("TestController方法执行了");
+        return "OK";
+    }
+}
+```
+
+6、编写index.jsp测试拦截器
+
+```jsp
+<a href="${pageContext.request.contextPath}/interceptor">拦截器测试</a>
+```
+
+7、启动测试
+
+![image-20220616160820866](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220616160820866.png)
+
+​	
+
+> **拦截器作用**
+
+例如：实现用户必须登录才能进入页面等。
+
+<font color="red">**若执行拦截前返回为false，则无法发送请求**</font>
+
+![image-20220616161257623](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220616161257623.png)
+
+![image-20220616161339060](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220616161339060.png)
+
+​	
+
+## 8.5 拦截器实现登录验证
+
+1. 主页面【index.jsp】，并在页面上测试不登录能否进入页面
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>$Title$</title>
+   </head>
    
+   <h1><a href="${pageContext.request.contextPath}/user/goLogin">登录页面</a></h1>
+   <h1><a href="${pageContext.request.contextPath}/user/main">首页</a></h1>
+   </body>
+   </html>
+   ```
+
+2. 登录页面【login.jsp】
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>Title</title>
+   </head>
+   <body>
+   <%--在WEB-INF下的所有页面或资源，只能通过controller或Servlet进行访问--%>
+   <h1>登录页面</h1>
+   <form action="${pageContext.request.contextPath}/user/login" method="post">
+     用户名:<input type="text" name="username"/>
+     密码:<input type="text" name="passowrd"/>
+     <input type="submit" value="提交">
+   </form>
+   </body>
+   </html>
+   ```
+
+3. 登录成功页面【main.jsp】
+
+   ```jsp
+   <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+   <html>
+   <head>
+       <title>登录成功</title>
+   </head>
+   <body>
+   <h1>登录成功</h1>
+   <span>${username}</span>
+   <hr>
+   <a href="${pageContext.request.contextPath}/user/logout">注销</a>
+   </body>
+   </html>
+   ```
+
+4. 编写Controller处理请求【LoginController.java】
+
+   ```java
+   @Controller
+   @RequestMapping("/user")
+   public class LoginController {
+   
+       @RequestMapping("/login")
+       public String login(String username, String password, HttpSession session) {
+               session.setAttribute("username", username);
+           return "main";
+       }
+   
+       @RequestMapping("/main")
+       public String main() {
+           return "main";
+       }
+   
+       @RequestMapping("/goLogin")
+       public String goLogin() {
+           return "login";
+       }
+       //退出登陆
+       @RequestMapping("logout")
+       public String logout(HttpSession session) throws Exception {
+           // session 过期
+           session.invalidate();
+           return "login";
+       }
+   }
+   ```
+
+5. 编写用户登录拦截器
+
+   ```java
+   public class LoginInterceptor implements HandlerInterceptor {
+   
+       @Override
+       public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+           // 获取session
+           HttpSession session = request.getSession();
+           // 如果是登陆页面则放行
+           System.out.println("uri: " + request.getRequestURI());
+           if (request.getRequestURI().contains("login")) {
+               return true;
+           }
+           // 如果用户已登陆也放行
+           if(session.getAttribute("user") != null) {
+               return true;
+           }
+   
+           // 用户没有登陆跳转到登陆页面
+           request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
+           return false;
+       }
+       }
+   ```
+
+6. 在Springmvc的配置文件中注册拦截器
+
+   ```xml
+   <!--拦截器配置-->
+   <mvc:interceptor>
+       <!--/** 包括这个请求下的所有请求-->
+       <mvc:mapping path="/user/**"/>
+       <bean class="com.xleixz.config.LoginInterceptor"/>
+       </mvc:interceptor>
+   </mvc:interceptors>
+   ```
+
+7. 启动测试
+
+   ![拦截器拦截登录](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/拦截器拦截登录.gif)
+
+​	
+
+## 8.6 文件上传和下载
+
+
+
+
+
+
+
+<font color="green">**完结：2022-06-10**</font>
+
+
+
+
+
+
+
+
+

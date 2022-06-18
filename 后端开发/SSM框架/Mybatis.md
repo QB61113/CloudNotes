@@ -3213,7 +3213,7 @@ public void testQueryBlogForeach(){
 
 ​		
 
-## 20.1 Mybatis缓存
+## 20.2 Mybatis缓存
 
 Mybatis包含一个非常强大的缓存特性，它可以非常方便地定制和配置缓存。缓存可以极大的提升查询效率。
 
@@ -3225,7 +3225,7 @@ Mybatis系统中默认定义了两级缓存：**一级缓存**和**二级缓存*
 
 ​		
 
-## 20.2 一级缓存
+## 20.3 一级缓存
 
 一级缓存也叫本地缓存：SqlSession
 
@@ -3315,7 +3315,7 @@ sqlSession.clearCache();
 
 ​	
 
-## 20.3 二级缓存
+## 20.4 二级缓存
 
 二级缓存也叫全局缓存，一级缓存作用域太低了，所以诞生了二级缓存。
 
@@ -3399,13 +3399,13 @@ sqlSession.clearCache();
 
 ​	
 
-## 20.4 缓存原理
+## 20.5 缓存原理
 
 ![20220505221703](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/20220505221703.png)
 
 ​	
 
-## 20.5 自定义缓存EhCache
+## 20.6 自定义缓存EhCache
 
 Ehcache是一种广泛使用的java分布式缓存，用于通用缓存；
 

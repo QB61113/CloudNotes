@@ -125,10 +125,8 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
                </resource>
            </resources>
        </build>
-   
-   </project>
    ```
-
+   
 4. 可以在IDEA中连接数据库
 
    ![image-20220613153740118](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220613153740118.png)
@@ -543,7 +541,7 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
        <!-- 3.配置jsp 显示ViewResolver视图解析器 -->
        <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
            <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
-           <property name="prefix" value="/" />
+           <property name="prefix" value="/WEB-INF/jsp/" />
            <property name="suffix" value=".jsp" />
        </bean>
    
@@ -933,6 +931,8 @@ INSERT  INTO `books`(`bookID`,`bookName`,`bookCounts`,`detail`)VALUES
 
 ​	
 
+> **隐藏域**
+>
 > <font color="red">**新增书籍出现问题：数据库无法正常添加数据**</font>
 
 <font color="orange">**分析：**</font>

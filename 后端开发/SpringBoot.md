@@ -259,5 +259,270 @@ server.port=8081
 
 ​	
 
-# 3
+# 3 自动装配运行原理（初期理解）
+
+## 3.1 分析【pom.xml】
+
+:mag:spring-boot-dependencies：核心依赖在父工程中，所有导入依赖时不需要写版本号，有版本仓库！
+
+> **启动器**
+
+```xml
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter</artifactId>
+</dependency>
+```
+
+:mag:这就是SpringBoot的启动场景；
+
+:mag:比如spring-boot-starter-web，他会自动导入web环境所有的依赖；
+
+:mag:SpringBoot会将所有的功能场景，都一个一个变成启动器
+
+:mag:需要使用什么功能，就只需要对应的启动器就可以了`starter`
+
+​	
+
+## 3.2 分析主程序
+
+> **分析【SpringBootStudyApplication.java】主程序**
+
+```java
+@SpringBootApplication
+public class SpringBootStudyApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootStudyApplication.class, args);
+    }
+}
+```
+
+:mag:`@SpringBootApplication`：标注这个类是一个**SpringBoot**的应用；
+
+:mag:`SpringApplication.run(SpringBootStudyApplication.class, args);`：将SpringBoot应用启动；
+
+​	
+
+**注解**
+
+:mag:`@SpringBootConfiguration`：**SpringBoot的配置**
+
+:mag:`@Configuration`：**Spring配置类**
+
+:mag:`@Component`：**也是一个Spring的组件**
+
+:mag:`@EnableAutoConfiguration`：**自动配置**
+
+:mag:`@AutoConfigurationPackage`：**自动配置包**
+
+:mag:`@Import(AutoConfigurationPackage.Registrar.class)`**导入自动配置`包注册`**
+
+:mag:`@Import(AutoConfigurationSelector.class)`**自动配置导入选择**
+
+​	
+
+**结论：**
+
+1. SpringBoot在启动的时候从类路径下的`META-INF/spring.factories`中获取`EnableAutoConfiguration`指定的值
+
+2. 将这些值作为自动配置类导入容器 ， 自动配置类就生效 ， 帮我们进行自动配置工作；
+
+3. 整个J2EE的整体解决方案和自动配置都在`springboot-autoconfigure`的**jar**包中；
+
+4. 它会给容器中导入非常多的自动配置类 （xxxAutoConfiguration）, 就是给容器中导入这个场景需要的所有组
+
+   件 ， 并配置好这些组件 ；
+
+5. 有了自动配置类 ， 免去了我们手动编写配置注入功能组件等的工作；
+
+​		
+
+## 3.3 主启动类运行原理
+
+> **SpringBootStudyApplication类**
+
+```java
+@SpringBootApplication
+public class SpringBootStudyApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringBootStudyApplication.class, args);
+    }
+
+}
+```
+
+<font color="green">**他不仅运行了一个main方法，而且还开启了一个服务！**</font>
+
+​	
+
+**SpringApplication.run分析**
+
+分析该方法主要分两部分，一部分是SpringApplication的实例化，二是run方法的执行；
+
+**这个类主要做了以下四件事情：**
+
+1、推断应用的类型是普通的项目还是Web项目
+
+2、查找并加载所有可用初始化器 ， 设置到initializers属性中
+
+3、找出所有的应用程序监听器，设置到listeners属性中
+
+4、推断并设置main方法的定义类，找到运行的主类
+
+查看构造器：
+
+```java
+public SpringApplication(ResourceLoader resourceLoader, Class... primarySources) {
+    // ......
+    this.webApplicationType = WebApplicationType.deduceFromClasspath();
+    this.setInitializers(this.getSpringFactoriesInstances();
+    this.setListeners(this.getSpringFactoriesInstances(ApplicationListener.class));
+    this.mainApplicationClass = this.deduceMainApplicationClass();
+}
+```
+
+​	
+
+> **run方法**
+
+流程分析：
+
+![image-20220619104943116](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220619104943116.png)
+
+---
+
+​	
+
+# 4 yaml配置注入
+
+## 4.1 yaml简介
+
+> **配置文件**
+
+SpringBoot使用一个全局的配置文件 ， 配置文件名称是<font color="red">**固定的**</font>，**官网建议使用yml配置文件**。
+
+- **application.properties**
+
+- - 语法结构 ：key=value
+
+- **application.yml**
+
+- - 语法结构 ：key：空格 value
+
+**配置文件的作用 ：**修改SpringBoot自动配置的默认值，因为SpringBoot在底层都给自动配置好了；
+
+比如可以在配置文件**properties**中修改Tomcat 默认启动的端口号！
+
+```properties
+server.port=8081
+```
+
+**而在application.yml**配置文件中，修改Tomcat默认启动的端口号！
+
+```yaml
+server:
+  port: 8001
+```
+
+![image-20220619111238107](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220619111238107.png)
+
+​	
+
+> **yaml简介**
+
+YAML是 "YAML Ain't a Markup Language" （YAML不是一种标记语言）的递归缩写。在开发的这种语言时，YAML 的
+
+意思其实是："Yet Another Markup Language"（仍是一种标记语言）
+
+**这种语言以数据作为中心，而不是以标记语言为重点！**
+
+以前的配置文件，大多数都是使用xml来配置；比如一个简单的端口配置，对比下yaml和xml
+
+传统xml配置：
+
+```xml
+<server>
+    <port>8081<port>
+</server>
+```
+
+yaml配置：
+
+```yaml
+server：
+  prot: 8080
+```
+
+​	
+
+## 4.2 yaml基本语法
+
+> <font color="red">**说明：语法要求严格！**</font>
+>
+> 1、空格不能省略
+>
+> 2、以缩进来控制层级关系，只要是左边对齐的一列数据都是同一个层级的。
+>
+> 3、属性和值的大小写都是十分敏感的。
+
+​	
+
+> **基本语法**
+
+**字面量：普通的值  [ 数字，布尔值，字符串  ]**
+
+:mag:字面量直接写在后面，字符串默认**不用加上双引号或者单引号；**
+
+<font color="red">**注意：**</font>
+
+`""` 双引号，**不会转义字符串里面的特殊字符** ， 特殊字符会作为本身想表示的意思；
+
+```yaml
+比如 ：name: "kuang \n shen"  输出 ：kuang  换行  shen
+```
+
+`''` 单引号，**会转义特殊字符** ， 特殊字符最终会变成和普通字符一样输出
+
+```yaml
+比如 ：name: ‘kuang \n shen’  输出 ：kuang  \n  shen
+```
+
+![image-20220619112308143](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220619112308143.png)
+
+​	
+
+> **存对象**
+
+```yaml
+name: xleixz
+
+student:
+  name: xleixz
+  age: 22
+
+# 行内写法
+student2: {name: xleixz,age: 22}
+```
+
+​	
+
+> **数组**
+
+```yaml
+pets:
+    - cat
+    - dog
+    - pig
+
+# 行内写法
+pets2: [cat,dog,pig]
+```
+
+​	
+
+> **yaml可以直接给实体类赋值**
+
+
 

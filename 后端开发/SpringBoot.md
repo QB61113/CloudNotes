@@ -522,7 +522,292 @@ pets2: [cat,dog,pig]
 
 ​	
 
+## 4.3 yaml注入配置文件
+
 > **yaml可以直接给实体类赋值**
+
+1、准备一个实体类【Dog.java】
+
+```java
+//注册bean  等价于 <bean id="dog" class="com.xleixz.pojo.Dog"/>
+@Component
+public class Dog {
+
+    private String name;
+    private int age;
+
+    public Dog() {
+    }
+
+    public Dog(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Dog{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+}
+```
+
+2、使用原本的`@value`注解绑定值
+
+```java
+@Component //注册bean
+public class Dog {
+    @Value("旺柴")
+    private String name;
+    @Value("2")
+    private Integer age;
+}
+```
+
+3、在SpringBoot的测试类下注入狗狗输出一下
+
+```java
+
+@SpringBootTest
+class DemoApplicationTests {
+
+    @Autowired //将狗狗自动注入进来
+    Dog dog;
+
+    @Test
+    public void contextLoads() {
+        System.out.println(dog); //打印看下狗狗对象
+    }
+
+}
+```
+
+4、结果
+
+![image-20220621001604492](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621001604492.png)
+
+<font color="red">**但是凭借@value注解一直设置值显然是不可取的，如果属性较多，则会变得繁琐**</font>
+
+​	
+
+<font color="green">**解决：通过yaml配置文件注入**</font>
+
+1、准备一个实体类【Person.java】
+
+```java
+@Component
+@ConfigurationProperties(prefix = "person")
+public class Person {
+    private String name;
+    private int age;
+    private Boolean happy;
+    private Date brithday;
+    private Map<String, Object> maps;
+    private List<Object> lists;
+    private Dog dog;
+
+    //有参、无参、getter、setter、toString
+}
+```
+
+2、通过yaml配置文件的方式注入到类中
+
+```yaml
+person:
+  name: xleixz
+  age: 22
+  happy: false
+  brithday: 2022/01/01
+  maps: { k1: v1,k2: v2 }
+  lists: [1,2,3]
+  dog:
+    name: 旺柴
+    age: 2
+```
+
+3、**使用`@ConfigurationProperties(prefix="person")`注解将配置文件中配置的属性映射到组件中，将配置文件中的person下面的所有属性一一对应**
+
+![image-20220620234710453](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220620234710453.png)
+
+```java
+/*
+@ConfigurationProperties作用：
+将配置文件中配置的每一个属性的值，映射到这个组件中；
+告诉SpringBoot将本类中的所有属性和配置文件中相关的配置进行绑定
+参数 prefix = “person” : 将配置文件中的person下面的所有属性一一对应
+*/
+@Component //注册bean
+@ConfigurationProperties(prefix = "person")
+public class Person {
+    private String name;
+    private Integer age;
+    private Boolean happy;
+    private Date birth;
+    private Map<String,Object> maps;
+    private List<Object> lists;
+    private Dog dog;
+}
+```
+
+4、<font color="red">IDEA 提示，SpringBoot配置注解处理器没有找到，导入一个pom依赖即可解决！</font>
+
+![image-20220620234458605](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220620234458605.png)
+
+```xml
+<!-- 导入配置文件处理器，配置文件进行绑定就会有提示，需要重启 -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-configuration-processor</artifactId>
+  <optional>true</optional>
+</dependency>
+```
+
+5、测试一下
+
+```java
+@SpringBootTest
+class DemoApplicationTests {
+
+    @Autowired
+    Person person; //将person自动注入进来
+
+    @Test
+    public void contextLoads() {
+        System.out.println(person); //打印person信息
+    }
+
+}
+```
+
+![image-20220621002754523](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621002754523.png)
+
+​	
+
+> **yaml配置文件占位符**
+
+配置文件还可以编写占位符生成随机数
+
+```yaml
+person:
+    name: xleixz${random.uuid} # 随机uuid
+    age: ${random.int}  # 随机int
+    happy: false
+    birth: 2022/01/01
+    maps: {k1: v1,k2: v2}
+    lists:
+      - code
+      - girl
+      - music
+    dog:
+      name: ${person.hello:other}_旺财
+      age: 1
+```
+
+​	
+
+## 4.4 回顾不推荐的旧方法properties
+
+上面采用的yaml方法都是最简单的方式，开发中最常用的；也是springboot所推荐的！配置文件除了yml还有我之
+
+前常用的properties。
+
+<font color="red">**注意：**在IDEA中编写properties配置文件时，会遇到编码格式问题，要改成UTF-8</font>
+
+<font color="green">**解决：**settings-->FileEncodings 中配置</font>
+
+![image-20220621003453511](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621003453511.png)
+
+1. 新建一个实体类【User.java】
+
+   ```java
+   @Component //注册bean
+   public class User {
+       private String name;
+       private int age;
+       private String sex;
+   }
+   ```
+
+2. 编辑配置文件【user.properties】
+
+   ```properties
+   user1.name=kuangshen
+   user1.age=18
+   user1.sex=男
+   ```
+
+3. 在User类上使用@Value来进行注入！
+
+   ```java
+   @Component //注册bean
+   @PropertySource(value = "classpath:user.properties")
+   public class User {
+       //直接使用@value
+       @Value("${user.name}") //从配置文件中取值
+       private String name;
+       @Value("#{9*2}")  // #{SPEL} Spring表达式
+       private int age;
+       @Value("男")  // 字面量
+       private String sex;
+   }
+   ```
+
+4. Springboot测试
+
+   ```java
+   @SpringBootTest
+   class DemoApplicationTests {
+   
+       @Autowired
+       User user;
+   
+       @Test
+       public void contextLoads() {
+           System.out.println(user);
+       }
+   
+   }
+   ```
+
+5. 结果
+
+   ![image-20220621003656293](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621003656293.png)
+
+​	
+
+> **结论**
+
+:mag:**配置yml**和**配置properties**都可以获取到值 ， <font color="red"> **强烈推荐yml**；</font>
+
+:mag:如果在某个业务中，只需要获取配置文件中的某个值，可以使用一下 `@value`；
+
+:mag:如果说专门编写了一个JavaBean来和配置文件进行一一映射，就直接`@configurationProperties`【<font color="green">**最佳方案**</font>】！
+
+----
+
+​	
+
+# 5 JSR303数据校验及多环境配置与切换
+
+
 
 
 

@@ -506,7 +506,7 @@ student:
 student2: {name: xleixz,age: 22}
 ```
 
-​	
+​		
 
 > **数组**
 

@@ -807,6 +807,312 @@ person:
 
 # 5 JSR303数据校验及多环境配置与切换
 
+## 5.1 JSR303数据校验
+
+SPringBoot可以通过`@Validated`注解来设置格式；**使用数据校验，可以保证数据的正确性。** 
+
+1. 在pom中导入依赖
+
+   ```xml
+   <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+   </dependency>
+   ```
+
+2. 在实体类中添加注解，以邮箱格式为例`@Email`
+
+   ```java
+   @Component
+   @ConfigurationProperties(prefix = "person")
+   
+   //数据校验
+   @Validated
+   public class Person {
+   
+       @Email(message = "邮箱格式不正确")
+       private String name;
+       private int age;
+       private Boolean happy;
+       private Date brithday;
+       private Map<String, Object> maps;
+       private List<Object> lists;
+       private Dog dog;
+   
+       //有参构造、无参构造、getter、setter、toString
+   }
+   ```
+
+3. yaml配置文件中设置的值不为邮箱格式时
+
+   ```yaml
+   person:
+     name: xleixz
+   ```
+
+4. 在测试类中测试
+
+   ```java
+   @SpringBootTest
+   class SpringBoot02ConfigApplicationTests {
+   
+       @Autowired
+       private Person person;
+   
+       @Test
+       void contextLoads() {
+           System.out.println(person);
+       }
+   
+   }
+   ```
+
+5. 启动测试，提示：
+
+   ![image-20220621101353542](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621101353542.png)
+
+​	
+
+>**常见的参数**
+
+```markdown
+@NotNull(message="名字不能为空")
+private String userName;
+@Max(value=120,message="年龄最大不能查过120")
+private int age;
+@Email(message="邮箱格式错误")
+private String email;
+
+空检查
+@Null       验证对象是否为null
+@NotNull    验证对象是否不为null, 无法查检长度为0的字符串
+@NotBlank   检查约束字符串是不是Null还有被Trim的长度是否大于0,只对字符串,且会去掉前后空格.
+@NotEmpty   检查约束元素是否为NULL或者是EMPTY.
+    
+Booelan检查
+@AssertTrue     验证 Boolean 对象是否为 true  
+@AssertFalse    验证 Boolean 对象是否为 false  
+    
+长度检查
+@Size(min=, max=) 验证对象（Array,Collection,Map,String）长度是否在给定的范围之内  
+@Length(min=, max=) string is between min and max included.
+
+日期检查
+@Past       验证 Date 和 Calendar 对象是否在当前时间之前  
+@Future     验证 Date 和 Calendar 对象是否在当前时间之后  
+@Pattern    验证 String 对象是否符合正则表达式的规则
+
+.......等等
+除此以外，还可以自定义一些数据校验规则
+```
+
+​	
+
+## 5.2 多环境配置与切换
+
+> **多环境配置**
+
+**yaml配置文件的位置可放于以下四个位置：**
+
+![image-20220621103217227](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621103217227.png)
+
+![image-20220621103524186](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621103524186.png)
+
+​	
+
+> **多环境切换**
+
+**方式一：**通过优先级覆盖的方式来切换。
+
+**方式二：**yaml配置文件和properties配置文件手动选择。
+
+- <font color="red">**properties配置文件手动切换方式，太繁琐【不推荐】**</font>
+
+  ```properties
+  #SpringBoot的多环境配置，可以选择激活某个环境。
+  spring.profiles.active=dev
+  ```
+
+  ![image-20220621104058714](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621104058714.png)
+
+- <font color="green">**通过yaml配置文件多文档模块切换环境，【推荐】**</font>
+
+  ```yaml
+  server:
+    port: 8081
+  #选择要激活那个环境块
+  spring:
+    profiles:
+      active: prod
+  
+  ---
+  server:
+    port: 8083
+  spring:
+    profiles: dev #配置环境的名称
+  
+  
+  ---
+  
+  server:
+    port: 8084
+  spring:
+    profiles: prod  #配置环境的名称
+  ```
+
+​	
+
+<font color="red">**注意：如果yml和properties同时都配置了端口，并且没有激活其他环境 ， 默认会使用properties配置文件的！**</font>
+
+---
+
+​	
+
+# 6 自动装配运行原理（终期理解）
+
+> 配置文件到底能写什么？怎么写？
+
+SpringBoot官方文档中有大量的配置，我们无法全部记住
+
+![图片](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/640)
+
+​	
+
+以**HttpEncodingAutoConfiguration（Http编码自动配置）**为例解释自动配置原理；
+
+```java
+//表示这是一个配置类，和以前编写的配置文件一样，也可以给容器中添加组件；
+@Configuration 
+
+//启动指定类的ConfigurationProperties功能；
+  //进入这个HttpProperties查看，将配置文件中对应的值和HttpProperties绑定起来；
+  //并把HttpProperties加入到ioc容器中
+@EnableConfigurationProperties({HttpProperties.class}) 
+
+//Spring底层@Conditional注解
+  //根据不同的条件判断，如果满足指定的条件，整个配置类里面的配置就会生效；
+  //这里的意思就是判断当前应用是否是web应用，如果是，当前配置类生效
+@ConditionalOnWebApplication(
+    type = Type.SERVLET
+)
+
+//判断当前项目有没有这个类CharacterEncodingFilter；SpringMVC中进行乱码解决的过滤器；
+@ConditionalOnClass({CharacterEncodingFilter.class})
+
+//判断配置文件中是否存在某个配置：spring.http.encoding.enabled；
+  //如果不存在，判断也是成立的
+  //即使我们配置文件中不配置pring.http.encoding.enabled=true，也是默认生效的；
+@ConditionalOnProperty(
+    prefix = "spring.http.encoding",
+    value = {"enabled"},
+    matchIfMissing = true
+)
+
+public class HttpEncodingAutoConfiguration {
+    //他已经和SpringBoot的配置文件映射了
+    private final Encoding properties;
+    //只有一个有参构造器的情况下，参数的值就会从容器中拿
+    public HttpEncodingAutoConfiguration(HttpProperties properties) {
+        this.properties = properties.getEncoding();
+    }
+    
+    //给容器中添加一个组件，这个组件的某些值需要从properties中获取
+    @Bean
+    @ConditionalOnMissingBean //判断容器没有这个组件？
+    public CharacterEncodingFilter characterEncodingFilter() {
+        CharacterEncodingFilter filter = new OrderedCharacterEncodingFilter();
+        filter.setEncoding(this.properties.getCharset().name());
+        filter.setForceRequestEncoding(this.properties.shouldForce(org.springframework.boot.autoconfigure.http.HttpProperties.Encoding.Type.REQUEST));
+        filter.setForceResponseEncoding(this.properties.shouldForce(org.springframework.boot.autoconfigure.http.HttpProperties.Encoding.Type.RESPONSE));
+        return filter;
+    }
+    //。。。。。。。
+}
+```
+
+​	
+
+**一句话总结 ：根据当前不同的条件判断，决定这个配置类是否生效！**
+
+- 一但这个配置类生效；这个配置类就会给容器中添加各种组件；
+- 这些组件的属性是从对应的properties类中获取的，这些类里面的每一个属性又是和配置文件绑定的；
+- 所有在配置文件中能配置的属性都是在xxxxProperties类中封装着；
+- 配置文件能配置什么就可以参照某个功能对应的这个属性类
+
+```java
+
+//从配置文件中获取指定的值和bean的属性进行绑定
+@ConfigurationProperties(prefix = "spring.http") 
+public class HttpProperties {
+    // .....
+}
+```
+
+去配置文件里面试试前缀，看提示！
+
+![image-20220621142148401](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621142148401.png)
+
+**这就是自动装配的原理！**
+
+​	
+
+> **精髓**
+
+1、SpringBoot启动会加载大量的自动配置类
+
+2、我们看我们需要的功能有没有在SpringBoot默认写好的自动配置类当中；
+
+3、我们再来看这个自动配置类中到底配置了哪些组件；（只要我们要用的组件存在在其中，我们就不需要再手动
+
+配置了）
+
+4、给容器中自动配置类添加组件的时候，会从properties类中获取某些属性。我们只需要在配置文件中指定这些属
+
+性的值即可；
+
+**xxxxAutoConfigurartion：自动配置类；**给容器中添加组件
+
+**xxxxProperties:封装配置文件中相关属性；**
+
+​	
+
+> **了解：@Conditional**
+
+了解完自动装配的原理后，我们来关注一个细节问题，**自动配置类必须在一定的条件下才能生效；**
+
+**@Conditional派生注解（Spring注解版原生的@Conditional作用）**
+
+作用：必须是@Conditional指定的条件成立，才给容器中添加组件，配置配里面的所有内容才生效；
+
+![image-20220621142333788](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621142333788.png)
+
+**那么多的自动配置类，必须在一定的条件下才能生效；也就是说，我们加载了这么多的配置类，但不是所有的都**
+
+**生效了。**
+
+我们怎么知道哪些自动配置类生效？
+
+**我们可以通过启用 debug=true属性；来让控制台打印自动配置报告，这样我们就可以很方便的知道哪些自动配置**
+
+**类生效；**
+
+```java
+#开启springboot的调试类
+debug=true
+```
+
+**Positive matches:（自动配置类启用的：正匹配）**
+
+**Negative matches:（没有启动，没有匹配成功的自动配置类：负匹配）**
+
+**Unconditional classes: （没有条件的类）**
+
+---
+
+​	
+
+# 7、
+
 
 
 

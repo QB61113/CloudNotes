@@ -970,6 +970,8 @@ Booelan检查
 
 # 6 自动装配运行原理（终期理解）
 
+==（非原创）==
+
 > 配置文件到底能写什么？怎么写？
 
 SpringBoot官方文档中有大量的配置，我们无法全部记住
@@ -1111,7 +1113,323 @@ debug=true
 
 ​	
 
-# 7、
+# 7 SpringBoot Web开发
+
+> **要解决的问题**
+
+- 静态资源的导入，html、css、jsp……
+- 首页
+- jsp，模板引擎Thymeleaf
+- 装配拓展SpringMVC
+- 增删改查
+- 拦截器
+- 国际化
+
+​	
+
+## 7.1 静态资源导入
+
+> **方式一：通过查看SpringBoot底层源码发现，当导入jQuery依赖jar包后，可以通过访问`/webjars`目录下的所有文件；**
+>
+> **映射地址：localhost:8080/webjars/**
+
+![image-20220621150132181](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621150132181.png)
+
+![image-20220621151155970](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621151155970.png)
+
+​	
+
+> **方式二：从底层源码看出，在classpath下的四个目录也可以导出静态资源，他们的优先级如下：**
+>
+> **映射地址：localhost:8080/**
+>
+> **优先级：`resources` > `static`（默认）  > `public`**
+>
+> <font color="green">**默认的静态资源使用`static`**</font>
+
+![image-20220621150225580](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621150225580.png)
+
+![image-20220621151600511](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621151600511.png)
+
+​	
+
+## 7.2 首页与图标的定制
+
+> **首页**
+
+**启动服务后，访问localhost:8080会默认访问首页index.html**
+
+![image-20220621172712789](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621172712789.png)
+
+​	
+
+<font color="red">**而要注意的是，放在templates目录下的页面，只能通过controller来跳转！相当于在MVC中的WEB-INF目录！！**</font>
+
+![image-20220621173333588](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621173333588.png)
+
+​	
+
+> **图标**
+
+<font color="red">**新版本已取消，如需使用可以降级版本使用！**</font>
+
+在**classpath/public**目录下添加**favicon.ico**文件即可设置图标
+
+![image-20220621174141025](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621174141025.png)
+
+​	
+
+## 7.3 Thymeleaf模板引擎
+
+以前开发是把查出一些数据转发到JSP页面以后，可以通过JSP轻松实现数据的显示以及数据交互等。JSP支持很非
+
+常强大的功能，包括能写Java代码，但是SpringBoot项目首先是以jar的方式，而不是war，其次<font color="red">**SpringBoot使用的是嵌入式Tomcat，所以现在默认不支持JSP。**</font>
+
+**SpringBoot推荐你可以来使用模板引擎：**
+
+模板引擎，我们其实大家听到很多，其实jsp就是一个模板引擎，还有用的比较多的freemarker，包括SpringBoot给
+
+我们推荐的**Thymeleaf**，模板引擎有非常多，但再多的模板引擎，他们的思想都是一样的，什么样一个思想呢我们
+
+来看一下这张图：
+
+![image-20220621174747673](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621174747673.png)
+
+模板引擎的作用就是写一个页面模板，比如有些值呢，是动态的，我们写一些表达式。而这些值，从哪来呢，就是
+
+我们在后台封装一些数据。然后把这个模板和这个数据交给我们模板引擎，模板引擎按照我们这个数据帮你把这表
+
+达式解析、填充到我们指定的位置，然后把这个数据最终生成一个我们想要的内容给我们写出去，这就是我们这个
+
+模板引擎，不管是jsp还是其他模板引擎，都是这个思想。只不过呢，就是说不同模板引擎之间，他们可能这个语
+
+法有点不一样。其他的我就不介绍了，我主要来介绍一下SpringBoot给我们推荐的Thymeleaf模板引擎，这模板引
+
+擎呢，是一个高级语言的模板引擎，他的这个语法更简单。而且呢，功能更强大。
+
+​	
+
+> **引入Thymeleaf**
+
+Thymeleaf 官网：https://www.thymeleaf.org/
+
+Thymeleaf 在Github 的主页：https://github.com/thymeleaf/thymeleaf
+
+Spring官方文档：找到对应的版本
+
+https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter 
+
+找到对应的pom依赖：可以适当点进源码看下本来的包！
+
+```xml
+<!--thymeleaf-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
+
+**查看底层源码ThymeleafProperties.class，发现跟SpringMVC的视图解析器类似，由前缀和后缀组合而成。**
+
+![image-20220621180837089](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621180837089.png)
+
+通过controller类跳转，成功！
+
+![image-20220621181151098](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621181151098.png)
+
+​	
+
+<font color="green">**结论：要使用Thymeleaf，只需要导入对应的依赖，其次将html页面放入templates目录下即可！**</font>
+
+​	
+
+## 7.4 Thymeleaf语法
+
+Thymeleaf 官网：https://www.thymeleaf.org/
+
+> **需要查出一些数据，在页面中展示**
+
+1、修改测试请求，增加数据传输；
+
+```java
+@Controller
+public class IndexController {
+
+    @RequestMapping("/index")
+    public String index(Model model) {
+        model.addAttribute("msg","Hello,Thymeleaf");
+        return "index";
+    }
+}
+```
+
+2、要使用thymeleaf，需要在html文件中导入命名空间的约束，方便提示。
+
+```html
+xmlns:th="http://www.thymeleaf.org"
+```
+
+3、编写前端页面
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+</head>
+<body>
+<h1>测试页面</h1>
+
+<div th:text="${msg}"></div>
+</body>
+</html>
+```
+
+![image-20220621220753675](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621220753675.png)
+
+​	
+
+**1、我们可以使用任意的 th:attr 来替换Html中原生属性的值！**
+
+![image-20220621183439176](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621183439176.png)
+
+**2、能写哪些表达式呢？**
+
+```html
+Simple expressions:（表达式语法）
+Variable Expressions: ${...}：获取变量值；OGNL；
+    1）、获取对象的属性、调用方法
+    2）、使用内置的基本对象：#18
+         #ctx : the context object.
+         #vars: the context variables.
+         #locale : the context locale.
+         #request : (only in Web Contexts) the HttpServletRequest object.
+         #response : (only in Web Contexts) the HttpServletResponse object.
+         #session : (only in Web Contexts) the HttpSession object.
+         #servletContext : (only in Web Contexts) the ServletContext object.
+
+    3）、内置的一些工具对象：
+　　　　　　#execInfo : information about the template being processed.
+　　　　　　#uris : methods for escaping parts of URLs/URIs
+　　　　　　#conversions : methods for executing the configured conversion service (if any).
+　　　　　　#dates : methods for java.util.Date objects: formatting, component extraction, etc.
+　　　　　　#calendars : analogous to #dates , but for java.util.Calendar objects.
+　　　　　　#numbers : methods for formatting numeric objects.
+　　　　　　#strings : methods for String objects: contains, startsWith, prepending/appending, etc.
+　　　　　　#objects : methods for objects in general.
+　　　　　　#bools : methods for boolean evaluation.
+　　　　　　#arrays : methods for arrays.
+　　　　　　#lists : methods for lists.
+　　　　　　#sets : methods for sets.
+　　　　　　#maps : methods for maps.
+　　　　　　#aggregates : methods for creating aggregates on arrays or collections.
+==================================================================================
+
+  Selection Variable Expressions: *{...}：选择表达式：和${}在功能上是一样；
+  Message Expressions: #{...}：获取国际化内容
+  Link URL Expressions: @{...}：定义URL；
+  Fragment Expressions: ~{...}：片段引用表达式
+
+Literals（字面量）
+      Text literals: 'one text' , 'Another one!' ,…
+      Number literals: 0 , 34 , 3.0 , 12.3 ,…
+      Boolean literals: true , false
+      Null literal: null
+      Literal tokens: one , sometext , main ,…
+      
+Text operations:（文本操作）
+    String concatenation: +
+    Literal substitutions: |The name is ${name}|
+    
+Arithmetic operations:（数学运算）
+    Binary operators: + , - , * , / , %
+    Minus sign (unary operator): -
+    
+Boolean operations:（布尔运算）
+    Binary operators: and , or
+    Boolean negation (unary operator): ! , not
+    
+Comparisons and equality:（比较运算）
+    Comparators: > , < , >= , <= ( gt , lt , ge , le )
+    Equality operators: == , != ( eq , ne )
+    
+Conditional operators:条件运算（三元运算符）
+    If-then: (if) ? (then)
+    If-then-else: (if) ? (then) : (else)
+    Default: (value) ?: (defaultvalue)
+    
+Special tokens:
+    No-Operation: _
+```
+
+​	
+
+**测试一下**
+
+1、 编写一个Controller，放一些数据
+
+```java
+
+@RequestMapping("/t2")
+public String test2(Map<String,Object> map){
+    //存入数据
+    map.put("msg","<h1>Hello</h1>");
+    map.put("users", Arrays.asList("xleixz","xleixz"));
+    //classpath:/templates/test.html
+    return "test";
+}
+```
+
+2、测试页面取出数据
+
+```html
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>测试</title>
+</head>
+<body>
+<h1>测试页面</h1>
+
+<div th:text="${msg}"></div>
+<!--不转义-->
+<div th:utext="${msg}"></div>
+
+<!--遍历数据-->
+<!--th:each每次遍历都会生成当前这个标签：官网#9-->
+<h4 th:each="user :${users}" th:text="${user}"></h4>
+
+<h4>
+    <!--行内写法：官网#12-->
+    <span th:each="user:${users}">[[${user}]]</span>
+</h4>
+
+</body>
+</html>
+```
+
+3、启动测试即可
+
+​	
+
+## 7.5 报错问题
+
+> **Thymeleaf 表达式报红波浪线**
+
+修改IDEA设置：把设置里面的 Editor->Inspections->Thymeleaf->Expression variables validation后面的勾去掉
+
+![image-20220621221212584](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220621221212584.png)
+
+---
+
+​	
+
+# 8 员工管理系统
+
+
 
 
 

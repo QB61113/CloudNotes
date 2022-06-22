@@ -1415,7 +1415,23 @@ public String test2(Map<String,Object> map){
 
 ​	
 
-## 7.5 报错问题
+## 7.5 接管SpringMVC，实现MVC自动配置
+
+全面接管即：SpringBoot对SpringMVC的自动配置不需要了，所有都是我们自己去配置！只需在我们的配置类中要
+
+加一个`@EnableWebMvc`。
+
+我们看下如果我们全面接管了SpringMVC了，我们之前SpringBoot给我们配置的静态资源映射一定会无效。
+
+另外当项目中涉及大量的页面跳转，我们可以使用`addViewControllers`方法实现无业务逻辑跳转，从而减少控
+
+制器代码的编写。
+
+<font color="green">**addViewControllers方法可以实现将一个请求直接映射为视图，不需要编写控制器来实现，从而简化了页面跳转。**</font>
+
+​	
+
+## 7.6 报错问题
 
 > **Thymeleaf 表达式报红波浪线**
 
@@ -1506,7 +1522,6 @@ public String test2(Map<String,Object> map){
    //全面拓展SpringMVC
    @Configuration
    public class MyMvcConfig implements WebMvcConfigurer {
-   
    
        @Override
        public void addViewControllers(ViewControllerRegistry registry) {
@@ -1605,17 +1620,331 @@ public String test2(Map<String,Object> map){
 
    ![image-20220622110815256](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622110815256.png)
 
+   ​	
+
+> **配置根据按钮自动切换中文英文！**
+
+**配置国际化解析**
+
+在Spring中有一个国际化的Locale （区域信息对象）；里面有一个叫做LocaleResolver （获取区域信息对象）的解
+
+析器！SpringBoot默认配置：
+
+```java
+@Bean
+@ConditionalOnMissingBean
+@ConditionalOnProperty(prefix = "spring.mvc", name = "locale")
+public LocaleResolver localeResolver() {
+       // 容器中没有就自己配，有的话就用用户配置的
+       if (this.mvcProperties.getLocaleResolver() == WebMvcProperties.LocaleResolver.FIXED) {
+           return new FixedLocaleResolver(this.mvcProperties.getLocale());
+       }
+       // 接收头国际化分解
+       AcceptHeaderLocaleResolver localeResolver = new AcceptHeaderLocaleResolver();
+       localeResolver.setDefaultLocale(this.mvcProperties.getLocale());
+       return localeResolver;
+}
+```
+
+AcceptHeaderLocaleResolver 这个类中有一个方法
+
+   ```java
+   public Locale resolveLocale(HttpServletRequest request) {
+       Locale defaultLocale = this.getDefaultLocale();
+       // 默认的就是根据请求头带来的区域信息获取Locale进行国际化
+       if (defaultLocale != null && request.getHeader("Accept-Language") == null) {
+           return defaultLocale;
+       } else {
+           Locale requestLocale = request.getLocale();
+           List<Locale> supportedLocales = this.getSupportedLocales();
+           if (!supportedLocales.isEmpty() && !supportedLocales.contains(requestLocale)) {
+               Locale supportedLocale = this.findSupportedLocale(request, supportedLocales);
+               if (supportedLocale != null) {
+                   return supportedLocale;
+               } else {
+                   return defaultLocale != null ? defaultLocale : requestLocale;
+               }
+           } else {
+               return requestLocale;
+           }
+       }
+   }
+   ```
+
+点击链接让我们的国际化资源生效，就需要让我们自己的Locale生效！写一个自己的LocaleResolver，可以在链接
+
+上携带区域信息！
+
+修改一下前端页面的跳转连接：
+
+   ```html
+   <!-- 这里传入参数不需要使用 ？使用 （key=value）-->
+   <a class="btn btn-sm" th:href="@{/index.html(l='zh_CN')}">中文</a>
+   <a class="btn btn-sm" th:href="@{/index.html(l='en_US')}">English</a>
+   ```
+
+写一个处理的组件类！
+
+   ```java
+   //可以在链接上携带区域信息
+   public class MyLocaleResolver implements LocaleResolver {
+   
+       //解析请求
+       @Override
+       public Locale resolveLocale(HttpServletRequest request) {
+   
+           String language = request.getParameter("l");
+           Locale locale = Locale.getDefault(); // 如果没有获取到就使用系统默认的
+           //如果请求链接不为空
+           if (!StringUtils.isEmpty(language)){
+               //分割请求参数
+               String[] split = language.split("_");
+               //国家，地区
+               locale = new Locale(split[0],split[1]);
+           }
+           return locale;
+       }
+   
+       @Override
+       public void setLocale(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Locale locale) {
+   
+       }
+   }
+   ```
+
+为了让区域化信息能够生效，需要再配置一下这个组件！在MvcConofig下添加bean；
+
+```java
+   @Bean
+   public LocaleResolver localeResolver(){
+       return new MyLocaleResolver();
+   }
+```
+
+启动测试：
+
+![测试国际化](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/测试国际化.gif)
+
+   ​	
+
+## 8.4 登录功能实现
+
+1、首先将`action`请求不写死
+
+```html
+<form class="form-signin" th:action="@{/user/login}" method="post">
+```
+
+2、在controller控制类里写请求方法
+
+```java
+@Controller
+public class LoginController {
+
+    @RequestMapping("/user/login")
+    public String login(@RequestParam("username") String username, @RequestParam("password") String password, Model model) {
+        //如果用户名不为空,且密码为123456
+        if (!StringUtils.isEmpty(username)&&"123456".equals(password)){
+            //登录成功
+            return "dashboard.html";
+        }else {
+            //登录失败
+            model.addAttribute("msg","用户名或者密码错误!");
+            return "index";
+        }
+    }
+}
+```
+
+3、在前端页面写用户名或密码错误提示**（使用Thymeleaf语法）**
+
+```html
+ <!--如果msg的值为空，则不显示提示-->
+    <p style="color: red" th:text="${msg}" th:if="${not #strings.isEmpty(msg)}"></p>
+```
+
+![image-20220622162812263](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622162812263.png)4、测试发现，地址栏显示用户名和密码，不安全
+
+<font color="green">**方式一：通过修改请求方式，改为post请求即可！**</font>
+
+```java
+@PostMapping("/user/login")
+```
+
+<font color="green">**方式二：通过addViewControllers方法实现将请求直接映射为视图！**</font>
+
+1、在**config**目录下的【MyMvcConfig.java】添加
+
+```java
+//全面拓展SpringMVC
+@Configuration
+public class MyMvcConfig implements WebMvcConfigurer {
+	@Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+           registry.addViewController("/main.html").setViewName("dashboard");
+    }
+}
+```
+
+2、修改controller类中为重定向请求
+
+```java
+return "redirect:/main.html";
+```
+
+```java
+@Controller
+public class LoginController {
+
+    @RequestMapping("/user/login")
+    public String login(@RequestParam("username") String username, @RequestParam("password") String password, Model model) {
+        //如果用户名不为空,且密码为123456
+        if (!StringUtils.isEmpty(username)&&"123456".equals(password)){
+            //登录成功
+            return "redirect:/main.html";
+        }else {
+            //登录失败
+            model.addAttribute("msg","用户名或者密码错误!");
+            return "index";
+        }
+    }
+}
+```
+
+![image-20220622163453594](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622163453594.png)   
+
+  			
+
+## 8.5 登录拦截器
+
+<font color="red">**问题：不登录用户名和密码也可以登录！**</font>
+
+<font color="green">**解决：添加拦截器**</font>
+
+1、在**config**目录下新建一个类【LoginHandlerInterceptor.java】**实现HandlerInterceptor**类，就是一个拦截器
+
+```java
+public class LoginHandlerInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        //登录成功之后,应该有用户的session
+        Object loginUser = request.getSession().getAttribute("loginUser");
+
+        //没有登录
+        if (loginUser==null){
+            request.setAttribute("msg","没有权限，请先登录!");
+            request.getRequestDispatcher("/index.html").forward(request,response);
+            return false;
+        }else{
+            return true;
+        }
+
+    }
+
+}
+```
+
+2、在controller类里绑定**session**，将`username`绑定到session中，为了给拦截器判断
+
+```java
+session.setAttribute("loginUser",username);
+```
+
+```java
+@Controller
+public class LoginController {
+
+    @RequestMapping("/user/login")
+    public String login(@RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        Model model,
+                        HttpSession session) {
+        //如果用户名不为空,且密码为123456
+        if (!StringUtils.isEmpty(username) && "123456".equals(password)) {
+            //登录成功
+            session.setAttribute("loginUser",username);
+            return "redirect:/main.html";
+        } else {
+            //登录失败
+            model.addAttribute("msg", "用户名或者密码错误!");
+            return "index";
+        }
+    }
+}
+```
+
+3、在**config**目录下的【MyMvcConfig.java】重写拦截器方法【addInterceptors】
+
+```java
+//拦截器
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new LoginHandlerInterceptor())
+                .addPathPatterns("/**")
+                .excludePathPatterns("/index.html", "/", "/user/login","/css/*","/js/**","/img/**");
+}
+```
+
+4、启动测试，成功！
+
 ​	
 
+## 8.6 展示员工列表
+
+> **用Thymeleaf语法抽取侧边栏**
+
+当多个页面跳转时，顶部与侧边栏不需要改变时，可以通过组件**将需要复用的部分**抽取出来，单独放到一个页面，使用Thymeleaf语法抽取`th:fragment=""`
+
+![image-20220622171926829](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622171926829.png)
 
 
 
+ 然后在需要使用的页面插入即可`th:insert="~{::}"`
+
+![image-20220622172132785](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622172132785.png)
 
 ​	
 
+> **使用Thymeleaf模板引擎遍历数据**
 
+**语法：**
 
+```html
+<tr th:each="emp:${emps}">
+	<td th:text="${emp.getId()}"></td>
+</tr>
+```
 
+`:`前的**emp**是为取的名字，`:`后的**${emps}**是从后端`model.addAttribute("msg","数据")`传来的
 
+![image-20220622173045124](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622173045124.png)
 
+​	
+
+> **Thymeleaf的三元判断**
+
+pojo中定义的性别表示方式为0为女，1为男，则可以使用**Thymeleaf**的三元表达式来优化显示
+
+```html
+<td th:text="${emp.getGender()==0?'女':'男'}"></td>
+```
+
+```html
+
+```
+
+![image-20220622173439427](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622173439427.png)
+
+​	
+
+> **Thymeleaf时间的表示**
+
+```html
+<td th:text="${#dates.format(emp.getBirth(),'yyyy-MM-dd HH:mm:ss')}"></td>
+```
+
+![image-20220622174413812](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622174413812.png)
+
+​	
 

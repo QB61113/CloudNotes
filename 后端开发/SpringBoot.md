@@ -1948,3 +1948,59 @@ pojo中定义的性别表示方式为0为女，1为男，则可以使用**Thymel
 
 ​	
 
+## 8.7 添加员工实现
+
+首先准备添加员工信息的页面，其次编写controller类实现跳转，将遍历出的信息绑定到model，通过转发到页面显示。
+
+![image-20220622202844563](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622202844563.png)
+
+```html
+<option th:each="dept:${departments}" th:text="${dept.getDepartmantName()}" th:value="${dept.getId()}"></option>
+```
+
+`th:each`：**遍历departments集合，并且命名为dept**
+
+`th:text`：**option的值，pojo实体类中的get方法，text只负责显示，给用户选择**
+
+`th:value`：**value负责赋值，传递到后端**
+
+![image-20220622203114051](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622203114051.png)
+
+​	
+
+> **时间日期格式化**
+
+因为默认的日期格式是yy/MM/dd，如果前端输入的格式如果为2019-01-01，则可以通过在**application.properties**中
+
+配置时间日期格式化。
+
+```properties
+spring.mvc.date-format=yyyy-MM-dd
+```
+
+![image-20220622204323722](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622204323722.png)
+
+​	
+
+## 8.8 404 和 500页面
+
+SpringBoot提供了404和505页面，只需要把html命名为404或500，即可作为默认的400和500页面。
+
+​	
+
+## 8.9 注销
+
+在controller类中，设置移除`session`即可。
+
+```java
+session.invalidate();
+```
+
+![image-20220622212458334](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622212458334.png)
+
+---
+
+​	
+
+# 9
+

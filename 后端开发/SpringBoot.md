@@ -1429,6 +1429,190 @@ public String test2(Map<String,Object> map){
 
 # 8 员工管理系统
 
+## 8.1 准备工作
+
+1. 准备数据库
+
+   ```mysql
+   Create DATABASE company;
+   
+   use company;
+   
+   create table employee(id INTEGER primary key auto_increment,
+   											lastName varchar(255) not null,
+   											email varchar(255) not null,
+   											gender INTEGER not null,
+   											birth varchar(255) not null
+   											);
+   											
+   INSERT into employee(lastName,email,gender,birth)
+   								values("张三","zhangsan@163.com",1,"2000-01-08"),
+   											("李四","lisi@163.com",1,"1998-01-19"),
+   											("张华","zhanghua@163.com",1,"2000-10-25"),
+   											("吴磊","wulei@163.com",1,"2001-02-21"),
+   											("高强","gaoqiang@163.com",1,"1999-11-02");
+   											
+   
+   ```
+
+   ```mysql
+   use company;
+   
+   create table department(id INTEGER primary key auto_increment,
+   											departmentName varchar(255) not null
+   											);
+   											
+   INSERT into department(departmentName)
+   								values("陈露"),
+   											("张颖"),
+   											("吴国华"),
+   											("三毛"),
+   											("朱翠莲");
+   
+   ```
+
+2. 实体类
+
+   ```java
+   public class Department {
+   
+       private Integer id;
+       private String departmentName;
+   
+    //getter、setter、有参、无参、toString
+   }
+   ```
+
+   ```java
+   public class Employee {
+   
+       private Integer id;
+       private String lastName;
+       private String email;
+       private Integer gender;//0: 女  1: 男
+   
+       private Department department;
+       private String birth;
+   
+       public Employee() {
+       }
+   		//getter、setter、有参、无参、toString
+   }
+   ```
+
+3. 重写视图解析器，不需要controller【/config/MyMvcConfig】
+
+   ```java
+   //全面拓展SpringMVC
+   @Configuration
+   public class MyMvcConfig implements WebMvcConfigurer {
+   
+   
+       @Override
+       public void addViewControllers(ViewControllerRegistry registry) {
+           registry.addViewController("/").setViewName("index");
+           registry.addViewController("/index.html").setViewName("index");
+       }
+   }
+   ```
+
+​	
+
+## 8.2 页面配置
+
+**页面配置：注意所有的静态资源都需要使用Thymeleaf接管，链接用`@{/}"`**
+
+首页【index.html】
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<title>Signin Template for Bootstrap</title>
+		<!-- Bootstrap core CSS -->
+		<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+		<!-- Custom styles for this template -->
+		<link th:href="@{/css/signin.css}" rel="stylesheet">
+	</head>
+
+	<body class="text-center">
+		<form class="form-signin" th:action="@{/user/login}" method="post">
+			<img class="mb-4" th:src="@{/img/bootstrap-solid.svg}" alt="" width="72" height="72">
+			<h1 class="h3 mb-3 font-weight-normal" th:text="#{login.tip}">Please sign in</h1>
+			<p style="color: red" th:text="${msg}"></p>
+			<input type="text" class="form-control" name="username" th:placeholder="#{login.username}" required="" autofocus="">
+			<input type="password" class="form-control" name="password" th:placeholder="#{login.password}" required="">
+			<div class="checkbox mb-3">
+				<label>
+          <input type="checkbox" value="remember-me" > [[#{login.remember}]]
+        </label>
+			</div>
+			<button class="btn btn-lg btn-primary btn-block" type="submit">[[#{login.btn}]]</button>
+			<p class="mt-5 mb-3 text-muted">© 2017-2018</p>
+			<a class="btn btn-sm" th:href="@{/index.html(l='zh_cn')}">中文</a>
+			<a class="btn btn-sm" th:href="@{/index.html(l='en_US')}">English</a>
+		</form>
+
+	</body>
+
+</html>
+```
+
+​	
+
+## 8.3 页面国际化
+
+所谓的页面国际化就是在网页上实现中英文切换。
+
+<img src="https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622104008983.png" alt="image-20220622104008983" style="zoom: 50%;" />
+
+​	
+
+1. 确保IDEA的编码全是UTF-8
+
+   ![image-20220622104250374](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622104250374.png)
+
+2. 在**resources目录下新建一个目录【i18n】（国际化）**，在**【i18n】目录下创建login.properties和login_zh_CN.properties配置文件，可自动合并为一个目录**
+
+   ![image-20220622105154808](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622105154808.png)
+
+3. 使用可视化编辑配置文件，配置文件会自动生成
+
+   ![image-20220622105313175](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622105313175.png)
+
+   ![image-20220622105414155](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622105414155.png)
+
+4. 到【application.properties】文件中配置
+
+   ```properties
+   # 配置文件的真实位置
+   spring.messages.basename=i18n.login
+   ```
+
+   ![image-20220622105802189](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622105802189.png)
+
+5. 修改每一个位置
+
+   ```html
+   <h1 class="h3 mb-3 font-weight-normal" th:text="#{login.tip}">Please sign in</h1>
+   ```
+
+6. 看一下效果
+
+   ![image-20220622110815256](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622110815256.png)
+
+​	
+
+
+
+
+
+​	
+
 
 
 

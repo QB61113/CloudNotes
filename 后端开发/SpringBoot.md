@@ -1998,9 +1998,472 @@ session.invalidate();
 
 ![image-20220622212458334](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220622212458334.png)
 
+​	
+
+## 8.10 开发总结
+
+后台模板：
+
+- **X-admin**：[X-admin - 经典前端网站后台管理模板框架 (xuebingsi.com)](http://x.xuebingsi.com/)
+- **Layui**：[Layui - 经典开源模块化前端 UI 框架 (itze.cn)](https://layui.itze.cn/)
+- **Bootstrap**：[Bootstrap网站模板_Bootstrap网站模板免费下载_模板之家 (cssmoban.com)](http://www.cssmoban.com/tags/Qm9vdHN0cmFw/)
+
 ---
 
 ​	
 
-# 9
+# 9 Spring Data
+
+## 9.1 Spring Data简介
+
+对于数据访问层，无论是 SQL(关系型数据库) 还是 NOSQL(非关系型数据库)，Spring Boot 底层都是采用 Spring
+
+Data 的方式进行统一处理。
+
+Spring Boot 底层都是采用 Spring Data 的方式进行统一处理各种数据库，Spring Data 也是 Spring 中与 Spring 
+
+Boot、Spring Cloud 等齐名的知名项目。
+
+Sping Data 官网：https://spring.io/projects/spring-data
+
+数据库相关的启动器 ：可以参考官方文档：
+
+https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#using-boot-starter
+
+​	
+
+## 9.2 Spring Boot - JDBC
+
+### 9.2.1 SPringBoot默认数据源
+
+1、新建Spring Boot项目，引入相应的模块！
+
+![image-20220623164156964](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623164156964.png)
+
+2、查看pom时会发现已自动导入驱动jar包
+
+```xml
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+	<groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+	<scope>runtime</scope>
+</dependency>
+```
+
+3、编写yml配置文件连接数据库（mysql 8.0+ 要配时区）
+
+```yaml
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/mybatis?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+```
+
+4、配置完后，直接就可以在SpringBoot提供的测试类进行测试了
+
+```java
+@SpringBootTest
+class SpringBoot04DataApplicationTests {
+
+    @Autowired
+    DataSource dataSource;
+
+    @Test
+    void contextLoads() throws SQLException {
+
+        //查看默认数据源  class com.zaxxer.hikari.HikariDataSource
+        System.out.println(dataSource.getClass());
+
+        //获得数据库连接
+        Connection connection = dataSource.getConnection();
+        System.out.println(connection);
+        //关闭连接
+        connection.close();
+    }
+}
+```
+
+测试发现**它默认给的配置的数据源为 : class com.zaxxer.hikari.HikariDataSource ， 没有手动配置**
+
+![image-20220623170942314](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623170942314.png)
+
+根据全局搜索，找到数据源的所有自动配置都在 ：DataSourceAutoConfiguration文件
+
+```java
+@Import(
+    {Hikari.class, Tomcat.class, Dbcp2.class, Generic.class, DataSourceJmxConfiguration.class}
+)
+protected static class PooledDataSourceConfiguration {
+    protected PooledDataSourceConfiguration() {
+    }
+}
+```
+
+可以看出 Spring Boot 2.2.5 默认使用**HikariDataSource 数据源**，而以前版本，如 Spring Boot 1.5 默认使用
+
+`org.apache.tomcat.jdbc.poll.DataSource`作为数据源。
+
+<font color="red">**HikariDataSource 号称 Java WEB 当前速度最快的数据源，相比于传统的 C3P0 、DBCP、Tomcat jdbc 等连接池更加优秀。**</font>
+
+**可以使用 spring.datasource.type 指定自定义的数据源类型，值为 要使用的连接池实现的完全限定名。**
+
+**到这里就可以做CRUD操作了。**
+
+​	
+
+### 9.2.2 JdbcTemplate模板
+
+如果遇到`xxxx Template`，那些就是SpringBoot已经配置好的模板bean，开箱即用。
+
+阅读底层源码总结：
+
+**JdbcTemplate主要提供以下几类方法：**
+
+- execute方法：可以用于执行任何SQL语句，一般用于执行DDL语句；
+
+- update方法及batchUpdate方法：update方法用于执行新增、修改、删除等语句；batchUpdate方法用于执行批
+
+  处理相关语句；
+
+- query方法及queryForXXX方法：用于执行查询相关语句；
+
+- call方法：用于执行存储过程、函数相关语句。
+
+**测试一下：**
+
+```java
+@RestController
+public class JDBCController {
+
+    /**
+     * Spring Boot 默认提供了数据源，默认提供了 org.springframework.jdbc.core.JdbcTemplate
+     * JdbcTemplate 中会自己注入数据源，用于简化 JDBC操作
+     * 还能避免一些常见的错误,使用起来也不用再自己来关闭数据库连接
+     */
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    //查询employee表中所有数据
+    //没有实体类，数据库中的东西可以用Map获取
+    //List 中的1个 Map 对应数据库的 1行数据
+    //Map 中的 key 对应数据库的字段名，value 对应数据库的字段值
+    @GetMapping("/list")
+    public List<Map<String, Object>> userList() {
+        String sql = "select * from user";
+        List<Map<String, Object>> maps = jdbcTemplate.queryForList(sql);
+        return maps;
+    }
+
+    //新增一个用户
+    @GetMapping("/add")
+    public String addUser() {
+        //插入语句，注意时间问题
+        String sql = "insert into user(id, name,pwd)values (10,'小黄','123456')";
+        jdbcTemplate.update(sql);
+        //查询
+        return "addOk";
+    }
+
+    //修改用户信息
+    @GetMapping("/update/{id}")
+    public String updateUser(@PathVariable("id") int id) {
+        //插入语句
+        String sql = "update user set name=?,pwd=? where id=" + id;
+        //数据
+        Object[] objects = new Object[2];
+        objects[0] = "测试员2";
+        objects[1] = "1233321";
+        jdbcTemplate.update(sql, objects);
+        //查询
+        return "updateOk";
+    }
+
+    //删除用户
+    //不使用RestFul风格传id
+    @GetMapping("/delete")
+    public String delUser(int id) {
+        //插入语句
+        String sql = "delete from user where id=?";
+        jdbcTemplate.update(sql, id);
+        //查询
+        return "deleteOk";
+    }
+}
+```
+
+**到此，CURD的基本操作，使用 JDBC 就搞定了。**
+
+​	
+
+## 9.3 Spring Boot集成Druid数据源
+
+### 9.3.1 Druid简介
+
+**Druid**是阿里巴巴开源平台上一个数据库连接池实现，结合了C3P0、DBCP、PROXOOL等DB池的优点，同时加入了日志监控。
+
+Druid开源很好的监控DB池连接和SQL执行情况，天生就是针对监控而生的DB连接池。
+
+**SpringBoot 2.0 以上默认使用Hikari（黑卡瑞）数据源，Hikari与Druid（德鲁伊，发音：纠瑞德）都是当前JavaWeb上最优秀的数据源。**
+
+Github地址：https://github.com/alibaba/druid/
+
+![image-20220623191638944](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623191638944.png)
+
+![image-20220623191741725](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623191741725.png)
+
+![image-20220623191752323](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623191752323.png)
+
+​	
+
+### 9.3.2 配置数据源
+
+1、添加上 Druid 数据源依赖；
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>druid</artifactId>
+    <version>1.2.8</version>
+</dependency>
+```
+
+2、切换数据源；**Spring Boot 2.0 以上默认使用 com.zaxxer.hikari.HikariDataSource 数据源**，但可以通过 `spring.datasource.type` 指定数据源；
+
+```yaml
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/mybatis?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+```
+
+3、数据源切换之后，在测试类中注入 DataSource，然后获取到它，测试输出看一下；
+
+![image-20220623192632259](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623192632259.png)
+
+4、切换成功就可以**设置数据源连接初始化大小、最大连接数、等待时间、最小连接数 等设置项；**
+
+> 配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入
+> 如果允许时报错  java.lang.ClassNotFoundException: org.apache.log4j.Priority
+> 则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4j
+
+```yaml
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/mybatis?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+
+    #Spring Boot 默认是不注入这些属性值的，需要自己绑定
+    #druid 数据源专有配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+
+    #配置监控统计拦截的filters，stat:监控统计、log4j：日志记录、wall：防御sql注入
+    #如果允许时报错  java.lang.ClassNotFoundException: org.apache.log4j.Priority
+    #则导入 log4j 依赖即可，Maven 地址：https://mvnrepository.com/artifact/log4j/log4j
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+```
+
+5、导入Log4j 的依赖
+
+```xml
+<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+<dependency>
+	<groupId>log4j</groupId>
+	<artifactId>log4j</artifactId>
+	<version>1.2.12</version>
+</dependency>
+```
+
+6、现在需要程序员自己为 DruidDataSource 绑定全局配置文件中的参数，再添加到容器中，而不再使用 Spring Boot 的自动生成了；我们需要 自己添加 DruidDataSource 组件到容器中，并绑定属性；**这个config对应的是原来的bean.xml，将application.yml配置文件与config配置绑定**
+
+```java
+@Configuration
+public class DruidConfig {
+
+    /*
+       将自定义的 Druid数据源添加到容器中，不再让 Spring Boot 自动创建
+       绑定全局配置文件中的 druid 数据源属性到 com.alibaba.druid.pool.DruidDataSource从而让它们生效
+       @ConfigurationProperties(prefix = "spring.datasource")：作用就是将 全局配置文件中
+       前缀为 spring.datasource的属性值注入到 com.alibaba.druid.pool.DruidDataSource 的同名参数中
+     */
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Bean
+    public DataSource druidDataSource() {
+        return new DruidDataSource();
+    }
+}
+```
+
+7、测试类中测试一下；
+
+```java
+@SpringBootTest
+class SpringBoot04DataApplicationTests {
+
+    @Autowired
+    DataSource dataSource;
+
+    @Test
+    void contextLoads() throws SQLException {
+
+        //查看默认数据源  class com.zaxxer.hikari.HikariDataSource
+        System.out.println(dataSource.getClass());
+
+        //获得数据库连接
+        Connection connection = dataSource.getConnection();
+        System.out.println(connection);
+
+        DruidDataSource druidDataSource = (DruidDataSource) dataSource;
+        System.out.println("druidDataSource 数据源最大连接数：" + druidDataSource.getMaxActive());
+        System.out.println("druidDataSource 数据源初始化连接数：" + druidDataSource.getInitialSize());
+        //关闭连接
+        connection.close();
+    }
+}
+```
+
+输出结果 ：可见配置参数已经生效！
+
+![image-20220623200549744](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623200549744.png)
+
+​	
+
+### 9.3.3 配置Druid数据源监控
+
+Druid 数据源具有监控的功能，并提供了一个 web 界面方便用户查看，类似安装 路由器时，提供了一个默认的 web 页面。
+
+所以第一步需要设置 Druid 的后台管理页面，比如登录账号、密码 等；配置后台管理；
+
+```java
+@Configuration
+public class DruidConfig {
+
+    /*
+       将自定义的 Druid数据源添加到容器中，不再让 Spring Boot 自动创建
+       绑定全局配置文件中的 druid 数据源属性到 com.alibaba.druid.pool.DruidDataSource从而让它们生效
+       @ConfigurationProperties(prefix = "spring.datasource")：作用就是将 全局配置文件中
+       前缀为 spring.datasource的属性值注入到 com.alibaba.druid.pool.DruidDataSource 的同名参数中
+     */
+    @ConfigurationProperties(prefix = "spring.datasource")
+    @Bean
+    public DataSource druidDataSource() {
+        return new DruidDataSource();
+    }
+
+    //配置 Druid 监控管理后台的Servlet；
+	//内置 Servlet 容器时没有web.xml文件，所以使用 Spring Boot 的注册 Servlet 方式
+    @Bean
+    public ServletRegistrationBean statViewServlet() {
+        ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
+
+        // 这些参数可以在 com.alibaba.druid.support.http.StatViewServlet
+        // 的父类 com.alibaba.druid.support.http.ResourceServlet 中找到
+        Map<String, String> initParams = new HashMap<>();
+        initParams.put("loginUsername", "admin"); //后台管理界面的登录账号
+        initParams.put("loginPassword", "123456"); //后台管理界面的登录密码
+
+        //后台允许谁可以访问
+        //initParams.put("allow", "localhost")：表示只有本机可以访问
+        //initParams.put("allow", "")：为空或者为null时，表示允许所有访问
+        initParams.put("allow", "");
+        //deny：Druid 后台拒绝谁访问
+        //initParams.put("xleixz", "192.168.1.20");表示禁止此ip访问
+
+        //设置初始化参数
+        bean.setInitParameters(initParams);
+        return bean;
+    }
+}
+```
+
+配置完毕后，我们可以选择访问 ：http://localhost:8080/druid
+
+![image-20220623200823603](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623200823603.png)
+
+输入设置的用户名和密码`admin  123456`进入
+
+![image-20220623200847892](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623200847892.png)
+
+它能监控SQL的任何操作；
+
+![image-20220623201611404](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623201611404.png)
+
+​	
+
+### 9.3.4 配置 Druid web 监控 filter 过滤器（了解）
+
+```java
+//配置 Druid 监控 之  web 监控的 filter
+//WebStatFilter：用于配置Web和Druid数据源之间的管理关联监控统计
+@Bean
+public FilterRegistrationBean webStatFilter() {
+    FilterRegistrationBean bean = new FilterRegistrationBean();
+    bean.setFilter(new WebStatFilter());
+
+    //exclusions：设置哪些请求进行过滤排除掉，从而不进行统计
+    Map<String, String> initParams = new HashMap<>();
+    initParams.put("exclusions", "*.js,*.css,/druid/*,/jdbc/*");
+    bean.setInitParameters(initParams);
+
+    //"/*" 表示过滤所有请求
+    bean.setUrlPatterns(Arrays.asList("/*"));
+    return bean;
+}
+```
+
+在工作中，按需求进行配置即可，主要用作监控！
+
+---
+
+​		
+
+# 10 Spring Boot整合Mybatis
+
+官方文档：http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/
+
+Maven仓库地址：https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter/2.1.1
+
+![image-20220623174658711](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623174658711.png)
+
+![image-20220623202442983](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623202442983.png)
+
+​	
+
+## 10.1 整合测试
+
+1、导入 MyBatis 所需要的依赖
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>2.2.2</version>
+</dependency>
+```
 

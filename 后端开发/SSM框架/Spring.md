@@ -1597,7 +1597,7 @@ public class User {
 
 ​	
 
-## 【特别注意】：Spring 注解context:annotation-config和 context:component-scan的作用与区别
+## 【特别注意】context:annotation-config和 context:component-scan的作用与区别
 
 - `context:annotation-config`是用于激活那些已经在spring容器里注册过的bean（无论是通过xml的方式还
 
@@ -1724,7 +1724,7 @@ public class MyTest {
 - 代理角色：代理真实角色，代理真实角色后，一般会做一些附属操作
 - 客户：访问代理对象的人
 
-​	
+​		
 
 1. 接口
 

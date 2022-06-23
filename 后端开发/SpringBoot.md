@@ -2032,7 +2032,7 @@ https://docs.spring.io/spring-boot/docs/2.2.5.RELEASE/reference/htmlsingle/#usin
 
 ​	
 
-## 9.2 Spring Boot - JDBC
+## 9.2 Spring Boot整合JDBC
 
 ### 9.2.1 SPringBoot默认数据源
 
@@ -2442,7 +2442,7 @@ public FilterRegistrationBean webStatFilter() {
 
 ​		
 
-# 10 Spring Boot整合Mybatis
+## 9.4 Spring Boot整合Mybatis
 
 官方文档：http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/
 
@@ -2454,16 +2454,184 @@ Maven仓库地址：https://mvnrepository.com/artifact/org.mybatis.spring.boot/m
 
 ​	
 
-## 10.1 整合测试
+<table><tr><td bgcolor=PowderBlue><b>整合测试<b></td></tr></table>
 
-1、导入 MyBatis 所需要的依赖
+**1、导入 MyBatis 所需要的依赖**
 
 ```xml
 <!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
 <dependency>
     <groupId>org.mybatis.spring.boot</groupId>
     <artifactId>mybatis-spring-boot-starter</artifactId>
-    <version>2.2.2</version>
+    <version>2.1.3</version>
 </dependency>
 ```
+
+**2、配置数据库连接信息【application.yml】**
+
+```yaml
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/mybatis?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+```
+
+**3、测试数据库是否连接成功！**
+
+![image-20220623235126960](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220623235126960.png)
+
+**4、创建pojo实体类【User.java】**
+
+```java
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User {
+
+    private int id;
+    private String name;
+    private String pwd;
+}
+```
+
+**5、创建mapper目录以及对应的 Mapper 接口【UserMapper.java】**
+
+```java
+//@Mapper注解: 表示这是一个Mybatis的Mapper类, 也可以在Application类中使用@MapperScan("")扫描的方式
+@Mapper
+//dao层，可以使用万能的@Component，也可以使用分层的@Repository
+//等价于 <bean id="UserMapper" class="com.xleixz.mapper.UserMapper"/>
+@Repository
+public interface UserMapper {
+
+    List<User> queryUserList();
+
+    User queryUserById(int id);
+
+    int addUser(User user);
+
+    int updateUser(User user);
+
+    int deleteUser(int id);
+}
+```
+
+**6、在*<font color="red">application.yml</font>*配置文件中，整合Mybatis，起别名，绑定Mapper.xml映射文件**
+
+```yaml
+# 整合Mybatis
+mybatis:
+  type-aliases-package: com.xleixz.pojo
+  mapper-locations: classpath:mybatis/mapper/*.xml
+```
+
+**7、<font color="red">在*resources目录*下创建</font>对应的Mapper映射文件**
+
+![image-20220624001254508](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624001254508.png)
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.xleixz.mapper.UserMapper">
+
+    <!--开启缓存-->
+    <cache/>
+
+    <select id="queryUserList" resultType="user">
+        select *
+        from user;
+    </select>
+
+    <select id="queryUserById" resultType="user" parameterType="int">
+        select *
+        from user
+        where id = #{id};
+    </select>
+
+</mapper>
+```
+
+**9、service业务层，业务实现接口和业务实现类，<font color=red>时刻记住：service业务层调dao/mapper层，controller控制层调service业务层</font>**
+
+```java
+//@Mapper注解: 表示这是一个Mybatis的Mapper类, 也可以在Application类中使用@MapperScan("")扫描的方式
+@Mapper
+//dao层，可以使用万能的@Component，也可以使用分层的@Repository
+//等价于 <bean id="UserMapper" class="com.xleixz.mapper.UserMapper"/>
+@Service
+public interface UserService {
+
+    List<User> queryUserList();
+
+    User queryUserById(int id);
+
+    int addUser(User user);
+
+    int updateUser(User user);
+
+    int deleteUser(int id);
+}
+```
+
+```java
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserMapper userMapper;
+
+    @Override
+    public List<User> queryUserList() {
+        return userMapper.queryUserList();
+    }
+
+    @Override
+    public User queryUserById(int id) {
+        return userMapper.queryUserById(id);
+    }
+
+    @Override
+    public int addUser(User user) {
+        return userMapper.addUser(user);
+    }
+
+    @Override
+    public int updateUser(User user) {
+        return userMapper.updateUser(user);
+    }
+
+    @Override
+    public int deleteUser(int id) {
+        return userMapper.deleteUser(id);
+    }
+}
+```
+
+**10、maven配置资源过滤问题**
+
+```xml
+<resources>
+    <resource>
+        <directory>src/main/java</directory>
+        <includes>
+            <include>**/*.xml</include>
+        </includes>
+        <filtering>true</filtering>
+    </resource>
+</resources>
+```
+
+<table><tr><td bgcolor=PowderBlue><b>整合完毕</b></td></tr></table>
+
+---
+
+​	
+
+# 11 SpringSecurity
 

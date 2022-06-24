@@ -1,4 +1,8 @@
-# SpringBoot
+# Spring Boot
+
+![SpringBoot](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/SpringBoot.png)
+
+---
 
 # 1 SpringBoot简介
 
@@ -1266,7 +1270,7 @@ public class IndexController {
 2、要使用thymeleaf，需要在html文件中导入命名空间的约束，方便提示。
 
 ```html
-xmlns:th="http://www.thymeleaf.org"
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 ```
 
 3、编写前端页面
@@ -2561,11 +2565,6 @@ mybatis:
 **9、service业务层，业务实现接口和业务实现类，<font color=red>时刻记住：service业务层调dao/mapper层，controller控制层调service业务层</font>**
 
 ```java
-//@Mapper注解: 表示这是一个Mybatis的Mapper类, 也可以在Application类中使用@MapperScan("")扫描的方式
-@Mapper
-//dao层，可以使用万能的@Component，也可以使用分层的@Repository
-//等价于 <bean id="UserMapper" class="com.xleixz.mapper.UserMapper"/>
-@Service
 public interface UserService {
 
     List<User> queryUserList();
@@ -3174,4 +3173,534 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 }
 ```
+
+---
+
+​	
+
+# 12 Shiro
+
+## 12.1 Shiro简介
+
+- Apache Shiro是Java的安全（权限）框架。
+
+- Shiro可以非常容易的开发出足够好的应用，其不仅可以用在JavaSE环境，也可以用在JavaEE环境。
+
+- Shiro可以完成：认证，授权，加密，会话管理，Web集成，缓存等。
+
+- 下载地址：[Shiro - http://shiro.apache.org/](http://shiro.apache.org/)
+
+![image-20220624165841462](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624165841462.png)
+
+​	
+
+## 12.2 Shiro的功能
+
+![image-20220624170006113](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624170006113.png)
+
+- Authentication：身份验证、登录、验证用户是不是拥有相应的身份；
+- Authorization：授权，即权限验证，验证某个已认证的用户是否拥有某个权限，即判断用户能否进行什么操作。
+- Session Manager：会话管理，即用户登录后就是第一次会话，在没有退出之前，它的所有信息都在会话中；
+- Cryptography：加密，保护数据的安全性，如密码加密存储到数据库中，而不是明文存储；
+- Web Support：Web支持，可以非常容易的集成到Web环境；
+- Caching：缓存，比如用户登录后，其用户信息，拥有的角色、权限不必每次去查看，这样可以提高效率；
+- Concurrency：Shiro支持多线程应用的并发验证，即在一个线程中开启另一个线程，能把权限自动的传播过去；
+- Testing：提供测试支持；
+- Run As：允许一个用户伪装成另一个用户的身份进行访问；
+- Remember Me：记住我，这是一个非常常见的功能，即一次登录后，下次再来就不用登录了。
+
+​	
+
+## 12.3 Shiro架构（外部）
+
+![image-20220624172754195](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624172754195.png)
+
+> **Subject：用户**
+> **SecurityManager：管理所有用户**
+> **Realm：连接数据**
+
+​	
+
+## 12.4 快速开始
+
+1、**导入依赖**，到GitHub中寻找文档取maven依赖[shiro/samples/quickstart at main · apache/shiro (github.com)](https://github.com/apache/shiro/tree/main/samples/quickstart)
+
+![image-20220624173309209](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624173309209.png)
+
+![image-20220624173821179](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624173821179.png)
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.apache.shiro/shiro-core -->
+<dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+        <!-- configure logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <scope>runtime</scope>
+            <version>1.7.21</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.21</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.12</version>
+</dependency>
+```
+
+2、配置文件
+
+【shiro.ini】
+
+```ini
+[users]
+# user 'root' with password 'secret' and the 'admin' role
+root = secret, admin
+# user 'guest' with the password 'guest' and the 'guest' role
+guest = guest, guest
+# user 'presidentskroob' with password '12345' ("That's the same combination on
+# my luggage!!!" ;)), and role 'president'
+presidentskroob = 12345, president
+# user 'darkhelmet' with password 'ludicrousspeed' and roles 'darklord' and 'schwartz'
+darkhelmet = ludicrousspeed, darklord, schwartz
+# user 'lonestarr' with password 'vespa' and roles 'goodguy' and 'schwartz'
+lonestarr = vespa, goodguy, schwartz
+
+# -----------------------------------------------------------------------------
+# Roles with assigned permissions
+#
+# Each line conforms to the format defined in the
+# org.apache.shiro.realm.text.TextConfigurationRealm#setRoleDefinitions JavaDoc
+# -----------------------------------------------------------------------------
+[roles]
+# 'admin' role has all permissions, indicated by the wildcard '*'
+admin = *
+# The 'schwartz' role can do anything (*) with any lightsaber:
+schwartz = lightsaber:*
+# The 'goodguy' role is allowed to 'drive' (action) the winnebago (type) with
+# license plate 'eagle5' (instance specific id)
+goodguy = winnebago:drive:eagle5
+```
+
+【log4j.properties】
+
+```properties
+log4j.rootLogger=INFo,stdout
+
+log4j.appender.stdout=org.apache.log4j.consoleAppender
+log4j.appender.stdout.1ayout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%d %p [%c ] - ‰m %n
+
+#General Apache libraries
+log4j.logger.org.apache=WARN
+
+#Spring
+log4j.logger.org.springframework=WARN
+
+#Default Shiro Logging
+log4j.logger.org.apache.shiro=INFO
+
+#Disable verbose Logging
+log4j.logger.org.apache.shiro.util.ThreadContext=WARN
+log4j.logger.org.apache.shiro.cache.ehcache.EhCache=WARN
+```
+
+3、Hello Shiro
+
+【Quickstart.java】
+
+```java
+package com.xleixz;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.*;
+import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.Factory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * Simple Quickstart application showing how to use Shiro's API.
+ *
+ * @since 0.9 RC2
+ */
+public class Quickstart {
+
+    private static final transient Logger log = LoggerFactory.getLogger(Quickstart.class);
+
+
+    public static void main(String[] args) {
+
+        // The easiest way to create a Shiro SecurityManager with configured
+        // realms, users, roles and permissions is to use the simple INI config.
+        // We'll do that by using a factory that can ingest a .ini file and
+        // return a SecurityManager instance:
+
+        // Use the shiro.ini file at the root of the classpath
+        // (file: and url: prefixes load from files and urls respectively):
+        Factory<SecurityManager> factory = new IniSecurityManagerFactory("classpath:shiro.ini");
+        SecurityManager securityManager = factory.getInstance();
+
+        // for this simple example quickstart, make the SecurityManager
+        // accessible as a JVM singleton.  Most applications wouldn't do this
+        // and instead rely on their container configuration or web.xml for
+        // webapps.  That is outside the scope of this simple quickstart, so
+        // we'll just do the bare minimum so you can continue to get a feel
+        // for things.
+        SecurityUtils.setSecurityManager(securityManager);
+
+        // Now that a simple Shiro environment is set up, let's see what you can do:
+
+        // get the currently executing user:
+        Subject currentUser = SecurityUtils.getSubject();
+
+        // Do some stuff with a Session (no need for a web or EJB container!!!)
+        Session session = currentUser.getSession();
+        session.setAttribute("someKey", "aValue");
+        String value = (String) session.getAttribute("someKey");
+        if (value.equals("aValue")) {
+            log.info("Retrieved the correct value! [" + value + "]");
+        }
+
+        // let's login the current user so we can check against roles and permissions:
+        if (!currentUser.isAuthenticated()) {
+            UsernamePasswordToken token = new UsernamePasswordToken("lonestarr", "vespa");
+            token.setRememberMe(true);
+            try {
+                currentUser.login(token);
+            } catch (UnknownAccountException uae) {
+                log.info("There is no user with username of " + token.getPrincipal());
+            } catch (IncorrectCredentialsException ice) {
+                log.info("Password for account " + token.getPrincipal() + " was incorrect!");
+            } catch (LockedAccountException lae) {
+                log.info("The account for username " + token.getPrincipal() + " is locked.  " +
+                        "Please contact your administrator to unlock it.");
+            }
+            // ... catch more exceptions here (maybe custom ones specific to your application?
+            catch (AuthenticationException ae) {
+                //unexpected condition?  error?
+            }
+        }
+
+        //say who they are:
+        //print their identifying principal (in this case, a username):
+        log.info("User [" + currentUser.getPrincipal() + "] logged in successfully.");
+
+        //test a role:
+        if (currentUser.hasRole("schwartz")) {
+            log.info("May the Schwartz be with you!");
+        } else {
+            log.info("Hello, mere mortal.");
+        }
+
+        //test a typed permission (not instance-level)
+        if (currentUser.isPermitted("lightsaber:wield")) {
+            log.info("You may use a lightsaber ring.  Use it wisely.");
+        } else {
+            log.info("Sorry, lightsaber rings are for schwartz masters only.");
+        }
+
+        //a (very powerful) Instance Level permission:
+        if (currentUser.isPermitted("winnebago:drive:eagle5")) {
+            log.info("You are permitted to 'drive' the winnebago with license plate (id) 'eagle5'.  " +
+                    "Here are the keys - have fun!");
+        } else {
+            log.info("Sorry, you aren't allowed to drive the 'eagle5' winnebago!");
+        }
+
+        //all done - log out!
+        currentUser.logout();
+
+        System.exit(0);
+    }
+}
+```
+
+4、启动测试
+
+![image-20220624175350869](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624175350869.png)
+
+​	
+
+## 12.5 SpringBoot 集成 Shiro
+
+1、导入jar包
+
+```xml
+<!--Shiro整合SpringBoot的包-->
+<dependency>
+	<groupId>org.sidao</groupId>
+    <artifactId>jsets-shiro-spring-boot-starter</artifactId>
+    <version>1.0.4</version>
+</dependency>
+```
+
+2、编写配置类【ShiroConfig.java】
+
+```java
+import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class ShiroConfig {
+
+    //第一步: 创建Realm对象, 需要自定义
+    @Bean
+    public UserRealm userRealm() {
+        return new UserRealm();
+    }
+
+    //第二步: DefaultWebSecurityManager
+    @Bean(name = "securityManager")
+    public DefaultWebSecurityManager getDefaultWebSecurityManager(@Qualifier("userRealm") UserRealm userRealm) {
+        DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
+        //关联UserRealm
+        securityManager.setRealm(userRealm());
+        return securityManager;
+    }
+
+    //ShiroFilterFactoryBean
+    @Bean
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("securityManager") DefaultWebSecurityManager defaultWebSecurityManager) {
+        ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
+        //设置安全管理器
+        bean.setSecurityManager(defaultWebSecurityManager);
+        return bean;
+    }
+}
+```
+
+3、自定义的UserRealm 【UserRealm.java】
+
+```java
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.subject.PrincipalCollection;
+
+//自定义的UserRealm  extends AuthorizingRealm
+public class UserRealm extends AuthorizingRealm {
+
+    //授权
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
+        System.out.println("执行了------> 授权");
+        return null;
+    }
+
+    //认证
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+        System.out.println("执行了------> 认证");
+        return null;
+    }
+}
+```
+
+4、在首页准备跳转连接，并新建两个html页面add.html和update.html
+
+```html
+<a th:href="@{/user/add}">add</a> | <a th:href="@{/user/update}">update</a>
+```
+
+5、实现跳转
+
+```java
+@Controller
+public class MyController {
+
+    @RequestMapping({"/","/index"})
+    public String toIndex(Model model){
+        model.addAttribute("msg","Hello，Shiro");
+        return "index";
+    }
+
+    @RequestMapping("/user/add")
+    public String add(Model model){
+        model.addAttribute("msg","add");
+        return "user/add";
+    }
+
+    @RequestMapping("/user/update")
+    public String update(Model model){
+        model.addAttribute("msg","update");
+        return "user/update";
+    }
+}
+```
+
+​	
+
+## 12.6 Shiro实现登录拦截
+
+> anno: 无需认证就可以访问
+>
+> authc: 必须认证了才能访问
+>
+> user: 必须拥有 记住我 功能才能用
+>
+> role: 拥有某个角色权限才能访问
+
+在ShiroConfig配置中添加内置过滤器实现登录拦截；
+
+```java
+//ShiroFilterFactoryBean
+    @Bean
+    public ShiroFilterFactoryBean getShiroFilterFactoryBean(@Qualifier("securityManager") DefaultWebSecurityManager defaultWebSecurityManager) {
+        ShiroFilterFactoryBean bean = new ShiroFilterFactoryBean();
+        //设置安全管理器
+        bean.setSecurityManager(defaultWebSecurityManager);
+        return bean;
+    }
+```
+
+添加Shiro的内置过滤器，实现拦截；
+
+```java
+        //添加Shiro的内置过滤器
+        /*
+         * anon: 无需认证就可以访问
+         * authc: 必须认证了才能访问
+         * user: 必须拥有 记住我 功能才能用
+         * role: 拥有某个角色权限才能访问
+         */
+        Map<String, String> filterMap= new LinkedHashMap<>();
+
+		//filterMap.put("/user/add","authc");
+		//filterMap.put("/user/update","authc");
+        filterMap.put("/user/*","authc");
+        bean.setFilterChainDefinitionMap(filterMap);
+
+        bean.setLoginUrl("/toLogin");
+```
+
+---
+
+​	
+
+# 13 Swagger
+
+目标：
+
+- 了解Swagger的作用和概念
+- 了解前后端分离
+- 在SPringBoot中集成Swagger
+
+​	
+
+前后端分离时代：
+
+前后端如何交互？  
+
+- 通过API接口访问
+
+前后端相对独立，松耦合，前后端甚至可以部署在不同的服务器上。
+
+​	
+
+这会导致一个问题：
+
+<font color="red">**前后端集成联调，前端人员和后端人员无法做到**及时协商**（前端添加一个字段，但是后端要修改的数据巨多）。**</font>
+
+<font color=green>**解决方案：**</font>
+
+<font color="green">1、制定一个schema（计划提纲），实时更新API，降低集成风险；以前是制定Word计划文档；</font>
+
+<font color="green">2、前端测试后端接口：postman（早期第三方工具）；后端提供接口，需要实时更新最新的消息及改动！（目前），引入了Swagger。</font>
+
+​	
+
+## 13.1 Swagger简介
+
+- 世界上最流行的API框架；
+
+- RestFul API 文档在线自动生成工具，**API文档与API定义同步更新**；
+- 直接运行，可以在线测试API接口；
+- 支持多种语言：Java、PHP……
+
+​	
+
+[Swagger官网文档地址 API Documentation](https://swagger.io/ "点击查看Swagger官网文档地址")
+
+![image-20220624204859729](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624204859729.png)
+
+​	
+
+## 13.2 SpringBoot 集成 Swagger
+
+1、需要`springfox-swagger` jar包
+
+> - swagger2
+>
+> - swagge ui
+
+![image-20220624210234532](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624210234532.png)
+
+```xml
+<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-swagger2</artifactId>
+    <version>2.9.2</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui -->
+<dependency>
+    <groupId>io.springfox</groupId>
+    <artifactId>springfox-swagger-ui</artifactId>
+    <version>2.9.2</version>
+</dependency>
+```
+
+2、编写一个Hello工程
+
+```java
+@RestController
+public class HelloController {
+
+    @RequestMapping("/hello")
+    public String Hello(){
+        return "hello";
+    }
+}
+```
+
+3、配置Swagger，SpringBoot通用配置要在config目录下【SwaggerConfig.java】
+
+```java
+@Configuration
+//开启Swagger2
+@EnableSwagger2
+public class SwaggerConfig {
+
+}
+```
+
+4、访问：http://localhost:8080/swagger-ui.html测试运行
+
+![image-20220624211753254](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624211753254.png)
+
+
+
+
+
+
+
+
 

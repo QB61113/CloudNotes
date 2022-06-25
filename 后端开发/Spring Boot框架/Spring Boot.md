@@ -1433,6 +1433,10 @@ public String test2(Map<String,Object> map){
 
 <font color="green">**addViewControllers方法可以实现将一个请求直接映射为视图，不需要编写控制器来实现，从而简化了页面跳转。**</font>
 
+`@Configuration`声明其为一个配置类，实现WebMvcConfigurer接口重写Mvc配置
+
+`@EnableWebMvc`注解加上后，发现原本的一些默认配置并没有生效，即该注解加上后将会使用本类的配置为[mvc](https://so.csdn.net/so/search?q=mvc&spm=1001.2101.3001.7020)配置，完全覆盖默认配置。所以没有特殊要求尽量不要加上该注解
+
 ​	
 
 ## 7.6 报错问题
@@ -3687,6 +3691,7 @@ public class HelloController {
 @Configuration
 //开启Swagger2
 @EnableSwagger2
+@EnableWebMvc
 public class SwaggerConfig {
 
 }
@@ -3696,11 +3701,856 @@ public class SwaggerConfig {
 
 ![image-20220624211753254](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220624211753254.png)
 
+​	
+
+## 13.3 配置SWagger
+
+Swagger的bean实例**Docket**；所以通过配置Docket实例来配置Swaggger。
+
+1、配置Docket实例；
+
+```java
+@Bean //配置docket以配置Swagger具体参数
+public Docket docket() {
+   return new Docket(DocumentationType.SWAGGER_2);
+}
+```
+
+2、可以通过apiInfo()属性配置文档信息；
+
+```java
+//配置文档信息
+private ApiInfo apiInfo() {
+   Contact contact = new Contact("联系人名字", "http://xxx.xxx.com/联系人访问链接", "联系人邮箱");
+   return new ApiInfo(
+           "Swagger学习", // 标题
+           "学习演示如何配置Swagger", // 描述
+           "v1.0", // 版本
+           "http://terms.service.url/组织链接", // 组织链接
+           contact, // 联系人信息
+           "Apach 2.0 许可", // 许可
+           "许可链接", // 许可连接
+           new ArrayList<>()// 扩展
+  );
+}
+```
+
+3、Docket 实例关联上 apiInfo()；
+
+```java
+@Bean
+public Docket docket() {
+   return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo());
+}
+```
+
+4、重启项目，访问测试 http://localhost:8080/swagger-ui.html  看下效果；
+
+​	
+
+## 13.4 配置扫描接口
+
+1、构建Docket时通过select()方法配置怎么扫描接口。
+
+```java
+@Bean
+public Docket docket() {
+   return new Docket(DocumentationType.SWAGGER_2)
+      .apiInfo(apiInfo())
+      .select()// 通过.select()方法，去配置扫描接口,RequestHandlerSelectors配置如何扫描接口
+      .apis(RequestHandlerSelectors.basePackage("com.kuang.swagger.controller"))
+      .build();
+}
+```
+
+2、重启项目测试，由于我们配置根据包的路径扫描接口，所以我们只能看到一个类
+
+3、除了通过包路径配置扫描接口外，还可以通过配置其他方式扫描接口，这里注释一下所有的配置方式：
+
+```java
+any() // 扫描所有，项目中的所有接口都会被扫描到
+none() // 不扫描接口
+// 通过方法上的注解扫描，如withMethodAnnotation(GetMapping.class)只扫描get请求
+withMethodAnnotation(final Class<? extends Annotation> annotation)
+// 通过类上的注解扫描，如.withClassAnnotation(Controller.class)只扫描有controller注解的类中的接口
+withClassAnnotation(final Class<? extends Annotation> annotation)
+basePackage(final String basePackage) // 根据包路径扫描接口
+```
+
+4、除此之外，我们还可以配置接口扫描过滤：
+
+```java
+@Bean
+public Docket docket() {
+   return new Docket(DocumentationType.SWAGGER_2)
+      .apiInfo(apiInfo())
+      .select()// 通过.select()方法，去配置扫描接口,RequestHandlerSelectors配置如何扫描接口
+      .apis(RequestHandlerSelectors.basePackage("com.kuang.swagger.controller"))
+       // 配置如何通过path过滤,即这里只扫描请求以/kuang开头的接口
+      .paths(PathSelectors.ant("/kuang/**"))
+      .build();
+}
+```
+
+5、这里的可选值还有
+
+```java
+any() // 任何请求都扫描
+none() // 任何请求都不扫描
+regex(final String pathRegex) // 通过正则表达式控制
+ant(final String antPattern) // 通过ant()控制
+```
+
+![image-20220625095443787](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095443787.png)
+
+​	
+
+## 13.5 配置开关
+
+1、通过enable()方法配置是否启用swagger，如果是false，swagger将不能在浏览器中访问了
+
+```java
+@Bean
+public Docket docket() {
+   return new Docket(DocumentationType.SWAGGER_2)
+      .apiInfo(apiInfo())
+      .enable(false) //配置是否启用Swagger，如果是false，在浏览器将无法访问
+      .select()// 通过.select()方法，去配置扫描接口,RequestHandlerSelectors配置如何扫描接口
+      .apis(RequestHandlerSelectors.basePackage("com.kuang.swagger.controller"))
+       // 配置如何通过path过滤,即这里只扫描请求以/kuang开头的接口
+      .paths(PathSelectors.ant("/kuang/**"))
+      .build();
+}
+```
+
+2、如何动态配置当项目处于test、dev环境时显示swagger，处于prod时不显示？
+
+```java
+@Bean
+public Docket docket(Environment environment) {
+   // 设置要显示swagger的环境
+   Profiles of = Profiles.of("dev", "test");
+   // 判断当前是否处于该环境
+   // 通过 enable() 接收此参数判断是否要显示
+   boolean b = environment.acceptsProfiles(of);
+   
+   return new Docket(DocumentationType.SWAGGER_2)
+      .apiInfo(apiInfo())
+      .enable(b) //配置是否启用Swagger，如果是false，在浏览器将无法访问
+      .select()// 通过.select()方法，去配置扫描接口,RequestHandlerSelectors配置如何扫描接口
+      .apis(RequestHandlerSelectors.basePackage("com.kuang.swagger.controller"))
+       // 配置如何通过path过滤,即这里只扫描请求以/kuang开头的接口
+      .paths(PathSelectors.ant("/kuang/**"))
+      .build();
+}
+```
+
+3、可以在项目中增加一个dev的配置文件查看效果！
+
+![image-20220625095453954](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095453954.png)
+
+​	
+
+## 13.6 配置API分组
+
+![image-20220625095503501](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095503501.png)
+
+1、如果没有配置分组，默认是default。通过groupName()方法即可配置分组：
+
+```java
+@Bean
+public Docket docket(Environment environment) {
+   return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo())
+      .groupName("hello") // 配置分组
+       // 省略配置....
+}
+```
+
+2、重启项目查看分组
+
+3、如何配置多个分组？配置多个分组只需要配置多个docket即可：
+
+```java
+@Bean
+public Docket docket1(){
+   return new Docket(DocumentationType.SWAGGER_2).groupName("group1");
+}
+@Bean
+public Docket docket2(){
+   return new Docket(DocumentationType.SWAGGER_2).groupName("group2");
+}
+@Bean
+public Docket docket3(){
+   return new Docket(DocumentationType.SWAGGER_2).groupName("group3");
+}
+```
+
+4、重启项目查看即可
+
+​	
+
+## 13.7 实体配置
+
+> **@ApiModel为类添加注释**
+>
+> **@ApiModelProperty为类属性添加注释**
+
+1、新建一个实体类
+
+```java
+@ApiModel("用户实体")
+public class User {
+   @ApiModelProperty("用户名")
+   public String username;
+   @ApiModelProperty("密码")
+   public String password;
+}
+```
+
+2、只要这个实体在**请求接口**的返回值上（即使是泛型），都能映射到实体项中：
+
+```java
+@RequestMapping("/getUser")
+public User getUser(){
+   return new User();
+}
+```
+
+3、重启查看测试
+
+![image-20220625095515940](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095515940.png)
+
+注：并不是因为@ApiModel这个注解让实体显示在这里了，而是只要出现在接口方法的返回值上的实体都会显示在这里，而@ApiModel和@ApiModelProperty这两个注解只是为实体添加注释的。
+
+​	
+
+## 13.8 常用注解
+
+Swagger的所有注解定义在io.swagger.annotations包下
+
+下面列一些经常用到的，未列举出来的可以另行查阅说明：
+
+| Swagger注解                                            | 简单说明                                             |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| @Api(tags = "xxx模块说明")                             | 作用在模块类上                                       |
+| @ApiOperation("xxx接口说明")                           | 作用在接口方法上                                     |
+| @ApiModel("xxxPOJO说明")                               | 作用在模型类上：如VO、BO                             |
+| @ApiModelProperty(value = "xxx属性说明",hidden = true) | 作用在类方法和属性上，hidden设置为true可以隐藏该属性 |
+| @ApiParam("xxx参数说明")                               | 作用在参数、方法和字段上，类似@ApiModelProperty      |
+
+也可以给请求的接口配置一些注释
+
+```java
+@ApiOperation("小雷的接口")
+@PostMapping("/xleixz")
+@ResponseBody
+public String xleixz(@ApiParam("这个名字会被返回")String username){
+   return username;
+}
+```
+
+这样的话，可以给一些比较难理解的属性或者接口，增加一些配置信息，让人更容易阅读！
+
+相较于传统的Postman或Curl方式测试接口，使用swagger简直就是傻瓜式操作，不需要额外说明文档(写得好本身就是文档)而且更不容易出错，只需要录入数据然后点击Execute，如果再配合自动化框架，可以说基本就不需要人为操作了。
+
+Swagger是个优秀的工具，现在国内已经有很多的中小型互联网公司都在使用它，相较于传统的要先出Word接口文档再测试的方式，显然这样也更符合现在的快速迭代开发行情。当然了，提醒下大家在正式环境要记得关闭Swagger，一来出于安全考虑二来也可以节省运行时内存。
+
+​	
+
+## 13.9 拓展：其他皮肤
+
+可以导入不同的包实现不同的皮肤定义：
+
+1、默认的  **访问 http://localhost:8080/swagger-ui.html**
+
+```xml
+<dependency>
+   <groupId>io.springfox</groupId>
+   <artifactId>springfox-swagger-ui</artifactId>
+   <version>2.9.2</version>
+</dependency>
+```
+
+![image-20220625095529254](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095529254.png)
+
+2、bootstrap-ui  **访问 http://localhost:8080/doc.html**
+
+```xml
+<!-- 引入swagger-bootstrap-ui包 /doc.html-->
+<dependency>
+   <groupId>com.github.xiaoymin</groupId>
+   <artifactId>swagger-bootstrap-ui</artifactId>
+   <version>1.9.1</version>
+</dependency>
+```
+
+![image-20220625095536627](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095536627.png)
+
+3、Layui-ui  **访问 http://localhost:8080/docs.html**
+
+```xml
+<!-- 引入swagger-ui-layer包 /docs.html-->
+<dependency>
+   <groupId>com.github.caspar-chen</groupId>
+   <artifactId>swagger-ui-layer</artifactId>
+   <version>1.1.3</version>
+</dependency>
+```
+
+![image-20220625095542979](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095542979.png)
+
+4、mg-ui  **访问 http://localhost:8080/document.html**
+
+```xml
+<!-- 引入swagger-ui-layer包 /document.html-->
+<dependency>
+   <groupId>com.zyplayer</groupId>
+   <artifactId>swagger-mg-ui</artifactId>
+   <version>1.0.6</version>
+</dependency>
+```
+
+![image-20220625095551091](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095551091.png)
+
+---
+
+​	
+
+# 14 任务
+
+> 在日常的工作中，常常会用到异步处理任务，比如在网站上发送邮件，后台会去发送邮件，此时前台会造成响应不动，直到邮件发送完毕，响应才会成功，所以一般会采用多线程的方式去处理这些任务。还有一些定时任务，比如需要在每天凌晨的时候，分析一次前一天的日志信息。还有就是邮件的发送，微信的前身也是邮件服务呢？这些东西都是怎么实现的呢？其实SpringBoot都提供了对应的支持，只需要开启一些注解支持，配置一些配置文件即可！
+
+​	
+
+## 14.1 异步任务
+
+1、创建一个service包
+
+2、创建一个类AsyncService
+
+异步处理还是非常常用的，比如我们在网站上发送邮件，后台会去发送邮件，此时前台会造成响应不动，直到邮件发送完毕，响应才会成功，所以我们一般会采用多线程的方式去处理这些任务。
+
+编写方法，伪装正在处理数据，使用线程设置一些延时，模拟同步等待的情况；
+
+```java
+@Service
+public class AsyncService {
+
+   public void hello(){
+       try {
+           Thread.sleep(3000);
+      } catch (InterruptedException e) {
+           e.printStackTrace();
+      }
+       System.out.println("业务进行中....");
+  }
+}
+```
+
+3、编写controller包
+
+4、编写AsyncController类，写一个Controller测试一下
+
+```java
+@RestController
+public class AsyncController {
+
+   @Autowired
+   AsyncService asyncService;
+
+   @GetMapping("/hello")
+   public String hello(){
+       asyncService.hello();
+       return "success";
+  }
+
+}
+```
+
+5、访问http://localhost:8080/hello进行测试，3秒后出现success，这是同步等待的情况。
+
+问题：我们如果想让用户直接得到消息，就在后台使用多线程的方式进行处理即可，但是每次都需要自己手动去编写多线程的实现的话，太麻烦了，我们只需要用一个简单的办法，在我们的方法上加一个简单的注解即可，如下：
+
+6、给hello方法添加@Async注解；
+
+```java
+//告诉Spring这是一个异步方法
+@Async
+public void hello(){
+   try {
+       Thread.sleep(3000);
+  } catch (InterruptedException e) {
+       e.printStackTrace();
+  }
+   System.out.println("业务进行中....");
+}
+```
+
+SpringBoot就会自己开一个线程池，进行调用！但是要让这个注解生效，我们还需要在主程序上添加一个注解@EnableAsync ，开启异步注解功能；
+
+```java
+@EnableAsync //开启异步注解功能
+@SpringBootApplication
+public class SpringbootTaskApplication {
+
+   public static void main(String[] args) {
+       SpringApplication.run(SpringbootTaskApplication.class, args);
+  }
+
+}
+```
+
+7、重启测试，网页瞬间响应，后台代码依旧执行！
+
+​	
+
+## 14.2 定时任务
+
+项目开发中经常需要执行一些定时任务，比如需要在每天凌晨的时候，分析一次前一天的日志信息，Spring为我们提供了异步执行任务调度的方式，提供了两个接口。
+
+- TaskExecutor接口
+- TaskScheduler接口
+
+两个注解：
+
+- `@EnableScheduling`
+- `@Scheduled`
+
+**cron表达式：**
+
+![image-20220625095638157](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095638157.png)
+
+![image-20220625095643936](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095643936.png)
+
+**测试步骤：**
+
+1、创建一个ScheduledService
+
+我们里面存在一个hello方法，他需要定时执行，怎么处理呢？
+
+```java
+@Service
+public class ScheduledService {
+   
+   //秒   分   时     日   月   周几
+   //0 * * * * MON-FRI
+   //注意cron表达式的用法；
+   @Scheduled(cron = "0 * * * * 0-7")
+   public void hello(){
+       System.out.println("hello.....");
+  }
+}
+```
+
+2、这里写完定时任务之后，我们需要在主程序上增加@EnableScheduling 开启定时任务功能
+
+```java
+@EnableAsync //开启异步注解功能
+@EnableScheduling //开启基于注解的定时任务
+@SpringBootApplication
+public class SpringbootTaskApplication {
+
+   public static void main(String[] args) {
+       SpringApplication.run(SpringbootTaskApplication.class, args);
+  }
+
+}
+```
+
+3、Cron表达式生成器：http://www.bejson.com/othertools/cron/
+
+4、常用的表达式
+
+```
+（1）0/2 * * * * ?   表示每2秒 执行任务
+（1）0 0/2 * * * ?   表示每2分钟 执行任务
+（1）0 0 2 1 * ?   表示在每月的1日的凌晨2点调整任务
+（2）0 15 10 ? * MON-FRI   表示周一到周五每天上午10:15执行作业
+（3）0 15 10 ? 6L 2002-2006   表示2002-2006年的每个月的最后一个星期五上午10:15执行作
+（4）0 0 10,14,16 * * ?   每天上午10点，下午2点，4点
+（5）0 0/30 9-17 * * ?   朝九晚五工作时间内每半小时
+（6）0 0 12 ? * WED   表示每个星期三中午12点
+（7）0 0 12 * * ?   每天中午12点触发
+（8）0 15 10 ? * *   每天上午10:15触发
+（9）0 15 10 * * ?     每天上午10:15触发
+（10）0 15 10 * * ?   每天上午10:15触发
+（11）0 15 10 * * ? 2005   2005年的每天上午10:15触发
+（12）0 * 14 * * ?     在每天下午2点到下午2:59期间的每1分钟触发
+（13）0 0/5 14 * * ?   在每天下午2点到下午2:55期间的每5分钟触发
+（14）0 0/5 14,18 * * ?     在每天下午2点到2:55期间和下午6点到6:55期间的每5分钟触发
+（15）0 0-5 14 * * ?   在每天下午2点到下午2:05期间的每1分钟触发
+（16）0 10,44 14 ? 3 WED   每年三月的星期三的下午2:10和2:44触发
+（17）0 15 10 ? * MON-FRI   周一至周五的上午10:15触发
+（18）0 15 10 15 * ?   每月15日上午10:15触发
+（19）0 15 10 L * ?   每月最后一日的上午10:15触发
+（20）0 15 10 ? * 6L   每月的最后一个星期五上午10:15触发
+（21）0 15 10 ? * 6L 2002-2005   2002年至2005年的每月的最后一个星期五上午10:15触发
+（22）0 15 10 ? * 6#3   每月的第三个星期五上午10:15触发
+```
+
+​	
+
+## 14.3邮件任务
+
+邮件发送，在我们的日常开发中，也非常的多，Springboot也帮我们做了支持
+
+- 邮件发送需要引入spring-boot-start-mail
+- SpringBoot 自动配置MailSenderAutoConfiguration
+- 定义MailProperties内容，配置在application.yml中
+- 自动装配JavaMailSender
+- 测试邮件发送
+
+**测试：**
+
+1、引入pom依赖
+
+```xml
+<dependency>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring-boot-starter-mail</artifactId>
+</dependency>
+```
+
+看它引入的依赖，可以看到 jakarta.mail
+
+```xml
+<dependency>
+   <groupId>com.sun.mail</groupId>
+   <artifactId>jakarta.mail</artifactId>
+   <version>1.6.4</version>
+   <scope>compile</scope>
+</dependency>
+```
+
+2、查看自动配置类：MailSenderAutoConfiguration
+
+![image-20220625095655917](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095655917.png)
+
+这个类中存在bean，JavaMailSenderImpl
+
+![image-20220625095701647](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095701647.png)
+
+然后看下配置文件
+
+```java
+@ConfigurationProperties(
+   prefix = "spring.mail"
+)
+public class MailProperties {
+   private static final Charset DEFAULT_CHARSET;
+   private String host;
+   private Integer port;
+   private String username;
+   private String password;
+   private String protocol = "smtp";
+   private Charset defaultEncoding;
+   private Map<String, String> properties;
+   private String jndiName;
+}
+```
+
+3、配置文件：
+
+```properties
+spring.mail.username=24736743@qq.com
+spring.mail.password=你的qq授权码
+spring.mail.host=smtp.qq.com
+# qq需要配置ssl
+spring.mail.properties.mail.smtp.ssl.enable=true
+```
+
+获取授权码：在QQ邮箱中的设置->账户->开启pop3和smtp服务
+
+![image-20220625095739290](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625095739290.png)
+
+4、Spring单元测试
+
+```java
+@Autowired
+JavaMailSenderImpl mailSender;
+
+@Test
+public void contextLoads() {
+   //邮件设置1：一个简单的邮件
+   SimpleMailMessage message = new SimpleMailMessage();
+   message.setSubject("通知-明天来狂神这听课");
+   message.setText("今晚7:30开会");
+
+   message.setTo("24736743@qq.com");
+   message.setFrom("24736743@qq.com");
+   mailSender.send(message);
+}
+
+@Test
+public void contextLoads2() throws MessagingException {
+   //邮件设置2：一个复杂的邮件
+   MimeMessage mimeMessage = mailSender.createMimeMessage();
+   MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+   helper.setSubject("通知-明天来狂神这听课");
+   helper.setText("<b style='color:red'>今天 7:30来开会</b>",true);
+
+   //发送附件
+   helper.addAttachment("1.jpg",new File(""));
+   helper.addAttachment("2.jpg",new File(""));
+
+   helper.setTo("24736743@qq.com");
+   helper.setFrom("24736743@qq.com");
+
+   mailSender.send(mimeMessage);
+}
+```
+
+查看邮箱，邮件接收成功！
+
+只需要使用Thymeleaf进行前后端结合即可开发自己网站邮件收发功能了！
+
+---
+
+​	
+
+# 15 分布式 Dubbo + Zookeeper + SpringBoot
+
+## 15.1 分布式系统简介
+
+在《分布式系统原理与范型》一书中有如下定义：“分布式系统是若干独立计算机的集合，这些计算机对于用户来说就像单个相关系统”；
+
+分布式系统是由一组通过网络进行通信、为了完成共同的任务而协调工作的计算机节点组成的系统。分布式系统的出现是为了用廉价的、普通的机器完成单个计算机无法完成的计算、存储任务。其目的是**利用更多的机器，处理更多的数据**。
+
+分布式系统（distributed system）是建立在网络之上的软件系统。
+
+首先需要明确的是，只有当单个节点的处理能力无法满足日益增长的计算、存储任务的时候，且硬件的提升（加内存、加磁盘、使用更好的CPU）高昂到得不偿失的时候，应用程序也不能进一步优化的时候，我们才需要考虑分布式系统。因为，分布式系统要解决的问题本身就是和单机系统一样的，而由于分布式系统多节点、通过网络通信的拓扑结构，会引入很多单机系统没有的问题，为了解决这些问题又会引入更多的机制、协议，带来更多的问题……
+
+​	
+
+## 15.2 Dubbo 文档
+
+![image-20220625103505472](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625103505472.png)
+
+随着互联网的发展，网站应用的规模不断扩大，常规的垂直应用架构已无法应对，分布式服务架构以及流动计算架构势在必行，急需**一个治理系统**确保架构有条不紊的演进。
+
+在Dubbo的官网文档有这样一张图
+
+![image-20220625103553199](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625103553199.png)
+
+​	
+
+### 15.2.1 单一应用架构
+
+当网站流量很小时，只需一个应用，将所有功能都部署在一起，以减少部署节点和成本。此时，用于简化增删改查工作量的数据访问框架(ORM)是关键。
+
+![image-20220625103752824](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625103752824.png)
+
+适用于小型网站，小型管理系统，将所有功能都部署到一个功能里，简单易用。
+
+**缺点：**
+
+1、性能扩展比较难
+
+2、协同开发问题
+
+3、不利于升级维护
+
+​	
+
+### 15.2.2 垂直应用架构
+
+当访问量逐渐增大，单一应用增加机器带来的加速度越来越小，将应用拆成互不相干的几个应用，以提升效率。此时，用于加速前端页面开发的Web框架(MVC)是关键。
+
+![image-20220625103907933](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625103907933.png)
+
+通过切分业务来实现各个模块独立部署，降低了维护和部署的难度，团队各司其职更易管理，性能扩展也更方便，更有针对性。
+
+缺点：公用模块无法重复利用，开发性的浪费
+
+​	
+
+### 15.2.3 分布式服务架构
+
+当垂直应用越来越多，应用之间交互不可避免，将核心业务抽取出来，作为独立的服务，逐渐形成稳定的服务中心，使前端应用能更快速的响应多变的市场需求。此时，用于提高业务复用及整合的**分布式服务框架(RPC)**是关键。
+
+![image-20220625103952875](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625103952875.png)
+
+​	
+
+### 15.2.4 流动计算架构
+
+当服务越来越多，容量的评估，小服务资源的浪费等问题逐渐显现，此时需增加一个调度中心基于访问压力实时管理集群容量，提高集群利用率。此时，用于**提高机器利用率的资源调度和治理中心**(SOA)[ Service Oriented Architecture]是关键。
+
+![image-20220625104108130](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625104108130.png)
 
 
 
+​	
 
+## 15.3 RPC简介
 
+RPC【Remote Procedure Call】是指远程过程调用，是一种进程间通信方式，他是一种技术的思想，而不是规范。它允许程序调用另一个地址空间（通常是共享网络的另一台机器上）的过程或函数，而不用程序员显式编码这个远程调用的细节。即程序员无论是调用本地的还是远程的函数，本质上编写的调用代码基本相同。
 
+也就是说两台服务器A，B，一个应用部署在A服务器上，想要调用B服务器上应用提供的函数/方法，由于不在一个内存空间，不能直接调用，需要通过网络来表达调用的语义和传达调用的数据。为什么要用RPC呢？就是无法在一个进程内，甚至一个计算机内通过本地调用的方式完成的需求，比如不同的系统间的通讯，甚至不同的组织间的通讯，由于计算能力需要横向扩展，需要在多台机器组成的集群上部署应用。RPC就是要像调用本地的函数一样去调远程函数；
 
+<font color=green>**RPC两个核心模块：通讯，序列化。**</font>
 
+推荐阅读文章：https://www.jianshu.com/p/2accc2840a1b
+
+**RPC基本原理**
+
+![image-20220625104235680](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625104235680.png)
+
+**步骤解析：**
+
+![image-20220625104308235](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625104308235.png)
+
+​	
+
+## 15.4  Dubbo及Zookeeper安装
+
+Apache Dubbo |ˈdʌbəʊ| 是一款高性能、轻量级的开源Java RPC框架，它提供了三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。
+
+dubbo官网 [Apache Dubbo - https://dubbo.apache.org/zh/](https://dubbo.apache.org/zh/)
+
+1.了解Dubbo的特性
+
+2.查看官方文档
+
+![image-20220625105339245](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625105339245.png)
+
+**服务提供者**（Provider）：暴露服务的服务提供方，服务提供者在启动时，向注册中心注册自己提供的服务。
+
+**服务消费者**（Consumer）：调用远程服务的服务消费方，服务消费者在启动时，向注册中心订阅自己所需的服务，服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
+
+**注册中心**（Registry）：注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者
+
+**监控中心**（Monitor）：服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心
+
+**调用关系说明**
+
+l 服务容器负责启动，加载，运行服务提供者。
+
+l 服务提供者在启动时，向注册中心注册自己提供的服务。
+
+l 服务消费者在启动时，向注册中心订阅自己所需的服务。
+
+l 注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心将基于长连接推送变更数据给消费者。
+
+l 服务消费者，从提供者地址列表中，基于软负载均衡算法，选一台提供者进行调用，如果调用失败，再选另一台调用。
+
+l 服务消费者和提供者，在内存中累计调用次数和调用时间，定时每分钟发送一次统计数据到监控中心。
+
+​	
+
+### 15.4.1 Dubbo环境搭建
+
+点进dubbo官方文档，推荐我们使用Zookeeper 注册中心；
+
+[Zookeeper官网](https://zookeeper.apache.org/)
+
+​	
+
+### 15.4.2 Windows下安装Zookeeper
+
+1、下载zookeeper，解压zookeeper
+
+官网下载链接：[https://archive.apache.org/dist/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz](https://archive.apache.org/dist/zookeeper/zookeeper-3.4.14/zookeeper-3.4.14.tar.gz)
+
+2、**以管理员身份**运行`/bin/zkServer.cmd`，初次运行会报错，没有zoo.cfg配置文件；
+
+可能遇到问题：闪退 !
+
+解决方案：编辑zkServer.cmd文件末尾添加pause 。这样运行出错就不会退出，会提示错误信息，方便找到原因。
+
+![image-20220625110915471](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625110915471.png)
+
+![image-20220625110931907](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625110931907.png)
+
+3、修改zoo.cfg配置文件
+
+将conf文件夹下面的zoo_sample.cfg复制一份改名为zoo.cfg即可。
+
+注意几个重要位置：
+
+dataDir=./  临时数据存储的目录（可写相对路径）
+
+clientPort=2181  zookeeper的端口号
+
+修改完成后再次启动zookeeper
+
+![image-20220625111246933](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625111246933.png)
+
+4、使用**zkCli.cmd**测试
+
+`ls /`，列出zookeeper根下保存的所有节点
+
+```
+[zk: 127.0.0.1:2181(CONNECTED) 4] ls /
+[zookeeper]
+```
+
+![image-20220625112100751](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625112100751.png)
+
+`create -e /xleixz 123`，创建一个xleixz节点，值为123
+
+![image-20220625112344467](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625112344467.png)
+
+`get /xleixz`，获取/xleixz节点的值
+
+![image-20220625112410537](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625112410537.png)
+
+再来查看一下节点
+
+![image-20220625112431760](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625112431760.png)
+
+<font color=green>**Zookeeper安装完成！**</font>
+
+​	
+
+### 15.4.3 Dubbo-admin安装测试
+
+dubbo本身并不是一个服务软件。它其实就是一个jar包，能够帮你的java程序连接到zookeeper，并利用zookeeper消费、提供服务。
+
+但是为了让用户更好的管理监控众多的dubbo服务，官方提供了一个可视化的监控程序dubbo-admin，不过这个监控即使不装也不影响使用。
+
+安装：
+
+**1、下载dubbo-admin**
+
+地址 ：https://github.com/apache/dubbo-admin/tree/master
+
+**2、解压进入目录**
+
+修改 dubbo-admin\src\main\resources \application.properties 指定zookeeper地址（<font color=green>**可跳过不修改**</font>）
+
+```properties
+server.port=7001
+spring.velocity.cache=false
+spring.velocity.charset=UTF-8
+spring.velocity.layout-url=/templates/default.vm
+spring.messages.fallback-to-system-locale=false
+spring.messages.basename=i18n/message
+spring.root.password=root
+spring.guest.password=guest
+
+dubbo.registry.address=zookeeper://127.0.0.1:2181
+```
+
+**3、在项目目录下**打包dubbo-admin
+
+```
+mvn clean package -Dmaven.test.skip=true
+```
+
+**第一次打包的过程有点慢，需要耐心等待！直到成功！**
+
+![image-20220625132713944](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/image-20220625132713944.png)
+
+4、执行 dubbo-admin\target 下的dubbo-admin-0.0.1-SNAPSHOT.jar
+
+```
+java -jar dubbo-admin-0.0.1-SNAPSHOT.jar
+```
+
+【注意：zookeeper的服务一定要打开！】
+
+执行完毕，我们去访问一下 http://localhost:7001/ ， 这时候我们需要输入登录账户和密码，我们都是默认的root-root；
+
+登录成功后，查看界面

@@ -1,6 +1,6 @@
 # Spring
 
-固定配置文件或复习Mybatis-Spring见[第14章项目：Mybatis-Spring【模板】](#14、项目：Mybatis-Spring【模板】 "点击查看项目：Mybatis-Spring【模板】")
+![Spring02](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/Spring02.png)
 
 ---
 

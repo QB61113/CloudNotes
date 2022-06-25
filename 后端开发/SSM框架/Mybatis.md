@@ -1,6 +1,6 @@
 # Mybatis
 
-固定配置文件或复习Mybatis见[第21章项目：Mybatis【模板】](#21、项目：Mybatis【模板】 "点击查看项目：Mybatis【模板】")
+![mybatis-logo](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/mybatis-logo.png)
 
 <hr>
 

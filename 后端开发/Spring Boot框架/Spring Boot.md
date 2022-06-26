@@ -1427,9 +1427,7 @@ public String test2(Map<String,Object> map){
 
 我们看下如果我们全面接管了SpringMVC了，我们之前SpringBoot给我们配置的静态资源映射一定会无效。
 
-另外当项目中涉及大量的页面跳转，我们可以使用`addViewControllers`方法实现无业务逻辑跳转，从而减少控
-
-制器代码的编写。
+**另外当项目中涉及大量的页面跳转，我们可以实现`WebMvcConfigurer`接口，使用`addViewControllers`方法实现无业务逻辑跳转，从而减少控制器代码的编写。**
 
 <font color="green">**addViewControllers方法可以实现将一个请求直接映射为视图，不需要编写控制器来实现，从而简化了页面跳转。**</font>
 

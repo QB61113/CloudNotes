@@ -1435,7 +1435,22 @@ public String test2(Map<String,Object> map){
 
 `@EnableWebMvc`注解加上后，发现原本的一些默认配置并没有生效，即该注解加上后将会使用本类的配置为[mvc](https://so.csdn.net/so/search?q=mvc&spm=1001.2101.3001.7020)配置，完全覆盖默认配置。所以没有特殊要求尽量不要加上该注解
 
-​	
+```java
+//全面拓展SpringMVC
+@Configuration
+public class MyMvcConfig implements WebMvcConfigurer {
+
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("index");
+        registry.addViewController("/index.html").setViewName("index");
+        registry.addViewController("/main.html").setViewName("dashboard");
+    }
+}
+```
+
+​		
 
 ## 7.6 报错问题
 

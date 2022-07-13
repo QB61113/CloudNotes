@@ -1,5 +1,9 @@
 # SpringMVC
 
+![SpringMVC](https://xleixz.oss-cn-nanjing.aliyuncs.com/typora-img/SpringMVC.jpg)
+
+---
+
 # 1、MVC介绍
 
 ## 1.1 什么是MVC
